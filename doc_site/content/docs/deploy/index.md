@@ -48,7 +48,7 @@ weight: 3
 
 | | 方式一：容器映像檔（GHCR） | 方式二：離線安裝 | 方式三：原始碼 |
 | --- | --- | --- | --- |
-| 適用 | 主機能上網 | 無網路或內網環境 | 想檢視、重新建置，或替換 fpdf2、certifi 等第三方元件 |
+| 適用 | 主機能上網 | 無網路或內網環境 | 想檢視、重新建置，或替換 fpdf2 等第三方元件 |
 | 取得 | `ghcr.io/ttcwei016/open-pets-app:<版本>` | 交付包的 `open-pets-app_<版本>.tar.gz` | 交付包的 `open-pets-source_<版本>.zip`，或 GitHub repo |
 | 驗證 | 映像檔 digest、cosign 簽章 | `SHA256SUMS.txt` | 壓縮檔註解內的 commit |
 | 更新 | `docker compose pull` | 換新的 tar.gz，`docker load` | 重新建置 |
@@ -870,8 +870,8 @@ docker run --rm -v "${PWD}:/w" -w /w gcr.io/projectsigstore/cosign:latest verify
 
 - 本軟體（前端與後端程式碼）為 MIT 授權，全文見 `LICENSE`（後端另見 `backend/LICENSE`）。
 - 映像檔含開源第三方元件，授權與取得原始碼的方式見 `THIRD_PARTY_NOTICES.txt`（Python 套件）與 `FRONTEND_THIRD_PARTY_LICENSES.md`、`FRONTEND_LICENSES_FULLTEXT.txt`（前端套件清單與授權全文）。同樣的檔案也在映像檔內：`docker exec open-pets ls /licenses`。
-- 其中 fpdf2（LGPL-3.0）以原始碼檔形式存在映像檔內，certifi（MPL-2.0）未經修改。要替換這些元件或自行重建，請依 `REBUILD.md`。全部原始碼都在 `open-pets-source_<版本>.zip`。
-- `image-sbom.cdx.json` 是映像檔（作業系統與 Python 套件）的軟體物料清單（CycloneDX），可匯入弱點管理工具；前端 npm 套件的物料清單是 `frontend-sbom.cdx.json`；內網模式用的 Caddy 是另外的映像檔，不在這兩份裡。
+- 其中 fpdf2（LGPL-3.0）以原始碼檔形式存在映像檔內，未經修改。要替換此元件或自行重建，請依 `REBUILD.md`。全部原始碼都在 `open-pets-source_<版本>.zip`。
+- `image-sbom.cdx.json` 是映像檔的軟體物料清單（CycloneDX，由 Trivy 產製），可匯入弱點管理工具，內容為作業系統套件與 Python 套件；映像檔內附的 `frontend-sbom.cdx.json` 也會被 Trivy 一併讀入，所以另含前端 npm 套件。前端 npm 套件的完整物料清單與授權全文以 `frontend-sbom.cdx.json` 為準；內網模式用的 Caddy 是另外的映像檔，不在這兩份裡。
 
 ## 14. 移轉到甲方 GitHub 帳號
 

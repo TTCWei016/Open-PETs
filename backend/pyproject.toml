@@ -43,7 +43,6 @@ dependencies = [
     "fpdf2==2.9.0",  # ★ TTC 2026-11-02：資安掃描 2-3
     
     # 其他常用核心庫
-    "requests==2.34.2",
     "pyyaml==6.0.3",
     "python-dotenv==1.2.4",
     "python-multipart==0.0.33",  # ★ TTC 2026-11-02：資安掃描 2-3（multipart 解析 DoS）
@@ -68,7 +67,14 @@ test = [
 # === 跑特定獨立腳本使用的 (Scripts) ===
 scripts = [
     "psutil==7.2.2",     # 效能與資源監控腳本
+    "requests==2.34.2",  # scenarios/check_access_control.py 呼叫 API 用；服務本身不使用，不隨映像檔散布
 ]
+
+[tool.uv]
+# diffprivlib 在套件資訊裡宣告了 setuptools，但原始碼完全沒有 import（實測載入 diffprivlib、scikit-learn 與整個服務後，
+# setuptools／pkg_resources 皆未被載入），而 setuptools 內附十餘個 _vendor 套件，會增加映像檔的元件與授權清單。
+# 以 override 讓解析器忽略這項相依（marker 永不成立），映像檔就不會安裝它。
+override-dependencies = ["setuptools; sys_platform == 'never'"]
 
 [tool.ruff.lint]
 # 在 ruff 預設規則（E4/E7/E9/F）之外加上 pyupgrade：

@@ -10,6 +10,9 @@ resolution-markers = [
     "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
+[manifest]
+overrides = [{ name = "setuptools", marker = "sys_platform == 'never'" }]
+
 [[package]]
 name = "annotated-doc"
 version = "0.0.4"
@@ -159,7 +162,7 @@ dependencies = [
     { name = "numpy" },
     { name = "scikit-learn" },
     { name = "scipy" },
-    { name = "setuptools" },
+    { name = "setuptools", marker = "sys_platform == 'never'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c7/14/b41715a8c48df80ce5e4f0459b03edb206e3b13fc0b399a8e7d13808e092/diffprivlib-0.6.6.tar.gz", hash = "sha256:564262ce534b13d58c82b1bbf109f25b5c55dc1b198674bc348d092e7a38a7f0", size = 98068, upload-time = "2025-04-10T13:58:37.691Z" }
 wheels = [
@@ -450,7 +453,6 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "python-multipart" },
     { name = "pyyaml" },
-    { name = "requests" },
     { name = "rich" },
     { name = "scikit-learn" },
     { name = "scipy" },
@@ -468,6 +470,7 @@ dev = [
 ]
 scripts = [
     { name = "psutil" },
+    { name = "requests" },
 ]
 test = [
     { name = "httpx" },
@@ -490,7 +493,6 @@ requires-dist = [
     { name = "python-dotenv", specifier = "==1.2.4" },
     { name = "python-multipart", specifier = "==0.0.33" },
     { name = "pyyaml", specifier = "==6.0.3" },
-    { name = "requests", specifier = "==2.34.2" },
     { name = "rich", specifier = "==15.0.0" },
     { name = "scikit-learn", specifier = "==1.8.0" },
     { name = "scipy", specifier = "==1.18.1" },
@@ -506,7 +508,10 @@ dev = [
     { name = "pylint", specifier = "==4.1.4" },
     { name = "ruff", specifier = "==0.17.5" },
 ]
-scripts = [{ name = "psutil", specifier = "==7.2.2" }]
+scripts = [
+    { name = "psutil", specifier = "==7.2.2" },
+    { name = "requests", specifier = "==2.34.2" },
+]
 test = [
     { name = "httpx", specifier = "==0.28.1" },
     { name = "pytest", specifier = "==9.2.0" },

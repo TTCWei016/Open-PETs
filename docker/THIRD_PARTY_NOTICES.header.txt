@@ -18,30 +18,26 @@ FRONTEND_THIRD_PARTY_LICENSES.md／FRONTEND_LICENSES_FULLTEXT.txt（前端 npm �
    fpdf2 原始碼：https://github.com/py-pdf/fpdf2（版本見本檔後段清單），亦可向本軟體提供者索取。
    LGPL-3.0 以 GPL-3.0 為基礎，GPL-3.0 全文：https://www.gnu.org/licenses/gpl-3.0.txt
 
-2. certifi（MPL-2.0）— 根憑證套件
-   certifi 以 MPL-2.0 授權，映像檔內未修改其任何檔案。MPL-2.0 全文與原始碼取得方式：
-   https://www.mozilla.org/MPL/2.0/ 、https://github.com/certifi/python-certifi
-
-3. Noto Sans TC 字型（SIL Open Font License 1.1）— PDF 報告中文字型
+2. Noto Sans TC 字型（SIL Open Font License 1.1）— PDF 報告中文字型
    位置：/srv/app/governance/fonts/，授權全文為同目錄的 OFL.txt。
 
-4. Debian 作業系統套件與 Python 執行環境
+3. Debian 作業系統套件與 Python 執行環境
    基底映像檔 python:3.12-slim（Debian 13）內含的套件各有自己的授權，
    授權文字見 /usr/share/doc/<套件名稱>/copyright；Python 本身為 PSF-2.0。
 
-5. swagger-ui-dist（Apache-2.0）— /docs 的 API 互動文件，隨前端靜態檔散布。
+4. swagger-ui-dist（Apache-2.0）— /docs 的 API 互動文件，隨前端靜態檔散布。
 
-6. libgfortran、libquadmath（GPL-3.0 或更新版，附 GCC Runtime Library Exception／LGPL-2.1 或更新版）
+5. libgfortran、libquadmath（GPL-3.0 或更新版，附 GCC Runtime Library Exception／LGPL-2.1 或更新版）
    — numpy、scipy 的預編譯套件內附的共用函式庫，位置：
      /opt/venv/lib/python3.12/site-packages/numpy.libs/ 與 scipy.libs/
    未經修改。授權條款與原始碼取得方式見本檔後段 numpy、scipy 的授權文字
    （其中載明 libgfortran、libquadmath 的原始碼：https://gcc.gnu.org/git/?p=gcc.git ）。
 
-7. Caddy（Apache-2.0）— 內網（lan）模式的 HTTPS 代理
+6. Caddy（Apache-2.0）— 內網（lan）模式的 HTTPS 代理
    Caddy 是另外的容器映像檔（docker.io/library/caddy，見 docker-compose.lan.yml），不在 open-pets-app 映像檔內，
    由使用者啟用內網模式時才從 Docker Hub 取得；其授權見該映像檔內的 /licenses 與 https://github.com/caddyserver/caddy 。
-   open-pets-app 映像檔的 SBOM（image-sbom.cdx.json）不含 Caddy 映像檔與前端 npm 套件；
-   前端 npm 套件另有 frontend-sbom.cdx.json。
+   open-pets-app 映像檔的 SBOM（image-sbom.cdx.json）不含 Caddy 映像檔；其中的前端 npm 套件是 Trivy 讀入映像檔內附
+   frontend-sbom.cdx.json 而來，前端 npm 套件的完整清單與授權全文以 frontend-sbom.cdx.json 為準。
 
 ------------------------------------------------------------------------------
 Python 套件清單與授權全文（由映像檔實際安裝的套件自動產生）

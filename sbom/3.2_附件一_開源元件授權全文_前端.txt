@@ -8,7 +8,7 @@
 （devDependencies）不隨產品交付，不收錄。依 package-lock.json，同名同版本但安裝於不同位置者視為同一元件，
 只收錄一次。前端本身之授權見交付資料夾之 LICENSE。
 
-交付版本：2.0.0　　元件數：188
+交付版本：2.0.0　　元件數：142
 
 ==============================================================================
 元件索引
@@ -67,140 +67,94 @@
  52. @rc-component/upload 1.1.1　MIT
  53. @rc-component/util 1.14.1　MIT
  54. @rc-component/virtual-list 1.6.0　MIT
- 55. @reduxjs/toolkit 2.12.0　MIT
- 56. @scarf/scarf 1.4.0　Apache-2.0
- 57. @standard-schema/spec 1.1.0　MIT
- 58. @standard-schema/utils 0.3.0　MIT
- 59. @tanstack/query-core 5.107.1　MIT
- 60. @tanstack/react-query 5.107.1　MIT
- 61. @types/d3-array 3.2.2　MIT
- 62. @types/d3-color 3.1.3　MIT
- 63. @types/d3-ease 3.0.2　MIT
- 64. @types/d3-interpolate 3.0.4　MIT
- 65. @types/d3-path 3.1.1　MIT
- 66. @types/d3-scale 4.0.9　MIT
- 67. @types/d3-shape 3.1.8　MIT
- 68. @types/d3-time 3.0.4　MIT
- 69. @types/d3-timer 3.0.2　MIT
- 70. @types/pako 2.0.4　MIT
- 71. @types/raf 3.4.3　MIT
- 72. @types/trusted-types 2.0.7　MIT
- 73. @types/use-sync-external-store 0.0.6　MIT
- 74. agent-base 6.0.2　MIT（套件未附授權檔，授權全文取自上游原始碼庫）
- 75. antd 6.7.0　MIT
- 76. asynckit 0.4.0　MIT
- 77. attr-accept 2.2.5　MIT
- 78. axios 1.21.1　MIT
- 79. base64-arraybuffer 1.0.2　MIT
- 80. call-bind-apply-helpers 1.0.2　MIT
- 81. canvg 3.0.11　MIT
- 82. clsx 2.1.1　MIT
- 83. combined-stream 1.0.8　MIT
- 84. compute-scroll-into-view 3.1.1　MIT
- 85. cookie 1.1.1　MIT
- 86. core-js 3.51.0　MIT
- 87. crypto-js 4.2.0　MIT
- 88. css-line-break 2.1.0　MIT
- 89. csstype 3.2.3　MIT
- 90. d3-array 3.2.4　ISC
- 91. d3-color 3.1.0　ISC
- 92. d3-ease 3.0.1　BSD-3-Clause
- 93. d3-format 3.1.2　ISC
- 94. d3-interpolate 3.0.1　ISC
- 95. d3-path 3.1.0　ISC
- 96. d3-scale 4.0.2　ISC
- 97. d3-shape 3.2.0　ISC
- 98. d3-time 3.1.0　ISC
- 99. d3-time-format 4.1.0　ISC
-100. d3-timer 3.0.1　ISC
-101. dayjs 1.11.23　MIT
-102. debug 4.4.3　MIT
-103. decimal.js-light 2.5.1　MIT
-104. delayed-stream 1.0.0　MIT
-105. dompurify 3.4.17　(MPL-2.0 OR Apache-2.0)（雙授權擇一適用，本專案以 Apache-2.0 使用）
-106. dunder-proto 1.0.1　MIT
-107. echarts 6.1.0　Apache-2.0
-108. echarts-for-react 3.0.6　MIT
-109. es-define-property 1.0.1　MIT
-110. es-errors 1.3.0　MIT
-111. es-object-atoms 1.1.2　MIT
-112. es-set-tostringtag 2.1.0　MIT
-113. es-toolkit 1.49.0　MIT
-114. eventemitter3 5.0.4　MIT
-115. fast-deep-equal 3.1.3　MIT
-116. fast-png 6.4.0　MIT
-117. fflate 0.8.3　MIT
-118. file-selector 2.1.2　MIT
-119. follow-redirects 1.16.2　MIT
-120. form-data 4.0.6　MIT
-121. function-bind 1.1.2　MIT
-122. get-intrinsic 1.3.0　MIT
-123. get-proto 1.0.1　MIT
-124. gopd 1.2.0　MIT
-125. has-symbols 1.1.0　MIT
-126. has-tostringtag 1.0.2　MIT
-127. hasown 2.0.4　MIT
-128. html-parse-stringify 4.0.1　MIT
-129. html2canvas 1.4.1　MIT
-130. html2pdf.js 0.14.0　MIT
-131. https-proxy-agent 5.0.1　MIT（套件未附授權檔，授權全文取自上游原始碼庫）
-132. i18next 26.7.2　MIT
-133. immer 11.1.11　MIT
-134. internmap 2.0.3　ISC
-135. iobuffer 5.4.0　MIT
-136. is-mobile 5.0.0　MIT（套件未附授權檔，授權全文取自上游原始碼庫）
-137. js-tokens 4.0.0　MIT
-138. json2mq 0.2.0　MIT
-139. jspdf 4.2.1　MIT
-140. loose-envify 1.4.0　MIT
-141. lucide-react 1.70.0　ISC
-142. math-intrinsics 1.1.0　MIT
-143. mime-db 1.52.0　MIT
-144. mime-types 2.1.35　MIT
-145. ms 2.1.3　MIT
-146. object-assign 4.1.1　MIT
-147. pako 2.2.0　(MIT AND Zlib)
-148. papaparse 5.7.0　MIT
-149. performance-now 2.1.0　MIT
-150. prop-types 15.8.1　MIT
-151. proxy-from-env 2.1.0　MIT
-152. raf 3.4.1　MIT
-153. react 19.3.1　MIT
-154. react-dom 19.3.1　MIT
-155. react-dropzone 15.0.0　MIT
-156. react-i18next 17.1.13　MIT
-157. react-is 16.13.1　MIT
-158. react-is 19.3.1　MIT
-159. react-redux 9.3.0　MIT
-160. react-router 7.18.5　MIT
-161. react-router-dom 7.18.5　MIT
-162. recharts 3.10.1　MIT
-163. redux 5.0.1　MIT
-164. redux-thunk 3.1.0　MIT
-165. regenerator-runtime 0.13.11　MIT
-166. reselect 5.2.0　MIT
-167. rgbcolor 1.0.1　MIT OR SEE LICENSE IN FEEL-FREE.md（套件宣告為 MIT，並附 FEEL-FREE.md 說明）
-168. scheduler 0.28.0　MIT
-169. scroll-into-view-if-needed 3.1.0　MIT
-170. set-cookie-parser 2.7.3　MIT
-171. size-sensor 1.0.3　ISC（套件及上游原始碼庫均未附授權檔，僅列授權種類）
-172. stackblur-canvas 2.7.0　MIT
-173. string-convert 0.2.1　MIT
-174. stylis 4.4.0　MIT
-175. svg-pathdata 6.0.3　MIT
-176. swagger-ui-dist 5.34.1　Apache-2.0
-177. text-segmentation 1.0.3　MIT
-178. throttle-debounce 5.0.2　MIT
-179. tiny-invariant 1.3.3　MIT
-180. tslib 2.3.0　0BSD
-181. tslib 2.8.1　0BSD
-182. use-sync-external-store 1.6.0　MIT
-183. utrie 1.0.2　MIT
-184. victory-vendor 37.3.6　MIT AND ISC（套件未附授權檔，授權全文取自上游原始碼庫；內含 d3 等第三方套件，其授權檔一併收錄於下方）
-185. xlsx 0.20.3　Apache-2.0（取自 SheetJS 官方 CDN，網址 cdn.sheetjs.com/xlsx-0.20.3）
-186. yaml 2.9.1　ISC
-187. zrender 6.1.0　BSD-3-Clause
-188. zustand 5.1.0　MIT
+ 55. @scarf/scarf 1.4.0　Apache-2.0
+ 56. @types/pako 2.0.4　MIT
+ 57. @types/raf 3.4.3　MIT
+ 58. @types/trusted-types 2.0.7　MIT
+ 59. agent-base 6.0.2　MIT（套件未附授權檔，授權全文取自上游原始碼庫）
+ 60. antd 6.7.0　MIT
+ 61. asynckit 0.4.0　MIT
+ 62. axios 1.21.1　MIT
+ 63. base64-arraybuffer 1.0.2　MIT
+ 64. call-bind-apply-helpers 1.0.2　MIT
+ 65. canvg 3.0.11　MIT
+ 66. clsx 2.1.1　MIT
+ 67. combined-stream 1.0.8　MIT
+ 68. compute-scroll-into-view 3.1.1　MIT
+ 69. cookie 1.1.1　MIT
+ 70. core-js 3.51.0　MIT
+ 71. crypto-js 4.2.0　MIT
+ 72. css-line-break 2.1.0　MIT
+ 73. csstype 3.2.3　MIT
+ 74. dayjs 1.11.23　MIT
+ 75. debug 4.4.3　MIT
+ 76. delayed-stream 1.0.0　MIT
+ 77. dompurify 3.4.17　(MPL-2.0 OR Apache-2.0)（雙授權擇一適用，本專案以 Apache-2.0 使用）
+ 78. dunder-proto 1.0.1　MIT
+ 79. echarts 6.1.0　Apache-2.0
+ 80. echarts-for-react 3.0.6　MIT
+ 81. es-define-property 1.0.1　MIT
+ 82. es-errors 1.3.0　MIT
+ 83. es-object-atoms 1.1.2　MIT
+ 84. es-set-tostringtag 2.1.0　MIT
+ 85. fast-deep-equal 3.1.3　MIT
+ 86. fast-png 6.4.0　MIT
+ 87. fflate 0.8.3　MIT
+ 88. follow-redirects 1.16.2　MIT
+ 89. form-data 4.0.6　MIT
+ 90. function-bind 1.1.2　MIT
+ 91. get-intrinsic 1.3.0　MIT
+ 92. get-proto 1.0.1　MIT
+ 93. gopd 1.2.0　MIT
+ 94. has-symbols 1.1.0　MIT
+ 95. has-tostringtag 1.0.2　MIT
+ 96. hasown 2.0.4　MIT
+ 97. html-parse-stringify 4.0.1　MIT
+ 98. html2canvas 1.4.1　MIT
+ 99. html2pdf.js 0.14.0　MIT
+100. https-proxy-agent 5.0.1　MIT（套件未附授權檔，授權全文取自上游原始碼庫）
+101. i18next 26.7.2　MIT
+102. iobuffer 5.4.0　MIT
+103. is-mobile 5.0.0　MIT（套件未附授權檔，授權全文取自上游原始碼庫）
+104. json2mq 0.2.0　MIT
+105. jspdf 4.2.1　MIT
+106. lucide-react 1.73.0　ISC
+107. math-intrinsics 1.1.0　MIT
+108. mime-db 1.52.0　MIT
+109. mime-types 2.1.35　MIT
+110. ms 2.1.3　MIT
+111. pako 2.2.0　(MIT AND Zlib)
+112. papaparse 5.7.1　MIT
+113. performance-now 2.1.0　MIT
+114. proxy-from-env 2.1.0　MIT
+115. raf 3.4.1　MIT
+116. react 19.3.1　MIT
+117. react-dom 19.3.1　MIT
+118. react-i18next 17.1.13　MIT
+119. react-is 19.3.1　MIT
+120. react-router 7.18.5　MIT
+121. react-router-dom 7.18.5　MIT
+122. regenerator-runtime 0.13.11　MIT
+123. rgbcolor 1.0.1　MIT OR SEE LICENSE IN FEEL-FREE.md（套件宣告為 MIT，並附 FEEL-FREE.md 說明）
+124. scheduler 0.28.0　MIT
+125. scroll-into-view-if-needed 3.1.0　MIT
+126. set-cookie-parser 2.7.3　MIT
+127. size-sensor 1.0.3　ISC（套件及上游原始碼庫均未附授權檔，僅列授權種類）
+128. stackblur-canvas 2.7.0　MIT
+129. string-convert 0.2.1　MIT
+130. stylis 4.4.0　MIT
+131. svg-pathdata 6.0.3　MIT
+132. swagger-ui-dist 5.35.0　Apache-2.0
+133. text-segmentation 1.0.3　MIT
+134. throttle-debounce 5.0.2　MIT
+135. tslib 2.3.0　0BSD
+136. tslib 2.8.1　0BSD
+137. use-sync-external-store 1.6.0　MIT
+138. utrie 1.0.2　MIT
+139. xlsx 0.20.3　Apache-2.0（取自 SheetJS 官方 CDN，網址 cdn.sheetjs.com/xlsx-0.20.3）
+140. yaml 2.9.1　ISC
+141. zrender 6.1.0　BSD-3-Clause
+142. zustand 5.1.0　MIT
 
 
 ==============================================================================
@@ -1914,37 +1868,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-55. @reduxjs/toolkit 2.12.0
-==============================================================================
-授權：MIT
-來源：https://redux-toolkit.js.org
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2018 Mark Erikson
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-56. @scarf/scarf 1.4.0
+55. @scarf/scarf 1.4.0
 ==============================================================================
 授權：Apache-2.0
 來源：https://github.com/scarf-sh/scarf-js
@@ -2154,397 +2078,7 @@ Apache License
 
 
 ==============================================================================
-57. @standard-schema/spec 1.1.0
-==============================================================================
-授權：MIT
-來源：https://standardschema.dev
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2024 Colin McDonnell
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-58. @standard-schema/utils 0.3.0
-==============================================================================
-授權：MIT
-來源：https://github.com/standard-schema/standard-schema
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2024 Fabian Hiller
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-59. @tanstack/query-core 5.107.1
-==============================================================================
-授權：MIT
-來源：https://tanstack.com/query
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2021-present Tanner Linsley
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-60. @tanstack/react-query 5.107.1
-==============================================================================
-授權：MIT
-來源：https://tanstack.com/query
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2021-present Tanner Linsley
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-61. @types/d3-array 3.2.2
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-array
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-62. @types/d3-color 3.1.3
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-color
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-63. @types/d3-ease 3.0.2
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-ease
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-64. @types/d3-interpolate 3.0.4
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-interpolate
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-65. @types/d3-path 3.1.1
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-path
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-66. @types/d3-scale 4.0.9
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-scale
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-67. @types/d3-shape 3.1.8
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-shape
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-68. @types/d3-time 3.0.4
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-time
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-69. @types/d3-timer 3.0.2
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-timer
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-70. @types/pako 2.0.4
+56. @types/pako 2.0.4
 ==============================================================================
 授權：MIT
 來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/pako
@@ -2574,7 +2108,7 @@ MIT License
 
 
 ==============================================================================
-71. @types/raf 3.4.3
+57. @types/raf 3.4.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/raf
@@ -2604,7 +2138,7 @@ MIT License
 
 
 ==============================================================================
-72. @types/trusted-types 2.0.7
+58. @types/trusted-types 2.0.7
 ==============================================================================
 授權：MIT
 來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/trusted-types
@@ -2634,37 +2168,7 @@ MIT License
 
 
 ==============================================================================
-73. @types/use-sync-external-store 0.0.6
-==============================================================================
-授權：MIT
-來源：https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/use-sync-external-store
-
---- LICENSE ---
-MIT License
-
-    Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
-
-==============================================================================
-74. agent-base 6.0.2
+59. agent-base 6.0.2
 ==============================================================================
 授權：MIT（套件未附授權檔，授權全文取自上游原始碼庫）
 來源：https://github.com/TooTallNate/node-agent-base
@@ -2695,7 +2199,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-75. antd 6.7.0
+60. antd 6.7.0
 ==============================================================================
 授權：MIT
 來源：https://ant.design
@@ -2726,7 +2230,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-76. asynckit 0.4.0
+61. asynckit 0.4.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/alexindigo/asynckit
@@ -2756,37 +2260,7 @@ SOFTWARE.
 
 
 ==============================================================================
-77. attr-accept 2.2.5
-==============================================================================
-授權：MIT
-來源：https://github.com/react-dropzone/attr-accept
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2015 Andrey Okonetchnikov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-78. axios 1.21.1
+62. axios 1.21.1
 ==============================================================================
 授權：MIT
 來源：https://axios-http.com
@@ -2802,7 +2276,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ==============================================================================
-79. base64-arraybuffer 1.0.2
+63. base64-arraybuffer 1.0.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/niklasvh/base64-arraybuffer
@@ -2833,7 +2307,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-80. call-bind-apply-helpers 1.0.2
+64. call-bind-apply-helpers 1.0.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/call-bind-apply-helpers
@@ -2863,7 +2337,7 @@ SOFTWARE.
 
 
 ==============================================================================
-81. canvg 3.0.11
+65. canvg 3.0.11
 ==============================================================================
 授權：MIT
 來源：https://github.com/canvg/canvg
@@ -2893,7 +2367,7 @@ SOFTWARE.
 
 
 ==============================================================================
-82. clsx 2.1.1
+66. clsx 2.1.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/lukeed/clsx
@@ -2911,7 +2385,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ==============================================================================
-83. combined-stream 1.0.8
+67. combined-stream 1.0.8
 ==============================================================================
 授權：MIT
 來源：https://github.com/felixge/node-combined-stream
@@ -2939,7 +2413,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-84. compute-scroll-into-view 3.1.1
+68. compute-scroll-into-view 3.1.1
 ==============================================================================
 授權：MIT
 來源：https://scroll-into-view.dev
@@ -2969,7 +2443,7 @@ SOFTWARE.
 
 
 ==============================================================================
-85. cookie 1.1.1
+69. cookie 1.1.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/jshttp/cookie
@@ -3001,7 +2475,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-86. core-js 3.51.0
+70. core-js 3.51.0
 ==============================================================================
 授權：MIT
 來源：https://core-js.io
@@ -3030,7 +2504,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-87. crypto-js 4.2.0
+71. crypto-js 4.2.0
 ==============================================================================
 授權：MIT
 來源：http://github.com/brix/crypto-js
@@ -3063,7 +2537,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-88. css-line-break 2.1.0
+72. css-line-break 2.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/niklasvh/css-line-break
@@ -3094,7 +2568,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-89. csstype 3.2.3
+73. csstype 3.2.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/frenic/csstype
@@ -3122,264 +2596,7 @@ SOFTWARE.
 
 
 ==============================================================================
-90. d3-array 3.2.4
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-array/
-
---- LICENSE ---
-Copyright 2010-2023 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-91. d3-color 3.1.0
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-color/
-
---- LICENSE ---
-Copyright 2010-2022 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-92. d3-ease 3.0.1
-==============================================================================
-授權：BSD-3-Clause
-來源：https://d3js.org/d3-ease/
-
---- LICENSE ---
-Copyright 2010-2021 Mike Bostock
-Copyright 2001 Robert Penner
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of contributors may be used to
-  endorse or promote products derived from this software without specific prior
-  written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-==============================================================================
-93. d3-format 3.1.2
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-format/
-
---- LICENSE ---
-Copyright 2010-2026 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-94. d3-interpolate 3.0.1
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-interpolate/
-
---- LICENSE ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-95. d3-path 3.1.0
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-path/
-
---- LICENSE ---
-Copyright 2015-2022 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-96. d3-scale 4.0.2
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-scale/
-
---- LICENSE ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-97. d3-shape 3.2.0
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-shape/
-
---- LICENSE ---
-Copyright 2010-2022 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-98. d3-time 3.1.0
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-time/
-
---- LICENSE ---
-Copyright 2010-2022 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-99. d3-time-format 4.1.0
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-time-format/
-
---- LICENSE ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-100. d3-timer 3.0.1
-==============================================================================
-授權：ISC
-來源：https://d3js.org/d3-timer/
-
---- LICENSE ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-101. dayjs 1.11.23
+74. dayjs 1.11.23
 ==============================================================================
 授權：MIT
 來源：https://day.js.org
@@ -3409,7 +2626,7 @@ SOFTWARE.
 
 
 ==============================================================================
-102. debug 4.4.3
+75. debug 4.4.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/debug-js/debug
@@ -3437,38 +2654,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-103. decimal.js-light 2.5.1
-==============================================================================
-授權：MIT
-來源：https://github.com/MikeMcl/decimal.js-light
-
---- LICENCE.md ---
-The MIT Expat Licence.
-
-Copyright (c) 2020 Michael Mclaughlin
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-==============================================================================
-104. delayed-stream 1.0.0
+76. delayed-stream 1.0.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/felixge/node-delayed-stream
@@ -3496,7 +2682,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-105. dompurify 3.4.17
+77. dompurify 3.4.17
 ==============================================================================
 授權：(MPL-2.0 OR Apache-2.0)（雙授權擇一適用，本專案以 Apache-2.0 使用）
 來源：https://github.com/cure53/DOMPurify
@@ -4081,7 +3267,7 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 
 
 ==============================================================================
-106. dunder-proto 1.0.1
+78. dunder-proto 1.0.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/es-shims/dunder-proto
@@ -4111,7 +3297,7 @@ SOFTWARE.
 
 
 ==============================================================================
-107. echarts 6.1.0
+79. echarts 6.1.0
 ==============================================================================
 授權：Apache-2.0
 來源：https://echarts.apache.org
@@ -4348,7 +3534,7 @@ The Apache Software Foundation (https://www.apache.org/).
 
 
 ==============================================================================
-108. echarts-for-react 3.0.6
+80. echarts-for-react 3.0.6
 ==============================================================================
 授權：MIT
 來源：https://github.com/hustcc/echarts-for-react
@@ -4378,7 +3564,7 @@ SOFTWARE.
 
 
 ==============================================================================
-109. es-define-property 1.0.1
+81. es-define-property 1.0.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/es-define-property
@@ -4408,7 +3594,7 @@ SOFTWARE.
 
 
 ==============================================================================
-110. es-errors 1.3.0
+82. es-errors 1.3.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/es-errors
@@ -4438,7 +3624,7 @@ SOFTWARE.
 
 
 ==============================================================================
-111. es-object-atoms 1.1.2
+83. es-object-atoms 1.1.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/es-object-atoms
@@ -4468,7 +3654,7 @@ SOFTWARE.
 
 
 ==============================================================================
-112. es-set-tostringtag 2.1.0
+84. es-set-tostringtag 2.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/es-shims/es-set-tostringtag
@@ -4498,67 +3684,7 @@ SOFTWARE.
 
 
 ==============================================================================
-113. es-toolkit 1.49.0
-==============================================================================
-授權：MIT
-來源：https://es-toolkit.dev
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2024 Viva Republica, Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-114. eventemitter3 5.0.4
-==============================================================================
-授權：MIT
-來源：https://github.com/primus/eventemitter3
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2014 Arnout Kazemier
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-115. fast-deep-equal 3.1.3
+85. fast-deep-equal 3.1.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/epoberezkin/fast-deep-equal
@@ -4588,7 +3714,7 @@ SOFTWARE.
 
 
 ==============================================================================
-116. fast-png 6.4.0
+86. fast-png 6.4.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/image-js/fast-png
@@ -4618,7 +3744,7 @@ SOFTWARE.
 
 
 ==============================================================================
-117. fflate 0.8.3
+87. fflate 0.8.3
 ==============================================================================
 授權：MIT
 來源：https://101arrowz.github.io/fflate
@@ -4648,37 +3774,7 @@ SOFTWARE.
 
 
 ==============================================================================
-118. file-selector 2.1.2
-==============================================================================
-授權：MIT
-來源：https://github.com/react-dropzone/file-selector
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2020 Roland Groza
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-119. follow-redirects 1.16.2
+88. follow-redirects 1.16.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/follow-redirects/follow-redirects
@@ -4705,7 +3801,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-120. form-data 4.0.6
+89. form-data 4.0.6
 ==============================================================================
 授權：MIT
 來源：https://github.com/form-data/form-data
@@ -4733,7 +3829,7 @@ Copyright (c) 2012 Felix Geisendörfer (felix@debuggable.com) and contributors
 
 
 ==============================================================================
-121. function-bind 1.1.2
+90. function-bind 1.1.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/Raynos/function-bind
@@ -4761,7 +3857,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-122. get-intrinsic 1.3.0
+91. get-intrinsic 1.3.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/get-intrinsic
@@ -4791,7 +3887,7 @@ SOFTWARE.
 
 
 ==============================================================================
-123. get-proto 1.0.1
+92. get-proto 1.0.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/get-proto
@@ -4821,7 +3917,7 @@ SOFTWARE.
 
 
 ==============================================================================
-124. gopd 1.2.0
+93. gopd 1.2.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/gopd
@@ -4851,7 +3947,7 @@ SOFTWARE.
 
 
 ==============================================================================
-125. has-symbols 1.1.0
+94. has-symbols 1.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/ljharb/has-symbols
@@ -4881,7 +3977,7 @@ SOFTWARE.
 
 
 ==============================================================================
-126. has-tostringtag 1.0.2
+95. has-tostringtag 1.0.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/inspect-js/has-tostringtag
@@ -4911,7 +4007,7 @@ SOFTWARE.
 
 
 ==============================================================================
-127. hasown 2.0.4
+96. hasown 2.0.4
 ==============================================================================
 授權：MIT
 來源：https://github.com/inspect-js/hasOwn
@@ -4941,7 +4037,7 @@ SOFTWARE.
 
 
 ==============================================================================
-128. html-parse-stringify 4.0.1
+97. html-parse-stringify 4.0.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/i18next/html-parse-stringify
@@ -4972,7 +4068,7 @@ SOFTWARE.
 
 
 ==============================================================================
-129. html2canvas 1.4.1
+98. html2canvas 1.4.1
 ==============================================================================
 授權：MIT
 來源：https://html2canvas.hertzen.com
@@ -5003,7 +4099,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-130. html2pdf.js 0.14.0
+99. html2pdf.js 0.14.0
 ==============================================================================
 授權：MIT
 來源：https://ekoopmans.github.io/html2pdf.js/
@@ -5033,7 +4129,7 @@ SOFTWARE.
 
 
 ==============================================================================
-131. https-proxy-agent 5.0.1
+100. https-proxy-agent 5.0.1
 ==============================================================================
 授權：MIT（套件未附授權檔，授權全文取自上游原始碼庫）
 來源：https://github.com/TooTallNate/node-https-proxy-agent
@@ -5064,7 +4160,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-132. i18next 26.7.2
+101. i18next 26.7.2
 ==============================================================================
 授權：MIT
 來源：https://www.i18next.com
@@ -5094,59 +4190,7 @@ SOFTWARE.
 
 
 ==============================================================================
-133. immer 11.1.11
-==============================================================================
-授權：MIT
-來源：https://github.com/immerjs/immer
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2017 Michel Weststrate
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-134. internmap 2.0.3
-==============================================================================
-授權：ISC
-來源：https://github.com/mbostock/internmap/
-
---- LICENSE ---
-Copyright 2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-135. iobuffer 5.4.0
+102. iobuffer 5.4.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/image-js/iobuffer
@@ -5176,7 +4220,7 @@ SOFTWARE.
 
 
 ==============================================================================
-136. is-mobile 5.0.0
+103. is-mobile 5.0.0
 ==============================================================================
 授權：MIT（套件未附授權檔，授權全文取自上游原始碼庫）
 來源：https://github.com/juliangruber/is-mobile
@@ -5193,37 +4237,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ==============================================================================
-137. js-tokens 4.0.0
-==============================================================================
-授權：MIT
-來源：https://github.com/lydell/js-tokens
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2014, 2015, 2016, 2017, 2018 Simon Lydell
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-==============================================================================
-138. json2mq 0.2.0
+104. json2mq 0.2.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/akiran/json2mq
@@ -5253,7 +4267,7 @@ SOFTWARE.
 
 
 ==============================================================================
-139. jspdf 4.2.1
+105. jspdf 4.2.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/parallax/jsPDF
@@ -5284,37 +4298,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-140. loose-envify 1.4.0
-==============================================================================
-授權：MIT
-來源：https://github.com/zertosh/loose-envify
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2015 Andres Suarez <zertosh@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-==============================================================================
-141. lucide-react 1.70.0
+106. lucide-react 1.73.0
 ==============================================================================
 授權：ISC
 來源：https://lucide.dev
@@ -5366,7 +4350,7 @@ SOFTWARE.
 
 
 ==============================================================================
-142. math-intrinsics 1.1.0
+107. math-intrinsics 1.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/es-shims/math-intrinsics
@@ -5396,7 +4380,7 @@ SOFTWARE.
 
 
 ==============================================================================
-143. mime-db 1.52.0
+108. mime-db 1.52.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/jshttp/mime-db
@@ -5428,7 +4412,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-144. mime-types 2.1.35
+109. mime-types 2.1.35
 ==============================================================================
 授權：MIT
 來源：https://github.com/jshttp/mime-types
@@ -5460,7 +4444,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-145. ms 2.1.3
+110. ms 2.1.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/vercel/ms
@@ -5490,37 +4474,7 @@ SOFTWARE.
 
 
 ==============================================================================
-146. object-assign 4.1.1
-==============================================================================
-授權：MIT
-來源：https://github.com/sindresorhus/object-assign
-
---- license ---
-The MIT License (MIT)
-
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-==============================================================================
-147. pako 2.2.0
+111. pako 2.2.0
 ==============================================================================
 授權：(MIT AND Zlib)
 來源：https://github.com/nodeca/pako
@@ -5550,7 +4504,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-148. papaparse 5.7.0
+112. papaparse 5.7.1
 ==============================================================================
 授權：MIT
 來源：https://www.papaparse.com/
@@ -5579,7 +4533,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-149. performance-now 2.1.0
+113. performance-now 2.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/braveg1rl/performance-now
@@ -5595,37 +4549,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ==============================================================================
-150. prop-types 15.8.1
-==============================================================================
-授權：MIT
-來源：https://facebook.github.io/react/
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2013-present, Facebook, Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-151. proxy-from-env 2.1.0
+114. proxy-from-env 2.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/Rob--W/proxy-from-env
@@ -5654,7 +4578,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-152. raf 3.4.1
+115. raf 3.4.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/chrisdickinson/raf
@@ -5670,7 +4594,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ==============================================================================
-153. react 19.3.1
+116. react 19.3.1
 ==============================================================================
 授權：MIT
 來源：https://react.dev/
@@ -5700,7 +4624,7 @@ SOFTWARE.
 
 
 ==============================================================================
-154. react-dom 19.3.1
+117. react-dom 19.3.1
 ==============================================================================
 授權：MIT
 來源：https://react.dev/
@@ -5730,37 +4654,7 @@ SOFTWARE.
 
 
 ==============================================================================
-155. react-dropzone 15.0.0
-==============================================================================
-授權：MIT
-來源：https://github.com/react-dropzone/react-dropzone
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2018 Param Aggarwal
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-156. react-i18next 17.1.13
+118. react-i18next 17.1.13
 ==============================================================================
 授權：MIT
 來源：https://github.com/i18next/react-i18next
@@ -5790,37 +4684,7 @@ SOFTWARE.
 
 
 ==============================================================================
-157. react-is 16.13.1
-==============================================================================
-授權：MIT
-來源：https://reactjs.org/
-
---- LICENSE ---
-MIT License
-
-Copyright (c) Facebook, Inc. and its affiliates.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-158. react-is 19.3.1
+119. react-is 19.3.1
 ==============================================================================
 授權：MIT
 來源：https://react.dev/
@@ -5850,37 +4714,7 @@ SOFTWARE.
 
 
 ==============================================================================
-159. react-redux 9.3.0
-==============================================================================
-授權：MIT
-來源：https://github.com/reduxjs/react-redux
-
---- LICENSE.md ---
-The MIT License (MIT)
-
-Copyright (c) 2015-present Dan Abramov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-160. react-router 7.18.5
+120. react-router 7.18.5
 ==============================================================================
 授權：MIT
 來源：https://github.com/remix-run/react-router
@@ -5912,7 +4746,7 @@ SOFTWARE.
 
 
 ==============================================================================
-161. react-router-dom 7.18.5
+121. react-router-dom 7.18.5
 ==============================================================================
 授權：MIT
 來源：https://github.com/remix-run/react-router
@@ -5944,97 +4778,7 @@ SOFTWARE.
 
 
 ==============================================================================
-162. recharts 3.10.1
-==============================================================================
-授權：MIT
-來源：https://github.com/recharts/recharts
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2015-present recharts
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-163. redux 5.0.1
-==============================================================================
-授權：MIT
-來源：http://redux.js.org
-
---- LICENSE.md ---
-The MIT License (MIT)
-
-Copyright (c) 2015-present Dan Abramov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-164. redux-thunk 3.1.0
-==============================================================================
-授權：MIT
-來源：https://github.com/reduxjs/redux-thunk
-
---- LICENSE.md ---
-The MIT License (MIT)
-
-Copyright (c) 2015-present Dan Abramov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-165. regenerator-runtime 0.13.11
+122. regenerator-runtime 0.13.11
 ==============================================================================
 授權：MIT
 來源：https://github.com/facebook/regenerator/tree/main
@@ -6064,37 +4808,7 @@ SOFTWARE.
 
 
 ==============================================================================
-166. reselect 5.2.0
-==============================================================================
-授權：MIT
-來源：https://github.com/reduxjs/reselect
-
---- LICENSE ---
-The MIT License (MIT)
-
-Copyright (c) 2015-2018 Reselect Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-167. rgbcolor 1.0.1
+123. rgbcolor 1.0.1
 ==============================================================================
 授權：MIT OR SEE LICENSE IN FEEL-FREE.md（套件宣告為 MIT，並附 FEEL-FREE.md 說明）
 來源：https://github.com/yetzt/node-rgbcolor
@@ -6129,7 +4843,7 @@ Please either apply this, the MIT license, or the license in './FEEL-FREE.md'
 
 
 ==============================================================================
-168. scheduler 0.28.0
+124. scheduler 0.28.0
 ==============================================================================
 授權：MIT
 來源：https://react.dev/
@@ -6159,7 +4873,7 @@ SOFTWARE.
 
 
 ==============================================================================
-169. scroll-into-view-if-needed 3.1.0
+125. scroll-into-view-if-needed 3.1.0
 ==============================================================================
 授權：MIT
 來源：https://scroll-into-view.dev
@@ -6189,7 +4903,7 @@ SOFTWARE.
 
 
 ==============================================================================
-170. set-cookie-parser 2.7.3
+126. set-cookie-parser 2.7.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/nfriedly/set-cookie-parser
@@ -6219,7 +4933,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-171. size-sensor 1.0.3
+127. size-sensor 1.0.3
 ==============================================================================
 授權：ISC（套件及上游原始碼庫均未附授權檔，僅列授權種類）
 來源：https://git.hust.cc/size-sensor
@@ -6228,7 +4942,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-172. stackblur-canvas 2.7.0
+128. stackblur-canvas 2.7.0
 ==============================================================================
 授權：MIT
 來源：http://www.quasimondo.com/StackBlurForCanvas/StackBlurDemo.html
@@ -6259,7 +4973,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-173. string-convert 0.2.1
+129. string-convert 0.2.1
 ==============================================================================
 授權：MIT
 來源：https://github.com/akiran/string-convert
@@ -6289,7 +5003,7 @@ SOFTWARE.
 
 
 ==============================================================================
-174. stylis 4.4.0
+130. stylis 4.4.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/thysultan/stylis.js
@@ -6319,7 +5033,7 @@ SOFTWARE.
 
 
 ==============================================================================
-175. svg-pathdata 6.0.3
+131. svg-pathdata 6.0.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/nfroidure/svg-pathdata
@@ -6348,7 +5062,7 @@ THE SOFTWARE.
 
 
 ==============================================================================
-176. swagger-ui-dist 5.34.1
+132. swagger-ui-dist 5.35.0
 ==============================================================================
 授權：Apache-2.0
 來源：https://github.com/swagger-api/swagger-ui
@@ -6562,7 +5276,7 @@ Copyright 2020-2021 SmartBear Software Inc.
 
 
 ==============================================================================
-177. text-segmentation 1.0.3
+133. text-segmentation 1.0.3
 ==============================================================================
 授權：MIT
 來源：https://github.com/niklasvh/text-segmentation
@@ -6593,7 +5307,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-178. throttle-debounce 5.0.2
+134. throttle-debounce 5.0.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/niksy/throttle-debounce
@@ -6646,37 +5360,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-179. tiny-invariant 1.3.3
-==============================================================================
-授權：MIT
-來源：https://github.com/alexreardon/tiny-invariant
-
---- LICENSE ---
-MIT License
-
-Copyright (c) 2019 Alexander Reardon
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-==============================================================================
-180. tslib 2.3.0
+135. tslib 2.3.0
 ==============================================================================
 授權：0BSD
 來源：https://www.typescriptlang.org/
@@ -6697,7 +5381,7 @@ PERFORMANCE OF THIS SOFTWARE.
 
 
 ==============================================================================
-181. tslib 2.8.1
+136. tslib 2.8.1
 ==============================================================================
 授權：0BSD
 來源：https://www.typescriptlang.org/
@@ -6718,7 +5402,7 @@ PERFORMANCE OF THIS SOFTWARE.
 
 
 ==============================================================================
-182. use-sync-external-store 1.6.0
+137. use-sync-external-store 1.6.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/facebook/react
@@ -6748,7 +5432,7 @@ SOFTWARE.
 
 
 ==============================================================================
-183. utrie 1.0.2
+138. utrie 1.0.2
 ==============================================================================
 授權：MIT
 來源：https://github.com/niklasvh/utrie
@@ -6779,293 +5463,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 ==============================================================================
-184. victory-vendor 37.3.6
-==============================================================================
-授權：MIT AND ISC（套件未附授權檔，授權全文取自上游原始碼庫；內含 d3 等第三方套件，其授權檔一併收錄於下方）
-來源：https://commerce.nearform.com/open-source/victory
-
---- LICENSE（取自上游原始碼庫：https://github.com/FormidableLabs/victory/blob/main/LICENSE.txt） ---
-The MIT License (MIT)
-
-Copyright (c) 2015-2026 Nearform.
-
-Copyright (c) 2016-2020 Alexey Svetliakov <https://github.com/asvetliakov>,
-snerks <https://github.com/snerks>, Krzysztof Cebula <https://github.com
-Havret>, Vitaliy Polyanskiy <https://github.com/alreadyExisted>, James Lismore
-<https://github.com/jlismore>, Stack Builders <https://github.com
-stackbuilders>, Esteban Ibarra <https://github.com/ibarrae>, Dominic Lee
-<https://github.com/dominictwlee>, Dave Vedder <https://github.com
-veddermatic>, Alec Flett <https://github.com/alecf> and potentially other
-DefinitelyTyped contributors.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
---- 內含 d3-array 的授權（lib-vendor/d3-array/LICENSE） ---
-Copyright 2010-2022 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-color 的授權（lib-vendor/d3-color/LICENSE） ---
-Copyright 2010-2022 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-ease 的授權（lib-vendor/d3-ease/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-Copyright 2001 Robert Penner
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of contributors may be used to
-  endorse or promote products derived from this software without specific prior
-  written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
---- 內含 d3-format 的授權（lib-vendor/d3-format/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-interpolate 的授權（lib-vendor/d3-interpolate/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-path 的授權（lib-vendor/d3-path/LICENSE） ---
-Copyright 2015-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-scale 的授權（lib-vendor/d3-scale/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-shape 的授權（lib-vendor/d3-shape/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-time 的授權（lib-vendor/d3-time/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-time-format 的授權（lib-vendor/d3-time-format/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-timer 的授權（lib-vendor/d3-timer/LICENSE） ---
-Copyright 2010-2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
---- 內含 d3-voronoi 的授權（lib-vendor/d3-voronoi/LICENSE） ---
-Copyright 2010-2016 Mike Bostock
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of contributors may be used to
-  endorse or promote products derived from this software without specific prior
-  written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Copyright (C) 2010-2013 Raymond Hill
-https://github.com/gorhill/Javascript-Voronoi
-
-Licensed under The MIT License
-http://en.wikipedia.org/wiki/MIT_License
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
---- 內含 internmap 的授權（lib-vendor/internmap/LICENSE） ---
-Copyright 2021 Mike Bostock
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-
-
-==============================================================================
-185. xlsx 0.20.3
+139. xlsx 0.20.3
 ==============================================================================
 授權：Apache-2.0（取自 SheetJS 官方 CDN，網址 cdn.sheetjs.com/xlsx-0.20.3）
 來源：https://sheetjs.com/
@@ -7275,7 +5673,7 @@ Apache License
 
 
 ==============================================================================
-186. yaml 2.9.1
+140. yaml 2.9.1
 ==============================================================================
 授權：ISC
 來源：https://eemeli.org/yaml/
@@ -7297,7 +5695,7 @@ THIS SOFTWARE.
 
 
 ==============================================================================
-187. zrender 6.1.0
+141. zrender 6.1.0
 ==============================================================================
 授權：BSD-3-Clause
 來源：https://github.com/ecomfe/zrender
@@ -7335,7 +5733,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ==============================================================================
-188. zustand 5.1.0
+142. zustand 5.1.0
 ==============================================================================
 授權：MIT
 來源：https://github.com/pmndrs/zustand

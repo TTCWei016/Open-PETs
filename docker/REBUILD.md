@@ -1,6 +1,6 @@
 # 重新建置映像檔、替換第三方元件
 
-映像檔 `open-pets-app` 內含 LGPL-3.0 的 fpdf2 與 MPL-2.0 的 certifi 等第三方元件（授權說明在映像檔內 `/licenses/THIRD_PARTY_NOTICES.txt`，與交付包的 `THIRD_PARTY_NOTICES.txt` 相同）。
+映像檔 `open-pets-app` 內含 LGPL-3.0 的 fpdf2 等第三方元件（授權說明在映像檔內 `/licenses/THIRD_PARTY_NOTICES.txt`，與交付包的 `THIRD_PARTY_NOTICES.txt` 相同）。
 本文說明如何取得原始碼、用同一份 `Dockerfile` 重新建置，以及如何替換其中的 Python 元件（例如 fpdf2）。
 
 ## 需要的檔案
@@ -31,7 +31,7 @@ Windows 也可以用 `docker\build_image.ps1 -Version 2.0.0`，它會同時輸�
 4. fpdf2 在映像檔內是原始碼檔（`/opt/venv/lib/python3.12/site-packages/fpdf/`），沒有被編譯或合併進其他檔案。
 5. 建好後請實際產生一份 PDF 報告確認功能正常；更換版本後的相容性由更換者負責。
 
-certifi 等其他套件的替換方式相同。
+其他 Python 套件的替換方式相同。
 
 ## 基底映像檔固定在 digest
 `Dockerfile` 的 `FROM` 寫成 `名稱:標籤@sha256:…`：標籤給人看，digest 才是實際使用的內容，所以同一份原始碼在不同時間建出來的基底相同。代價是基底不會自動更新，要手動或靠 Dependabot 換新：

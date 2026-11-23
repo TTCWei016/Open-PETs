@@ -187,7 +187,6 @@ const NOTICE_FILE_NAME = '3.2_附件一_開源元件授權全文_前端.txt';
 const LICENSE_NOTES = {
     dompurify: '雙授權擇一適用，本專案以 Apache-2.0 使用',
     rgbcolor: '套件宣告為 MIT，並附 FEEL-FREE.md 說明',
-    'victory-vendor': '內含 d3 等第三方套件，其授權檔一併收錄於下方',
     xlsx: '取自 SheetJS 官方 CDN，網址 cdn.sheetjs.com/xlsx-0.20.3',
 };
 const licenseSources = { package: [], upstream: [], none: [] };
@@ -258,7 +257,6 @@ const licenseNotes = [
     ['dompurify', '**dompurify（MPL-2.0 OR Apache-2.0）**：雙授權，擇一適用；本專案以 Apache-2.0 使用，未修改其原始碼。MPL-2.0 全文（`LICENSE-MPL`）一併收錄於授權全文。'],
     ['rgbcolor', '**rgbcolor（MIT OR SEE LICENSE IN FEEL-FREE.md）**：套件宣告為 MIT，並附 FEEL-FREE.md 說明；授權全文見 `FRONTEND_LICENSES_FULLTEXT.txt`。'],
     ['xlsx', '**xlsx（Apache-2.0）**：取自 SheetJS 官方 CDN（cdn.sheetjs.com/xlsx-0.20.3），npm 上的版本較舊且有已知弱點。'],
-    ['victory-vendor', '**victory-vendor（MIT AND ISC）**：內含 d3 等第三方套件（ISC、BSD-3-Clause 等），各自的授權檔已一併收錄於授權全文。'],
     ['size-sensor', '**size-sensor（ISC）**：套件及上游原始碼庫都沒有附授權檔，授權全文欄位僅列授權種類與網址。'],
 ];
 const presentNames = new Set(components.map(componentFullName));
@@ -299,7 +297,7 @@ const lines = [
     `- 主元件：${COMPONENT_NAME} ${COMPONENT_VERSION}（MIT）`,
     '- 範圍：正式執行相依（package.json 的 dependencies 及其傳遞相依）；建置與測試工具（devDependencies）不隨產品交付，不列入',
     `- 元件總數：${components.length}（直接相依 ${directComponents.length}、間接相依 ${components.length - directComponents.length}）`,
-    '- 後端（Python）SBOM 另見交付套件「3.2_附件二_軟體物料清單SBOM.json」',
+    '- 後端（Python）與映像檔 SBOM 見同資料夾的 `image-sbom.cdx.json`（CycloneDX，Trivy 對映像檔產製）與 `THIRD_PARTY_NOTICES.txt`（映像檔內 Python 套件授權全文）',
     '- 每個元件的授權全文已直接放在 SBOM 內（`licenses[].license.text`）；另提供 `FRONTEND_THIRD_PARTY_LICENSES.md`（授權清單）、`3.2_附件一_開源元件授權全文_前端.txt`（授權全文純文字版，版面比照廠商附件一），授權清單格式比照後端的 THIRD_PARTY_LICENSES.md',
     '- 重新產生：`npm install` 後執行 `npm run sbom`',
     '',

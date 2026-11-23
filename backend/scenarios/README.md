@@ -9,7 +9,7 @@
 
 ## 前置準備
 
-環境建置方式與 `docs/manual_test/README.md` 相同（`uv sync` 或 `pip install -r requirements.txt`）。
+環境建置方式與 `docs/manual_test/README.md` 相同（`uv sync` 或 `pip install -r requirements.txt`）。第四節的權限控管檢查另需 `requests`（服務本身不使用，不隨映像檔散布）：用 uv 請加 `--group scripts`（即 `uv sync --group scripts`），`requirements.txt` 已包含。
 以 uv 執行者，下列 `python ...` 指令前加 `uv run`。
 
 K-匿名化之假名化鹽值由 `.env` 之 `OPEN_PETS_DEFAULT_SALT` 提供；未設定時不加鹽，照常執行。
