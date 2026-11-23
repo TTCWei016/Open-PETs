@@ -16,7 +16,7 @@ import { forEachDecodedChunk, DEFAULT_STREAM_CHUNK_BYTES, LARGE_FILE_SAMPLING_BY
  *       全站以「欄位名稱當物件鍵值」查表會取到內建函式，Step2 直接崩潰（steps.map is not a function）。
  *   (3) 標題列前多了說明文字、或有未成對的引號，第一列不再是欄位名稱，整份資料錯位。
  *   本模組只做判斷、回傳結構化結果，訊息顯示由 Step1_Upload.tsx 負責，方便單元測試。
- * ★ 2026-11-02（F12）：約 650 MB 的 CSV 整份解碼成單一字串會超過 WebView2（V8）字串長度上限
+ * ★ 2026-11-02（F12）：約 650 MB 的 CSV 整份解碼成單一字串會超過瀏覽器（Chromium／V8）字串長度上限
  *   （約 5.37 億字元，「Invalid string length」）。各項檢查改為接受 Blob、逐段解碼（見下方
  *   forEachCsvRecordBatch：每段只在「完整資料列」的邊界切開），原本接受字串的函式保留為同一套實作的包裝。
  *   超過 LARGE_FILE_SAMPLING_BYTES（200 MB）的檔案只抽樣檢查前 200 MB（最後一筆不完整的資料列略過）。

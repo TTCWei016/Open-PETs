@@ -121,14 +121,14 @@ def _split_env_list(name: str) -> list[str]:
 def get_cors_origins() -> list[str]:
     """允許跨網域呼叫 API 的來源；未設定回傳空串列（不掛 CORS，只接受同源）。
 
-    .exe、線上 demo（Vite proxy）、nginx 部署都是同源，不需要 CORS。原本 allow_origins=["*"]
+    容器內建前端、Vite proxy、nginx 部署都是同源，不需要 CORS。原本 allow_origins=["*"]
     加上 allow_credentials，使用者瀏覽的任何網站都能呼叫本機後端並讀取回應。
     """
     return _split_env_list(CORS_ORIGINS_ENV)
 
 
 def get_allowed_hosts() -> list[str]:
-    """允許的 Host 標頭（防 DNS rebinding）；未設定回傳空串列（不限制）。單機版由 launcher 設為本機位址。"""
+    """允許的 Host 標頭（防 DNS rebinding）；未設定回傳空串列（不限制）。容器版由 docker/openpets_server.py 補上本機位址。"""
     return _split_env_list(ALLOWED_HOSTS_ENV)
 
 

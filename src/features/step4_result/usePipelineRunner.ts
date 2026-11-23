@@ -518,7 +518,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                 const configFile = new File([configBlob], 'config.json', { type: 'application/json' });
 
                 const originalFile = dataFile as File;
-                // ★ 2026-11-02（F12）：不再把整份原始資料讀成字串（約 610 MB 以上會超過 WebView2 的字串上限而失敗）；
+                // ★ 2026-11-02（F12）：不再把整份原始資料讀成字串（約 610 MB 以上會超過瀏覽器（Chromium／V8）的字串上限而失敗）；
                 //   只以 Blob 切片去掉檔頭 BOM，之後的列數統計、風險評估轉換、實用性計算都直接讀 Blob（逐段處理）。
                 const cleanedOriginalBlob = await stripLeadingBom(originalFile);
                 ensurePipelineStillActive();

@@ -59,9 +59,9 @@ register_processing_logging(app)
 def register_cross_origin_policy(target_app: FastAPI) -> None:
     """★ TTC 2026-11-02（資安掃描 2-4／B14）：跨網域與 Host 限制，依環境變數設定。
 
-    - OPEN_PETS_CORS_ORIGINS 未設定：不掛 CORS，只接受同源（.exe、Vite proxy、nginx 皆同源）。
+    - OPEN_PETS_CORS_ORIGINS 未設定：不掛 CORS，只接受同源（容器內建前端、Vite proxy、nginx 皆同源）。
       有設定：只允許清單內來源，且不帶 credentials（前端以 Authorization 標頭傳 token，不用 cookie）。
-    - OPEN_PETS_ALLOWED_HOSTS 有設定：Host 不在清單內一律 400（擋 DNS rebinding）；單機版由 launcher 設定。
+    - OPEN_PETS_ALLOWED_HOSTS 有設定：Host 不在清單內一律 400（擋 DNS rebinding）；容器版由 docker/openpets_server.py 設定。
     須在其他中介層之後加入：後加入者在最外層，連上傳上限的 413 也會帶正確的 CORS 標頭。
     """
     cors_origins = get_cors_origins()

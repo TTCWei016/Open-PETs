@@ -3,7 +3,7 @@
  * 檔案名稱 (File): blobStreaming.ts
  * 模組功能 (Description): 大檔分段處理（★ 2026-11-02 F12）。
  * ============================================================================
- * WebView2（Chromium／V8）單一字串上限約 5.37 億字元，約 610 MB 以上的 CSV 一旦整檔 `text()`／`TextDecoder.decode()`
+ * 瀏覽器（Chromium／V8）單一字串上限約 5.37 億字元，約 610 MB 以上的 CSV 一旦整檔 `text()`／`TextDecoder.decode()`
  * 就會丟出「Invalid string length」。本模組以 `blob.slice` 逐段讀取（預設 8 MB），全程不產生整檔字串：
  *   - forEachDecodedChunk：逐段解碼成文字（TextDecoder stream 模式，跨段的多位元組字元不會被切壞）
  *   - stripLeadingBom：只讀前幾個 byte 判斷 BOM／零寬空白，回傳去掉後的 Blob 切片
