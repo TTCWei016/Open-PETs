@@ -10,7 +10,7 @@ weight: 3
 {{< /callout >}}
 
 {{< callout type="warning" >}}
-**安裝時須指定映像檔編號，現行編號為 `2.0.0-rc5`。** 填入 `2.0.0` 將無法取得映像檔。可用編號以 [GitHub Releases](https://github.com/TTCWei016/Open-PETs/releases) 所列為準。
+**安裝時須指定映像檔編號，現行編號為 `2.0.0`。** 系統不提供 `latest`，編號須與實際存在的版本一致。可用編號以 [GitHub Releases](https://github.com/TTCWei016/Open-PETs/releases) 所列為準。
 {{< /callout >}}
 
 ### 版本號怎麼填
@@ -19,10 +19,10 @@ weight: 3
 
 | Releases 頁所列項目 | 應填入的版本號 |
 | --- | --- |
-| 標題 `Open-PETs 2.0.0-rc5`（標籤 `v2.0.0-rc5`） | `2.0.0-rc5`（**不含開頭的 v**） |
+| 標題 `Open-PETs 2.0.0`（標籤 `v2.0.0`） | `2.0.0`（**不含開頭的 v**） |
 
 - 每次安裝或更新均須指定明確的版本號，系統不提供 `latest`。
-- 離線交付包的檔名也帶同一個版本，例如 `open-pets-app_2.0.0-rc5.tar.gz`。
+- 離線交付包的檔名也帶同一個版本，例如 `open-pets-app_2.0.0.tar.gz`。
 
 ## 1. 架構
 
@@ -109,13 +109,13 @@ mkdir -p ~/open-pets-app && cd ~/open-pets-app
     {{< tabs >}}
     {{< tab name="Windows（PowerShell）" >}}
     ```powershell
-    $v = '2.0.0-rc5'
+    $v = '2.0.0'
     Invoke-WebRequest -UseBasicParsing "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/docker-compose.yml" -OutFile docker-compose.yml
     ```
     {{< /tab >}}
     {{< tab name="Linux（bash）" >}}
     ```bash
-    v=2.0.0-rc5
+    v=2.0.0
     curl -fsSLO "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/docker-compose.yml"
     ```
     {{< /tab >}}
@@ -241,14 +241,14 @@ mkdir -p ~/open-pets-app && cd ~/open-pets-app
     {{< tabs >}}
     {{< tab name="Windows（PowerShell）" >}}
     ```powershell
-    $v = '2.0.0-rc5'
+    $v = '2.0.0'
     Expand-Archive .\open-pets-source_$v.zip -DestinationPath .
     cd .\open-pets
     ```
     {{< /tab >}}
     {{< tab name="Linux（bash）" >}}
     ```bash
-    v=2.0.0-rc5
+    v=2.0.0
     unzip open-pets-source_$v.zip
     cd open-pets
     ```
@@ -260,14 +260,14 @@ mkdir -p ~/open-pets-app && cd ~/open-pets-app
     {{< tabs >}}
     {{< tab name="Windows（PowerShell）" >}}
     ```powershell
-    $v = '2.0.0-rc5'
+    $v = '2.0.0'
     git clone --branch v$v --depth 1 https://github.com/TTCWei016/Open-PETs.git open-pets
     cd .\open-pets
     ```
     {{< /tab >}}
     {{< tab name="Linux（bash）" >}}
     ```bash
-    v=2.0.0-rc5
+    v=2.0.0
     git clone --branch v$v --depth 1 https://github.com/TTCWei016/Open-PETs.git open-pets
     cd open-pets
     ```
@@ -555,14 +555,14 @@ cat .env
 {{< tabs >}}
 {{< tab name="Windows（PowerShell）" >}}
 ```powershell
-$v = '2.0.0-rc5'
+$v = '2.0.0'
 Invoke-WebRequest -UseBasicParsing "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/docker-compose.lan.yml" -OutFile docker-compose.lan.yml
 Invoke-WebRequest -UseBasicParsing "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/Caddyfile.lan" -OutFile Caddyfile.lan
 ```
 {{< /tab >}}
 {{< tab name="Linux（bash）" >}}
 ```bash
-v=2.0.0-rc5
+v=2.0.0
 curl -fsSLO "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/docker-compose.lan.yml"
 curl -fsSLO "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/Caddyfile.lan"
 ```
@@ -916,7 +916,7 @@ repo 的 `.github/workflows/` 有四個工作流程：
 | `pages.yml` | `doc_site/` 有修改並推送到 `main` | 建置並發佈本文件網站 |
 
 - 結果在 repo 的 **Actions** 分頁：綠色勾勾代表通過；紅色叉叉點進去可看失敗的步驟與訊息。
-- **發行新版本號：** 於要發行的 commit 建立標籤並推送，例如 `v2.0.0`。版本號含連字號者（如 `2.0.0-rc5`）於 Releases 以 Pre-release 標示。GHCR 映像檔、離線 tar.gz 與 Release 都由同一次建置產生，內容相同。**標籤一旦有對應的 Release 或映像檔，請勿刪除或改指向其他位置；需要重新發行時，請改用新的版本號。**
+- **發行新版本號：** 於要發行的 commit 建立標籤並推送，例如 `v2.0.0`。版本號含連字號者（如 `2.0.0-rc1`）於 Releases 以 Pre-release 標示。GHCR 映像檔、離線 tar.gz 與 Release 都由同一次建置產生，內容相同。**標籤一旦有對應的 Release 或映像檔，請勿刪除或改指向其他位置；需要重新發行時，請改用新的版本號。**
 - 只使用 GitHub 內建的 `GITHUB_TOKEN`，不需要另外設定密碼或金鑰。
 
 ### 分支與標籤保護
