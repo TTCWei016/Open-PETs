@@ -3,8 +3,7 @@
 服務（映像檔預設指令）：
   uvicorn openpets_server:build_app --factory --host 0.0.0.0 --port 8080
   後端 /api/* 照舊；其餘路徑回前端網頁（React Router 用 index.html）；後端原本的 GET / 狀態 JSON 移到 /api/v1/status。
-  使用 docker/launcher.py 的 attach_frontend／attach_api_docs／SecurityHeadersMiddleware，
-  不改動後端原始碼。
+  以本檔的 attach_frontend／attach_api_docs／SecurityHeadersMiddleware 掛到後端 app，不改動後端原始碼。
 
 管理指令（docker exec -it open-pets python /opt/openpets/openpets_server.py <指令>）：
   create-admin      互動建立系統管理員（密碼不會出現在指令歷史或程序列表）
@@ -18,6 +17,7 @@
 金鑰：OPEN_PETS_DEFAULT_SALT／OPEN_PETS_SYSTEM_MASTER_KEY／OPEN_PETS_JWT_SECRET 由環境變數提供；
 沒有提供的，第一次啟動時隨機產生並存到 /data/.secrets.env（權限 600），之後沿用。
 """
+import getpass
 import os
 import secrets
 import stat
@@ -111,7 +111,7 @@ def allow_loopback_hosts() -> None:
 
 
 def attach_runtime_config(app, config: dict) -> None:
-    """提供 /runtime-config.js（index.html 在主程式之前載入）。須在 launcher.attach_frontend 之前註冊，
+    """提供 /runtime-config.js（index.html 在主程式之前載入）。須在 attach_frontend 之前註冊，
     否則會被它的 /{full_path:path} 攔截而回傳 index.html。"""
     import json
 
@@ -124,6 +124,194 @@ def attach_runtime_config(app, config: dict) -> None:
         return Response(body, media_type="text/javascript", headers={"Cache-Control": "no-cache"})
 
 
+def frontend_dir() -> Path:
+    """前端 build 結果所在資料夾（映像檔以 OPEN_PETS_FRONTEND_DIR 指定）。"""
+    return Path(os.getenv("OPEN_PETS_FRONTEND_DIR", "/srv/frontend"))
+
+
+# ---------------------------------------------------------------- 安全標頭
+# 內容比照 nginx.conf。antd 以 <style> 注入樣式，style-src 需允許 'unsafe-inline'。
+SECURITY_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+        "font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; "
+        "form-action 'self'; frame-ancestors 'none'"
+    ),
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "require-corp",
+}
+
+
+class SecurityHeadersMiddleware:
+    """對所有 HTTP 回應補上安全標頭（回應已自訂者不覆蓋）。
+
+    用純 ASGI 中介層而非 @app.middleware("http")：後者會讓後端運算端點讀不到用戶端斷線（見後端 app/api/compute.py）。
+    """
+
+    def __init__(self, app):
+        self.app = app
+        self.headers = [(name.lower().encode("latin-1"), value.encode("latin-1")) for name, value in SECURITY_HEADERS.items()]
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        async def send_with_headers(message):
+            if message["type"] == "http.response.start":
+                existing = {name.lower() for name, _ in message.get("headers", [])}
+                message["headers"] = list(message.get("headers", [])) + [h for h in self.headers if h[0] not in existing]
+            await send(message)
+
+        await self.app(scope, receive, send_with_headers)
+
+
+# ---------------------------------------------------------------- API 互動文件
+# FastAPI 內建的 /docs、/redoc 從 CDN 載入腳本並以行內 <script> 初始化，
+# 兩者都被上方 CSP（script-src 'self'）擋下，離線環境也連不到 CDN。
+# 改用 Dockerfile 從 node_modules/swagger-ui-dist 複製到前端資料夾的 swagger-ui/，
+# 初始化程式另以 /swagger-ui/docs-init.js 提供，CSP 不必放寬。
+SWAGGER_UI_DIR = "swagger-ui"
+DOCS_INIT_JS = """window.ui = SwaggerUIBundle({
+  url: "__OPENAPI_URL__",
+  dom_id: "#swagger-ui",
+  layout: "BaseLayout",
+  deepLinking: true,
+  showExtensions: true,
+  showCommonExtensions: true,
+  presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+});
+"""
+DOCS_PAGE_HTML = """<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>__TITLE__ - API 文件</title>
+<link rel="stylesheet" href="/swagger-ui/swagger-ui.css">
+</head>
+<body>
+<div id="swagger-ui"></div>
+<script src="/swagger-ui/swagger-ui-bundle.js"></script>
+<script src="/swagger-ui/docs-init.js"></script>
+</body>
+</html>
+"""
+
+
+def attach_api_docs(app, dist: Path) -> None:
+    """以本機 Swagger UI 取代 /docs；/redoc 轉到 /docs。沒有打包 swagger-ui/ 時維持 FastAPI 原樣。"""
+    from html import escape
+
+    from fastapi.responses import HTMLResponse, RedirectResponse, Response
+
+    if not (dist / SWAGGER_UI_DIR / "swagger-ui-bundle.js").is_file() or not app.openapi_url:
+        return
+
+    replaced_paths = {app.docs_url, app.redoc_url} - {None}
+    app.router.routes[:] = [route for route in app.router.routes if getattr(route, "path", None) not in replaced_paths]
+
+    no_cache = {"Cache-Control": "no-cache"}
+    page_html = DOCS_PAGE_HTML.replace("__TITLE__", escape(app.title))
+    init_js = DOCS_INIT_JS.replace("__OPENAPI_URL__", app.openapi_url)
+
+    @app.get("/docs", include_in_schema=False)
+    def api_docs():
+        return HTMLResponse(page_html, headers=no_cache)
+
+    @app.get(f"/{SWAGGER_UI_DIR}/docs-init.js", include_in_schema=False)
+    def api_docs_init():
+        return Response(init_js, media_type="text/javascript", headers=no_cache)
+
+    @app.get("/redoc", include_in_schema=False)
+    def api_redoc():
+        return RedirectResponse("/docs")
+
+
+# ---------------------------------------------------------------- 網頁
+def attach_frontend(app, dist: Path) -> None:
+    """把前端 build 結果掛到後端 app：/api/* 照舊，其餘路徑回網頁（React Router 用 index.html）。"""
+    from fastapi import HTTPException
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    index_file = dist / "index.html"
+    if not index_file.is_file():
+        raise FileNotFoundError(f"找不到前端網頁：{index_file}")
+
+    # 後端原本的 GET / 回傳服務狀態 JSON；容器版改由 / 提供網頁，狀態移到 /api/v1/status
+    for route in list(app.router.routes):
+        if getattr(route, "path", None) == "/" and "GET" in (getattr(route, "methods", None) or set()):
+            endpoint = route.endpoint
+            app.router.routes.remove(route)
+            app.add_api_route("/api/v1/status", endpoint, methods=["GET"], include_in_schema=False)
+
+    assets_dir = dist / "assets"
+    if assets_dir.is_dir():
+        # 檔名含雜湊，可長期快取
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
+
+    no_cache = {"Cache-Control": "no-cache"}
+    dist_resolved = dist.resolve()
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_frontend(full_path: str):
+        # /api 底下找不到的端點維持 404 JSON（系統管理大廳以此判斷後端連線），不回網頁
+        if full_path == "api" or full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        if full_path:
+            candidate = (dist_resolved / full_path).resolve()
+            if candidate.is_file() and dist_resolved in candidate.parents:
+                return FileResponse(candidate)
+        return FileResponse(index_file, headers=no_cache)
+
+
+# ---------------------------------------------------------------- 帳號（管理指令用）
+def prompt_new_password(min_length: int) -> str:
+    # 與網頁、後端同一規則（長度＋大小寫、數字、特殊符號），不只檢查長度
+    from app.governance.auth import password_policy_error
+
+    while True:
+        pw1 = getpass.getpass(f"  密碼（至少 {min_length} 個字元，需含大小寫字母、數字及特殊符號，輸入時不會顯示）：")
+        error = password_policy_error(pw1)
+        if error:
+            print(f"  {error}")
+            continue
+        pw2 = getpass.getpass("  再輸入一次密碼：")
+        if pw1 != pw2:
+            print("  兩次輸入不一致，請重新輸入。")
+            continue
+        return pw1
+
+
+def reset_password_interactive() -> int:
+    from app.core.errors import PetsError
+    from app.governance.auth import get_auth_manager, get_password_min_length
+
+    manager = get_auth_manager()
+    users = manager.list_users()
+    if not users:
+        print("目前沒有任何帳號；請先執行 create-admin 建立管理員。")
+        return 1
+    print("目前帳號：")
+    for user in users:
+        state = "" if user.get("is_active", True) else "（已停用）"
+        print(f"  - {user['username']}  [{user['role']}]{state}")
+    username = input("要重設密碼的帳號：").strip()
+    password = prompt_new_password(get_password_min_length())
+    try:
+        manager.reset_password(username, password)
+    except PetsError as exc:
+        print(f"重設失敗：{exc}")
+        return 1
+    print(f"已重設 [{username}] 的密碼（同時解除登入鎖定）。")
+    return 0
+
+
 def build_app():
     runtime_config = resolve_runtime_config()  # 最先檢查設定：錯了就直接中止，不產生金鑰、不載入後端
     prepare_runtime_dirs()
@@ -131,19 +319,17 @@ def build_app():
     allow_loopback_hosts()
     print(f"[啟動] 模式：{runtime_config['mode']}", flush=True)
     # 須在載入後端前設定好環境變數；後端設定一律以環境變數優先
-    import launcher
     from app.api.server import app
 
-    dist = launcher.frontend_dir()
-    launcher.attach_api_docs(app, dist)
+    dist = frontend_dir()
+    attach_api_docs(app, dist)
     attach_runtime_config(app, runtime_config)
-    launcher.attach_frontend(app, dist)
-    app.add_middleware(launcher.SecurityHeadersMiddleware)  # 最後加入＝最外層
+    attach_frontend(app, dist)
+    app.add_middleware(SecurityHeadersMiddleware)  # 最後加入＝最外層
     return app
 
 
 def create_admin() -> int:
-    import launcher
     from app.core.errors import PetsError
     from app.governance.auth import get_auth_manager, get_password_min_length
 
@@ -159,7 +345,7 @@ def create_admin() -> int:
         if not username:
             print("  帳號不可空白。")
             continue
-        password = launcher.prompt_new_password(min_length)
+        password = prompt_new_password(min_length)
         try:
             manager.create_user(username, password, "admin")
         except PetsError as exc:
@@ -176,9 +362,7 @@ def main(argv: list[str]) -> int:
     if command == "create-admin":
         return create_admin()
     if command == "reset-password":
-        import launcher
-
-        return launcher.reset_password_interactive()
+        return reset_password_interactive()
     if command in BACKEND_CLI_COMMANDS or command == "--help-cli":
         from app.cli.main import cli
 
