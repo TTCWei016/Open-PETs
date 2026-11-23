@@ -98,7 +98,12 @@ jobs:
         run: |
           docker tag "open-pets-app:$VERSION" "$IMAGE:$VERSION"
           docker push "$IMAGE:$VERSION"
-          echo "digest=$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$VERSION")" >> "$GITHUB_OUTPUT"
+          # 同一個本機映像有兩個名字（open-pets-app 與 ghcr.io/...），RepoDigests 的順序不保證，
+          # 取第一筆可能是不含 ghcr.io 的短名稱，cosign 會去 Docker Hub 找而失敗（v2.0.0 首次發版即因此失敗）。
+          # 所以只挑 $IMAGE@ 開頭的那一筆；找不到就在這裡失敗，不把錯值傳到簽章步驟。
+          digest=$(docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$IMAGE:$VERSION" | grep -F "$IMAGE@" | head -n 1)
+          case "$digest" in "$IMAGE@sha256:"*) ;; *) echo "找不到 $IMAGE 的 RepoDigest（取得：${digest:-空}）"; exit 1 ;; esac
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
       - name: Install cosign
         if: github.ref_type == 'tag'
