@@ -6,7 +6,7 @@ weight: 2
 本頁說明從零開始安裝 Open-PETs 的完整流程，不需程式背景，約需 15～30 分鐘。每個步驟均列出操作內容與預期結果。
 
 {{< callout type="info" >}}
-安裝所需的映像檔編號為 **`2.0.0-rc5`**（不含開頭的 v）。下列指令已包含此編號，可依序執行。
+安裝所需的映像檔編號為 **`2.0.0`**（不含開頭的 v）。下列指令已包含此編號，可依序執行。
 {{< /callout >}}
 
 ## 名詞說明
@@ -80,7 +80,7 @@ Open-PETs 提供安裝工具 `open-pets.ps1`，以問答方式完成安裝與模
 ```powershell
 New-Item -ItemType Directory -Force C:\open-pets-app | Out-Null
 cd C:\open-pets-app
-$v = '2.0.0-rc5'
+$v = '2.0.0'
 Invoke-WebRequest -UseBasicParsing "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/open-pets.ps1" -OutFile open-pets.ps1
 Unblock-File .\open-pets.ps1
 ```
@@ -92,7 +92,7 @@ Unblock-File .\open-pets.ps1
 {{< tab name="Linux（bash）" >}}
 ```bash
 mkdir -p ~/open-pets-app && cd ~/open-pets-app
-v=2.0.0-rc5
+v=2.0.0
 curl -fsSLO "https://github.com/TTCWei016/Open-PETs/releases/download/v$v/open-pets.sh"
 chmod +x open-pets.sh
 ```
@@ -130,7 +130,7 @@ cd C:\open-pets-app
 | 工具提問 | 回答 |
 | --- | --- |
 | 要怎麼使用 | 輸入 `1`，按 Enter |
-| 要安裝哪一版（有提問時才需回答） | 輸入 `2.0.0-rc5` |
+| 要安裝哪一版（有提問時才需回答） | 輸入 `2.0.0` |
 | 要開始安裝嗎 | 輸入 `Y` |
 | 建立管理員：帳號、密碼 | 帳號建議使用 Email。密碼至少 12 個字元，須包含大寫、小寫、數字、符號（輸入時畫面不顯示字元，屬正常現象），並再輸入一次確認 |
 
@@ -250,7 +250,7 @@ New-NetFirewallRule -DisplayName "Open-PETs HTTPS 443" -Direction Inbound -Proto
 | 「已停用指令碼執行」 | Windows 安全設定 | 指令改為 `powershell -ExecutionPolicy Bypass -File .\open-pets.ps1 指令`（見第 3 步） |
 | 「Docker 沒有在執行」 | Docker Desktop 未開啟，或尚未就緒 | 開啟 Docker Desktop，待顯示綠色 Engine running 後重新執行 |
 | 「找不到 Docker」 | 尚未安裝 | 回到第 2 步 |
-| 「下載映像檔失敗」 | 無法連線網路，或編號輸入錯誤 | 確認網路連線；編號填入 `2.0.0-rc5`（不含開頭的 v） |
+| 「下載映像檔失敗」 | 無法連線網路，或編號輸入錯誤 | 確認網路連線；編號填入 `2.0.0`（不含開頭的 v） |
 | 瀏覽器無法開啟網址 | 埠已變更，或系統尚未就緒 | 執行 `.\open-pets.ps1 status` 查詢正確網址 |
 | 登入頁沒有可選的帳號 | 尚未建立管理員 | 執行 `.\open-pets.ps1 create-admin` |
 | 登入失敗次數過多而被鎖定 | 180 秒內失敗 5 次會鎖定 15 分鐘 | 等待 15 分鐘，或由管理員重設密碼 |
