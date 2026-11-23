@@ -36,7 +36,7 @@ ADMIN_DEMOTION_COOLDOWN_HOURS = 24
 PASSWORD_MIN_LENGTH_ENV = "OPEN_PETS_PASSWORD_MIN_LENGTH"
 DEFAULT_PASSWORD_MIN_LENGTH = 12
 # ★ TTC 2026-10-30：複雜度與前端一致（大小寫字母、數字、特殊符號各至少一個；任何非英數字皆算符號）。
-#   設為 0 可關閉（僅供測試）；直接呼叫 API、CLI、桌面版首位管理員都套用同一規則。
+#   設為 0 可關閉（僅供測試）；直接呼叫 API、CLI、容器版 create-admin 都套用同一規則。
 PASSWORD_REQUIRE_COMPLEXITY_ENV = "OPEN_PETS_PASSWORD_REQUIRE_COMPLEXITY"
 
 
@@ -55,7 +55,7 @@ def password_complexity_required() -> bool:
 
 
 def password_policy_error(password: str) -> str | None:
-    """新密碼不合規則時回傳原因，合格回傳 None；供 API 與桌面版 launcher 共用。"""
+    """新密碼不合規則時回傳原因，合格回傳 None；供 API 與容器版管理指令（create-admin、reset-password）共用。"""
     password = password or ""
     min_length = get_password_min_length()
     if len(password) < min_length:

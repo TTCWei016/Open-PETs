@@ -18,5 +18,5 @@ scratch/*.yaml
 !benchmarks/*.json
 
 # 例外：實務應用情境測試的設定檔須進版控（腳本一律讀它，且隨測試腳本交付）
-# 資料集與執行結果不進版控：以 scenarios/generate_scenarios.py 之固定亂數種子重生
+# 資料集與執行結果不進版控（資料集每份約 600～700 MB，隨交付套件的「03_測試資料集」另行提供）
 !scenarios/configs/*.json

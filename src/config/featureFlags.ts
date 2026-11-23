@@ -7,7 +7,7 @@
  * 執行期設定：由 index.html 先載入的 /runtime-config.js 設定 window.__OPEN_PETS_CONFIG__。
  *   - Docker 單一映像檔：後端依環境變數 OPEN_PETS_MODE（local／lan，舊值 offline 視為 local；線上 online 已移除）動態產生，
  *     同一份映像檔、同一份前端建置，使用者啟動時選模式（見 docker/openpets_server.py）。
- *   - 其他部署（nginx 版 Demo 站、npm run dev、單機版 exe）：public/runtime-config.js 內容為空物件，
+ *   - 其他部署（nginx 版 Demo 站、npm run dev）：public/runtime-config.js 內容為空物件，
  *     退回下方的「建置旗標」，行為與加入執行期設定之前完全相同。
  */
 export interface RuntimeConfig
@@ -26,7 +26,7 @@ export interface ResolvedFlags
 /**
  * 合併執行期設定與建置旗標（純函式，方便單元測試）。
  * @param runtimeConfig - window.__OPEN_PETS_CONFIG__（可能是空物件）
- * @param buildTarget - 建置時的 VITE_BUILD_TARGET（單機版為 'desktop'）
+ * @param buildTarget - 建置時的 VITE_BUILD_TARGET（容器映像檔以 desktop 模式建置）
  */
 export const resolveFlags = (runtimeConfig: RuntimeConfig, buildTarget: string | undefined): ResolvedFlags =>
 {
@@ -40,8 +40,8 @@ const runtimeConfig: RuntimeConfig = (globalThis as unknown as { __OPEN_PETS_CON
 const resolvedFlags = resolveFlags(runtimeConfig, import.meta.env.VITE_BUILD_TARGET);
 
 /**
- * ★ 2026-10-28：單機版執行檔（以 `vite build --mode desktop` 建置，讀 .env.desktop；打包腳本已於 2026-11-20 移除）。
- *   單機版：帳號由使用者第一次啟動時自建。
+ * ★ 2026-10-28：`vite build --mode desktop` 建置（Dockerfile 以此建置容器映像檔）。
+ *   帳號由使用者第一次啟動時以 create-admin 自建。
  * ★ 2026-11-10：改為「離線模式」，可由執行期設定覆蓋（Docker 單一映像檔）。IS_DESKTOP_BUILD 為舊名稱，保留相容。
  */
 export const IS_OFFLINE_MODE = resolvedFlags.isOfflineMode;

@@ -623,7 +623,7 @@ export default function Step1_Upload(): React.ReactElement
 
         // ★ 修正: 使用者反映「現在只能讀取 Big5 的 CSV，其他類型都會出現亂碼」，根因與修正
         // 說明詳見上方 detectCsvBytesEncoding／toUtf8CsvBlob 之函數註解。
-        // ★ 2026-11-02（F12）：不再整份 arrayBuffer() 再解碼成單一字串（約 610 MB 以上的 CSV 會超過 WebView2 字串
+        // ★ 2026-11-02（F12）：不再整份 arrayBuffer() 再解碼成單一字串（約 610 MB 以上的 CSV 會超過瀏覽器（Chromium／V8）字串
         //   長度上限而「Invalid string length」）。只讀開頭 64KB 偵測編碼，內容以 Blob 逐段處理。
         const handleCsvFileAsync = async (): Promise<void> =>
         {

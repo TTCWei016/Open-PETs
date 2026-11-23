@@ -88,7 +88,7 @@ bom.metadata.component = {
     properties: (bom.metadata.component.properties ?? []).filter((property) => property.name !== 'cdx:npm:package:path'),
     name: COMPONENT_NAME,
     version: COMPONENT_VERSION,
-    description: '台灣版隱私保護工具套件 Open-PETs 前端介面（React＋Ant Design，於瀏覽器或桌面版 WebView2 執行）',
+    description: '台灣版隱私保護工具套件 Open-PETs 前端介面（React＋Ant Design，於瀏覽器執行）',
     licenses: [{ license: { id: 'MIT' } }],
 };
 delete bom.metadata.component.purl;
