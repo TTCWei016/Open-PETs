@@ -17,8 +17,6 @@ weight: 3
 
 文中的 `<版本>` 須替換為**實際存在的版本號**：請至 [Releases 頁](https://github.com/TTCWei016/Open-PETs/releases)查閱欲安裝的項目。
 
-文中的 `TTCWei016` 為示意用的 GitHub 帳號或組織名稱，請換成實際存放本專案的位置。
-
 | Releases 頁所列項目 | 應填入的版本號 |
 | --- | --- |
 | 標題 `Open-PETs 2.0.0`（標籤 `v2.0.0`） | `2.0.0`（**不含開頭的 v**） |
