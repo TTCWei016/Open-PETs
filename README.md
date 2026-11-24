@@ -5,6 +5,8 @@
 它裝在一台電腦或主機上，使用者用瀏覽器操作。**所有運算都在這台主機上進行，資料不會傳到其他地方。**
 
 > 安裝所需的映像檔編號為 **`2.0.0`**，可至 [Releases](https://github.com/TTCWei016/Open-PETs/releases) 下載。
+>
+> 文中的 `TTCWei016` 為示意用的 GitHub 帳號或組織名稱，請換成實際存放本專案的位置。
 
 📖 **完整手冊（有圖、有排解）：https://ttcwei016.github.io/Open-PETs/**
 
