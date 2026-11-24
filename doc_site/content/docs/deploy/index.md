@@ -938,7 +938,7 @@ repo 設了兩個 ruleset（Settings → Rules → Rulesets）：
 
 - `doc_site/` 有修改並推送到 `main` 後，GitHub 會自動建置並更新網站，約 1–2 分鐘。也可以在 Actions 分頁手動執行「Deploy docs site to Pages」。
 - 第一次使用前，請到 repo 的 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。
-- 本機預覽：安裝 Hugo extended（`winget install Hugo.Hugo.Extended`），clone 時加 `--recurse-submodules` 取得主題，在 `doc_site` 資料夾執行 `hugo server`，開 http://localhost:1313/Demo/ 。
+- 本機預覽：安裝 Hugo extended（`winget install Hugo.Hugo.Extended`），clone 時加 `--recurse-submodules` 取得主題，在 `doc_site` 資料夾執行 `hugo server`，開 http://localhost:1313/Open-PETs/ 。
 
 ## 16. 疑難排解
 
