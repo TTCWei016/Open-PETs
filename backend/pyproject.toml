@@ -8,7 +8,7 @@ requires-python = ">=3.12"
 dependencies = [
     # === 核心 (Core) ===
     # 網頁框架與非同步
-    "fastapi==0.163.1",
+    "fastapi==0.165.0",
     "uvicorn==0.54.0",
     "starlette==1.10.0",  # ★ TTC 2026-11-02：資安掃描 2-3（form 上限遭忽略 DoS）
     
@@ -25,17 +25,17 @@ dependencies = [
     "diffprivlib==0.6.6",
     
     # 驗證與資料結構
-    "pydantic==2.14.3",
+    "pydantic==2.14.4",
 
     # 身分驗證（登入憑證的簽發與驗章）
     # 純 Python、無 C 擴充、無傳遞相依，地端離線安裝與容器建置皆不需額外編譯環境。
     "pyjwt==2.15.1",  # ★ TTC 2026-11-02：資安掃描 2-3
     
     # 資料庫
-    "sqlalchemy==2.1.8",
+    "sqlalchemy==2.1.9",
     
     # CLI 工具
-    "typer==0.29.1",
+    "typer==0.29.2",
     "click==8.5.1",
     "rich==15.0.0",
     
@@ -43,16 +43,16 @@ dependencies = [
     "fpdf2==2.9.0",  # ★ TTC 2026-11-02：資安掃描 2-3
     
     # 其他常用核心庫
-    "pyyaml==6.0.3",
+    "pyyaml==6.0.4",
     "python-dotenv==1.2.4",
-    "python-multipart==0.0.33",  # ★ TTC 2026-11-02：資安掃描 2-3（multipart 解析 DoS）
+    "python-multipart==0.0.34",  # ★ TTC 2026-11-02：資安掃描 2-3（multipart 解析 DoS）
     "openpyxl==3.1.5",
 ]
 
 [dependency-groups]
 # === 開發用 (Development) ===
 dev = [
-    "ruff==0.17.5",
+    "ruff==0.17.6",
     "pylint==4.1.4",
     "isort==8.0.1",
 ]
