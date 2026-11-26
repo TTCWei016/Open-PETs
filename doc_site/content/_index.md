@@ -53,7 +53,7 @@ layout: hextra-home
   {{< hextra/feature-card
     title="常見問題"
     icon="question-mark-circle"
-    subtitle="埠被占用、400、上傳 413、容器不健康、校驗碼對不上、帳號鎖定等狀況的處理方式。"
+    subtitle="埠被佔用、400、上傳 413、容器不健康、檢查碼對不上、帳號鎖定等狀況的處理方式。"
     link="docs/faq"
   >}}
   {{< hextra/feature-card

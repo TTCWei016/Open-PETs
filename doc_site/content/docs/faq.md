@@ -38,8 +38,8 @@ weight: 7
 
 | 現象 | 原因與處理方式 |
 | --- | --- |
-| 頁面持續載入，最後顯示 `ERR_CONNECTION_TIMED_OUT`（回應時間過長） | **最常見：網址未以 `https://` 開頭。** 僅輸入 IP 時，瀏覽器會走未開放的 `http://`。請輸入完整的 `https://主機IP`。<br>仍無法連線時：在使用者電腦執行 `Test-NetConnection 主機IP -Port 443`，應顯示 `TcpTestSucceeded : True`。`False` 代表網路不通，可能原因為主機防火牆未開放 443（若已變更 `OPEN_PETS_HTTPS_PORT`，須開放該埠）、主機未開機、`open-pets-proxy-1` 容器未運行（以 `docker ps` 確認），或使用者的電腦不在同一個網路（**手機行動熱點、訪客網路常會隔離裝置**，彼此無法連線）。 |
-| `ERR_CONNECTION_REFUSED` | 同上；多半是防火牆未開放，或 HTTPS 容器未運行。 |
+| 頁面持續載入，最後顯示 `ERR_CONNECTION_TIMED_OUT`（回應時間過長） | **最常見：網址未以 `https://` 開頭。** 僅輸入 IP 時，瀏覽器會走未開放的 `http://`。請輸入完整的 `https://主機IP`。<br>仍無法連線時：在使用者電腦執行 `Test-NetConnection 主機IP -Port 443`，應顯示 `TcpTestSucceeded : True`。`False` 代表網路不通，可能原因為主機防火牆未開放 443（若已變更 `OPEN_PETS_HTTPS_PORT`，須開放該埠）、主機未開機、`open-pets-proxy-1` 容器未執行（以 `docker ps` 確認），或使用者的電腦不在同一個網路（**手機行動熱點、訪客網路常會隔離裝置**，彼此無法連線）。 |
+| `ERR_CONNECTION_REFUSED` | 同上；多半是防火牆未開放，或 HTTPS 容器未執行。 |
 | 「您的連線不是私人連線」（`ERR_CERT_AUTHORITY_INVALID`） | 這台電腦尚未信任內網的根憑證。於主機執行 `.\open-pets.ps1 export-ca`，將 `open-pets-ca.crt` 與說明檔提供給使用者，依說明安裝為「受信任的根憑證授權單位」，再重新開啟瀏覽器。手動做法見[安裝教學 9-4](../deploy/#9-4-讓使用者電腦信任根憑證)。 |
 | `ERR_SSL_PROTOCOL_ERROR`、憑證名稱不符，或連線被重設 | 使用者輸入的網址未列於 `.env` 的 `OPEN_PETS_ALLOWED_HOSTS`。執行 `.\open-pets.ps1 mode lan -Hosts 網址1,網址2`（列入所有會使用的網址）。清單有多個 IP 時，使用者實際使用的 IP 應置於最前面。手動寫入 `.env` 的指令見[安裝教學 9-1](../deploy/#9-1-先決定使用者輸入的網址)。 |
 | 400 Invalid host header | 同上：使用者輸入的網址未列於 `OPEN_PETS_ALLOWED_HOSTS`，補上後重新套用，指令見[安裝教學 9-1](../deploy/#9-1-先決定使用者輸入的網址)，完整說明見[安裝教學第 9 節](../deploy/#9-開放給其他電腦內網)。 |
