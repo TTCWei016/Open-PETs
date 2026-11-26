@@ -7,7 +7,7 @@ Open-PETs 的處理引擎提供 HTTP API。可使用 curl、Python 或其他程�
 
 ## 連線位址與互動文件
 
-| 項目 | 說明 |
+| 名稱 | 說明 |
 | --- | --- |
 | API 位址 | `http://<主機>:8080/api/v1`（前端與後端在同一個容器、同一個埠） |
 | 互動文件（Swagger UI） | `http://<主機>:8080/docs` |
@@ -56,7 +56,7 @@ Authorization: Bearer <access_token>
 
 **憑證規則：**
 
-| 項目 | 規則 |
+| 名稱 | 規則 |
 | --- | --- |
 | access_token | 有效 15 分鐘（`expires_in = 900` 秒）。沒帶或過期時回 401。 |
 | refresh_token | 有效 7 天，每個只能用一次。 |

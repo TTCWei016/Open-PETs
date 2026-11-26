@@ -1,1 +1,6 @@
 copyright: "© 2026 Open-PETs 資料隱私保護技術套件"
+
+# 覆寫佈景（Hextra）內建字串，改用台灣用語
+searchPlaceholder: "搜尋手冊..."
+backToTop: "回到頂端"
+onThisPage: "本頁內容"

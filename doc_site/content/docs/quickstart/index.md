@@ -146,7 +146,7 @@ cd C:\open-pets-app
 以 Chrome 或 Edge 開啟 **http://localhost:8080**，使用剛建立的帳號登入。登入後的操作見[前端操作說明](../frontend/)。
 
 {{< callout type="info" >}}
-若工具顯示「8080 埠已被占用，改用 8081」，網址請改為 `http://localhost:8081`。工具最後的「怎麼開啟」區段會列出正確網址。
+若工具顯示「8080 埠已被佔用，改用 8081」，網址請改為 `http://localhost:8081`。工具最後的「怎麼開啟」區段會列出正確網址。
 {{< /callout >}}
 
 ### 選擇「內網」（同一辦公室的多位使用者共用）
@@ -195,7 +195,7 @@ New-NetFirewallRule -DisplayName "Open-PETs HTTPS 443" -Direction Inbound -Proto
 - **網址必須以 `https://` 開頭。** 僅輸入 IP 時，瀏覽器會改用未開放的 `http://`，頁面將持續載入，最後顯示「回應時間過長」。
 - **網址須替換為實際使用的網址**，即第 4 步「網址」提問所填入的內容。若不確定，可於安裝資料夾執行 `.\open-pets.ps1 status` 查詢。
 - 使用者端沒有系統管理員權限時，請貴單位資訊人員以群組原則將 `open-pets-ca.crt` 一次佈署至所有電腦。
-- 安裝憑證前，建議核對說明檔中的 SHA-256 指紋（雙擊 `open-pets-ca.crt` →「詳細資料」→「指紋」），一致才安裝，以防檔案遭替換。
+- 安裝憑證前，建議核對說明檔中的 SHA-256 指紋（連按兩下 `open-pets-ca.crt` →「詳細資料」→「指紋」），一致才安裝，以防檔案遭替換。
 {{< /callout >}}
 
 ## 第 5 步：切換模式
@@ -259,7 +259,7 @@ New-NetFirewallRule -DisplayName "Open-PETs HTTPS 443" -Direction Inbound -Proto
 | （內網）頁面持續載入，最後顯示 `ERR_CONNECTION_TIMED_OUT` | **網址未以 `https://` 開頭**；或防火牆未開放、主機未開機、使用者端與主機不在同一網路（行動熱點常隔離連線裝置） | 先確認輸入的是 `https://主機IP`。仍無法連線時，於使用者端 PowerShell 執行 `Test-NetConnection 主機IP -Port 443`，應顯示 `TcpTestSucceeded : True`；顯示 `False` 表示網路不通 |
 | （內網）更換網路後無法連線 | 主機 IP 已變動，設定仍指向舊 IP | 以 `ipconfig` 查詢新 IP，再執行上方「網址或 IP 變動時」的兩行指令 |
 | （內網）出現 `ERR_SSL_PROTOCOL_ERROR` 或憑證名稱不符 | 輸入的網址不在設定的清單內 | 執行 `.\open-pets.ps1 mode lan -Hosts 網址1,網址2`（列入所有會使用的網址），再執行 `export-ca` |
-| （內網）工具顯示「443 埠已被占用，HTTPS 改用 8443」 | 這台電腦的 443 埠已被其他程式使用 | 非錯誤。網址須加上埠號：`https://主機IP:8443`，防火牆亦須開放 8443 |
+| （內網）工具顯示「443 埠已被佔用，HTTPS 改用 8443」 | 這台電腦的 443 埠已被其他程式使用 | 非錯誤。網址須加上埠號：`https://主機IP:8443`，防火牆亦須開放 8443 |
 | 工具顯示已有名為「open-pets」的容器 | 這台電腦先前已安裝過 | 非錯誤，工具會自動避開，不會變動舊的容器 |
 
 其他問題請見[常見問題](../faq/)。需資訊人員協助時，請提供 `.\open-pets.ps1 logs` 的最後數行輸出。

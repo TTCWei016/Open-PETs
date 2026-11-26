@@ -32,7 +32,7 @@ markup:
 menu:
   main:
     - identifier: docs
-      name: 文件
+      name: 使用手冊
       pageRef: /docs
       weight: 1
     - identifier: quickstart

@@ -15,9 +15,9 @@ weight: 3
 
 ### 版本號怎麼填
 
-文中的 `<版本>` 須替換為**實際存在的版本號**：請至 [Releases 頁](https://github.com/TTCWei016/Open-PETs/releases)查閱欲安裝的項目。
+文中的 `<版本>` 須替換為**實際存在的版本號**：請至 [Releases 頁](https://github.com/TTCWei016/Open-PETs/releases)查閱欲安裝的版本。
 
-| Releases 頁所列項目 | 應填入的版本號 |
+| Releases 頁上的欄位 | 應填入的版本號 |
 | --- | --- |
 | 標題 `Open-PETs 2.0.0`（標籤 `v2.0.0`） | `2.0.0`（**不含開頭的 v**） |
 
@@ -62,7 +62,7 @@ docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.
 
 ## 3. 事前準備
 
-| 項目 | 說明 |
+| 需求 | 說明 |
 | --- | --- |
 | 作業系統 | Windows 10／11（64 位元）或 Linux。只提供 x86_64（amd64）映像檔，不支援 ARM |
 | Docker | Windows：安裝 Docker Desktop（選用 WSL 2），開啟後左下角顯示 **Engine running**。Linux：Docker Engine＋Compose 外掛 |
@@ -342,7 +342,7 @@ mkdir -p ~/open-pets-app && cd ~/open-pets-app
 API 互動文件（Swagger）在 **http://localhost:8080/docs**，用法見 [API 使用說明](../api/)。
 
 {{< callout type="info" >}}
-**8080 埠被占用**（`port is already allocated`）：把 `.env` 的 `OPEN_PETS_PORT` 改成任一空的埠（例如 8081）並重新啟動，網址改用該埠。指令如下：
+**8080 埠被佔用**（`port is already allocated`）：把 `.env` 的 `OPEN_PETS_PORT` 改成任一空的埠（例如 8081）並重新啟動，網址改用該埠。指令如下：
 {{< /callout >}}
 
 {{< tabs >}}
@@ -376,9 +376,9 @@ docker compose up -d
 | 「系統維運日誌」分頁（系統設定內） | 隱藏 | 顯示（管理員查看全站登入與 API 紀錄） |
 | 章節 | 第 7 節 | [第 9 節](#9-開放給其他電腦內網) |
 
-- 內網模式的 `OPEN_PETS_ALLOWED_HOSTS` 沒設定時，`docker compose` 會直接報錯（`required variable OPEN_PETS_ALLOWED_HOSTS is missing a value`），不會啟動。
+- 內網模式的 `OPEN_PETS_ALLOWED_HOSTS` 沒設定時，`docker compose` 會直接顯示錯誤（`required variable OPEN_PETS_ALLOWED_HOSTS is missing a value`），不會啟動。
 - 兩種模式的資料、帳號、稽核紀錄與金鑰格式相同，可以直接切換：停止容器，改用另一個啟動指令，資料磁碟區不變。
-- `OPEN_PETS_MODE` 填了 `local`、`offline`、`lan` 以外的值，容器啟動時會報錯並結束（`docker logs` 看得到原因），不會悄悄退回預設。
+- `OPEN_PETS_MODE` 填了 `local`、`offline`、`lan` 以外的值，容器啟動時會顯示錯誤並結束（`docker logs` 看得到原因），不會悄悄退回預設。
 - `OPEN_PETS_MODE` 設成 `online` 會被拒絕，並提示改用 `lan` 或 `local`；先前安裝的資料夾的處理方式見 [9-6](#9-6-沿用先前安裝的資料夾)。
 
 ### 用安裝工具切換，或手動切換
@@ -432,7 +432,7 @@ docker compose up -d --remove-orphans
 {{< /tab >}}
 {{< /tabs >}}
 
-`.env` 其他可設定的項目：
+`.env` 其他可設定的欄位：
 
 | 變數 | 用途 | 未設定時 |
 | --- | --- | --- |
@@ -580,7 +580,7 @@ docker compose -f docker-compose.yml -f docker-compose.lan.yml up -d
 docker ps
 ```
 
-應該看到兩個容器：`open-pets`（`healthy`）與 `open-pets-proxy-1`（`Up`）。沒設定 `OPEN_PETS_ALLOWED_HOSTS` 時，`docker compose` 會直接報錯，不會啟動。
+應該看到兩個容器：`open-pets`（`healthy`）與 `open-pets-proxy-1`（`Up`）。沒設定 `OPEN_PETS_ALLOWED_HOSTS` 時，`docker compose` 會直接顯示錯誤，不會啟動。
 
 ### 9-3. 開放防火牆
 
@@ -601,7 +601,7 @@ sudo ufw allow 443/tcp   # 以 ufw 為例；其他防火牆請用對應的指令
 {{< /tab >}}
 {{< /tabs >}}
 
-主機的 443 已被占用時，把 `.env` 的 `OPEN_PETS_HTTPS_PORT` 改成 8443、防火牆也開放 8443，使用者的網址要加上埠：`https://192.168.1.20:8443`。指令如下（防火牆指令需以系統管理員身分執行）：
+主機的 443 已被佔用時，把 `.env` 的 `OPEN_PETS_HTTPS_PORT` 改成 8443、防火牆也開放 8443，使用者的網址要加上埠：`https://192.168.1.20:8443`。指令如下（防火牆指令需以系統管理員身分執行）：
 
 {{< tabs >}}
 {{< tab name="Windows（PowerShell）" >}}
@@ -650,7 +650,7 @@ Test-NetConnection 192.168.1.20 -Port 443
     certutil -addstore -f Root open-pets-ca.crt
     ```
 
-    或雙擊 `open-pets-ca.crt` → 安裝憑證 → 本機電腦 → 選「將所有憑證放入以下的存放區」→ 受信任的根憑證授權單位。Chrome 與 Edge 使用 Windows 的憑證存放區，裝好後重開瀏覽器即可。公司有網域時，可用群組原則一次佈署到所有電腦。
+    或連按兩下 `open-pets-ca.crt` → 安裝憑證 → 本機電腦 → 選「將所有憑證放入以下的存放區」→ 受信任的根憑證授權單位。Chrome 與 Edge 使用 Windows 的憑證存放區，裝好後重開瀏覽器即可。公司有網域時，可用群組原則一次佈署到所有電腦。
     {{< /tab >}}
     {{< tab name="macOS" >}}
     ```bash
@@ -670,7 +670,7 @@ Test-NetConnection 192.168.1.20 -Port 443
 
 ### 9-5. 憑證的更新
 
-Caddy 簽發的內網憑證預設有效期約 12 小時，容器運行中會自動續期，無須處理；根憑證有效期約 10 年。只要 `proxy` 容器持續運行（已設定 `restart: unless-stopped`），使用者不會遇到憑證過期。
+Caddy 簽發的內網憑證預設有效期約 12 小時，容器執行中會自動續期，無須處理；根憑證有效期約 10 年。只要 `proxy` 容器持續執行（已設定 `restart: unless-stopped`），使用者不會遇到憑證過期。
 
 ### 不使用 HTTPS 的簡化做法（不建議）
 
@@ -775,7 +775,7 @@ docker compose up -d
 
 **退回先前的版本號：** 把 `OPEN_PETS_VERSION` 改回先前的版本號（指令同上，將 `$v` 設為先前的編號），再執行 `docker compose up -d`（先前的映像檔仍在本機時無須重新取得）。
 
-版本一律指定明確的版號，不使用 `latest`（交付包與 GHCR 都不提供），避免無意間升級。
+版本一律指定明確的版號，不使用 `latest`（交付包與 GHCR 都不提供），避免無意間更新。
 
 ## 11. 備份與還原
 
@@ -882,7 +882,7 @@ docker run --rm -v "${PWD}:/w" -w /w gcr.io/projectsigstore/cosign:latest verify
 1. 在 `TTCWei016/Open-PETs` 的 **Settings → General → Danger Zone → Transfer ownership**，輸入甲方的帳號或組織名稱。
 2. 甲方接受後，舊網址會自動導向新網址。
 
-**方式 B：複製到甲方新建的 repo**
+**方式 B：複製到甲方新建立的 repo**
 
 1. 甲方在 GitHub 建立空的 repo（不要勾選建立 README）。
 2. 在已 clone 的資料夾推送全部分支與標籤：
@@ -912,8 +912,8 @@ repo 的 `.github/workflows/` 有四個工作流程：
 | --- | --- | --- |
 | `ci.yml` | 推送到 `main`、`master`，或發 Pull Request 到 `main`、`master` | 前端 `npm ci`、型別檢查與打包、`vitest`；後端 `uv sync --locked`、`pytest` |
 | `docker-image.yml` | 推送 `v*` 標籤（手動執行只做建置與打包，不發佈） | 建置映像檔 → Trivy 弱點掃描（有可修補的高風險就失敗）→ 冒煙測試（腳本是 `docker/smoke_test.sh`：本機、`offline` 舊名稱、內網，並確認不合法的模式值與 `online` 會被拒絕）→ 推送 GHCR → cosign 簽章 → 產生離線交付包 → 建立 Release |
-| `docker-build-check.yml` | 發 Pull Request，且修改了 `docker/`、`backend/`、`src/`、`public/`、`package*.json` 等與映像檔有關的檔案 | 建置映像檔 → 同一份冒煙測試（不推送、不簽章、不建立 Release）。讓 Dockerfile 與 Dependabot 的基底映像檔升級在合併前就被測到；不是 ruleset 的必過檢查 |
-| `pages.yml` | `doc_site/` 有修改並推送到 `main` | 建置並發佈本文件網站 |
+| `docker-build-check.yml` | 發 Pull Request，且修改了 `docker/`、`backend/`、`src/`、`public/`、`package*.json` 等與映像檔有關的檔案 | 建置映像檔 → 同一份冒煙測試（不推送、不簽章、不建立 Release）。讓 Dockerfile 與 Dependabot 的基底映像檔更新在合併前就被測到；不是 ruleset 的必過檢查 |
+| `pages.yml` | `doc_site/` 有修改並推送到 `main` | 建置並發佈本手冊網站 |
 
 - 結果在 repo 的 **Actions** 分頁：綠色勾勾代表通過；紅色叉叉點進去可看失敗的步驟與訊息。
 - **發行新版本號：** 於要發行的 commit 建立標籤並推送，例如 `v2.0.0`。版本號含連字號者（如 `2.0.0-rc1`）於 Releases 以 Pre-release 標示。GHCR 映像檔、離線 tar.gz 與 Release 都由同一次建置產生，內容相同。**標籤一旦有對應的 Release 或映像檔，請勿刪除或改指向其他位置；需要重新發行時，請改用新的版本號。**
@@ -932,7 +932,7 @@ repo 設了兩個 ruleset（Settings → Rules → Rulesets）：
 
 `.github/dependabot.yml` 每週檢查：基底映像檔（Python、Node，只跟同一個版本線）、GitHub Actions、前端 npm 套件（`/`）、後端 Python 套件（`/backend`，uv）。npm 與 Python 的小版本與修補版會合併成一個 Pull Request，**大版本不自動提**，要人工評估；每個 Pull Request 都要通過上面的必過檢查才能合併。
 
-### 本文件網站
+### 本手冊網站
 
 本網站的原始檔在 repo 的 `doc_site/`（Hugo＋Hextra 主題），由 `pages.yml` 自動發佈：
 
@@ -942,4 +942,4 @@ repo 設了兩個 ruleset（Settings → Rules → Rulesets）：
 
 ## 16. 疑難排解
 
-安裝或使用時遇到的錯誤（埠被占用、400、413、容器不健康、校驗碼對不上等）與處理方式，見[常見問題](../faq/#部署與連線)。
+安裝或使用時遇到的錯誤（埠被佔用、400、413、容器不健康、檢查碼對不上等）與處理方式，見[常見問題](../faq/#部署與連線)。

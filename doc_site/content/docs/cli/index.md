@@ -16,7 +16,7 @@ weight: 6
 | 去識別化、風險評估、產生報告 | `docker run --rm …`（另起一個用完即刪的容器） | 把主機的工作資料夾掛到容器內的 `/work`，並掛上資料磁碟區 `open-pets_open-pets-data`（取得同一份雜湊鹽值） |
 | 帳號維護、檢查稽核紀錄 | `docker exec open-pets …`（在執行中的容器內執行） | 直接使用執行中系統的帳號資料庫與稽核紀錄 |
 
-所有指令都用同一個入口 `python /opt/openpets/openpets_server.py <子命令>`，它會先載入資料磁碟區裡的金鑰（雜湊鹽值等），再執行子命令。
+所有指令都用同一個入口 `python /opt/openpets/openpets_server.py <子指令>`，它會先載入資料磁碟區裡的金鑰（雜湊鹽值等），再執行子指令。
 
 ### 準備工作資料夾
 
@@ -43,16 +43,16 @@ docker run --rm -v "${PWD}:/work" -v open-pets_open-pets-data:/data open-pets-ap
 
 ### 全域選項
 
-全域選項要寫在子命令**之前**：
+全域選項要寫在子指令**之前**：
 
 | 選項 | 說明 |
 | --- | --- |
 | `--log-file <路徑>` | 系統日誌檔路徑；沒指定時只輸出到畫面 |
 | `--log-level <等級>` | 日誌等級：DEBUG／INFO／WARNING（預設）／ERROR |
 
-## 子命令總覽
+## 子指令總覽
 
-| 子命令 | 用途 | 參數 |
+| 子指令 | 用途 | 參數 |
 | --- | --- | --- |
 | `preprocess` | 資料前處理（去空白、型態轉換等 11 項） | `-i` 輸入檔、`-c` 設定檔、`-o` 輸出檔（皆必填）；`--table` |
 | `k-anonymity` | K-匿名化（含 l-多樣性、t-相近性與抑制） | `-i`、`-c`、`-o`（皆必填）；`--table` |
@@ -70,9 +70,9 @@ docker run --rm -v "${PWD}:/work" -v open-pets_open-pets-data:/data open-pets-ap
 
 ## 設定檔
 
-所有子命令共用**一份統合設定檔**（JSON 或 YAML），並用每個區塊的 `enabled` 決定要執行哪些處理。`k`、抑制上限、隱私預算等參數都寫在設定檔裡，不能從命令列指定。雜湊鹽值只從伺服器端的設定讀取（環境變數 `OPEN_PETS_DEFAULT_SALT`，沒有設定時用第一次啟動自動產生的 `/data/.secrets.env`）。
+所有子指令共用**一份統合設定檔**（JSON 或 YAML），並用每個區塊的 `enabled` 決定要執行哪些處理。`k`、抑制上限、隱私預算等參數都寫在設定檔裡，不能從命令列指定。雜湊鹽值只從伺服器端的設定讀取（環境變數 `OPEN_PETS_DEFAULT_SALT`，沒有設定時用第一次啟動自動產生的 `/data/.secrets.env`）。
 
-| 子命令 | 需啟用的區塊 |
+| 子指令 | 需啟用的區塊 |
 | --- | --- |
 | `preprocess` | `preprocess` |
 | `k-anonymity` | `k_anonymity` |
@@ -113,7 +113,7 @@ cd C:\pets-work
 $img = 'run', '--rm', '-v', "${PWD}:/work", '-v', 'open-pets_open-pets-data:/data', 'open-pets-app:<版本>'
 ```
 
-報告 JSON 要在容器內用 `sh -c '… > /work/output/xxx.json'` 存檔，不要用 PowerShell 的 `>` 或 `Out-File`：PowerShell 會改變中文的編碼，存下來的 JSON 無法給 `report` 子命令讀取。
+報告 JSON 要在容器內用 `sh -c '… > /work/output/xxx.json'` 存檔，不要用 PowerShell 的 `>` 或 `Out-File`：PowerShell 會改變中文的編碼，存下來的 JSON 無法給 `report` 子指令讀取。
 
 ### K-匿名化 → 風險評估 → PDF 報告
 
