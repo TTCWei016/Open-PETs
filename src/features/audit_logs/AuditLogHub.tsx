@@ -493,8 +493,6 @@ export default function AuditLogHub(): React.ReactElement
 				footer={[
 					<Button key="close" onClick={() => setIsReportModalVisible(false)}>{translate('audit.btn_close', '關閉')}</Button>,
 					// ★ 2026-10-02：未達合規標準的紀錄不提供 PDF 匯出
-					// ★ 專家回饋 P-13：PDF 改走瀏覽器列印，提醒使用者在列印視窗選「另存為 PDF」才有可選取的文字
-					selectedAuditLogStatus === 'passed' && <span key="print-hint" data-testid="pdf-print-hint" style={{ marginRight: 8, fontSize: scaleFontSize(12), color: '#8c8c8c' }}>{translate('audit.pdf_print_hint', '在列印視窗選「另存為 PDF」，PDF 才有可選取的文字')}</span>,
 					<Tooltip key="print" title={selectedAuditLogStatus === 'unassessed'
 						? translate('audit.export_blocked_unassessed', '此筆紀錄未完成風險評估，不提供 PDF 匯出。')
 						: selectedAuditLogStatus === 'failed' ? translate('audit.export_blocked_failed', '此筆紀錄未達標，不提供 PDF 匯出。') : undefined}>

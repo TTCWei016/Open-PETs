@@ -748,8 +748,7 @@ const translationResourcesDictionary = {
 					title_non_compliant: "檢測紀錄（未達標）",
 					title_unassessed: "檢測紀錄（未完成風險評估）",
 					close: "關閉",
-					export_pdf: "列印／另存 PDF",
-					pdf_print_hint: "在列印視窗選「另存為 PDF」，PDF 才有可選取的文字"
+					export_pdf: "列印／另存 PDF"
 				},
 				report: {
 					// ★ 使用者反映（2026-09-23）：合規審計報告（前端產出）與官方風險評估報告
@@ -1023,7 +1022,6 @@ const translationResourcesDictionary = {
 				modal_title: "歷史檢測紀錄調閱",
 				btn_close: "關閉",
 				btn_export_pdf: "列印／另存 PDF",
-				pdf_print_hint: "在列印視窗選「另存為 PDF」，PDF 才有可選取的文字",
 				msg_pdf_compiling: "正在編譯高畫質 PDF，請稍候...",
 				msg_pdf_success: "歷史檢測紀錄 PDF 已成功下載！",
 				msg_pdf_failed: "PDF 下載失敗",
@@ -1804,8 +1802,7 @@ const translationResourcesDictionary = {
 					title_non_compliant: "Assessment Record (Below Standard)",
 					title_unassessed: "Assessment Record (Risk Not Assessed)",
 					close: "Close",
-					export_pdf: "Print / Save as PDF",
-					pdf_print_hint: "In the print dialog choose \"Save as PDF\" to keep selectable text"
+					export_pdf: "Print / Save as PDF"
 				},
 				report: {
 					header: "Privacy Risk Assessment Report",
@@ -2082,7 +2079,6 @@ const translationResourcesDictionary = {
 				modal_title: "Historical Certificate Viewer",
 				btn_close: "Close",
 				btn_export_pdf: "Print / Save as PDF",
-				pdf_print_hint: "In the print dialog choose \"Save as PDF\" to keep selectable text",
 				msg_pdf_compiling: "Compiling high-quality PDF, please wait...",
 				msg_pdf_success: "Audit Certificate PDF exported successfully!",
 				msg_pdf_failed: "Failed to download PDF.",

@@ -1413,8 +1413,6 @@ export default function Step4_Result(): React.ReactElement
                 open={isReportModalVisibleStatus} onCancel={() => setIsReportModalVisibleStatus(false)} width={'57em'} styles={{ body: { maxHeight: '72vh', overflowY: 'auto', paddingRight: '6px' } }}
                 footer={[
                     <Button key="close" onClick={() => setIsReportModalVisibleStatus(false)}>{translate('step4.modal.close', '關閉')}</Button>,
-                    // ★ 專家回饋 P-13：PDF 改走瀏覽器列印，提醒使用者在列印視窗選「另存為 PDF」才有可選取的文字
-                    !isResultNonCompliantStatus && <span key="print-hint" data-testid="pdf-print-hint" style={{ marginRight: 8, fontSize: scaleFontSize(12), color: token.colorTextSecondary }}>{translate('step4.modal.pdf_print_hint', '在列印視窗選「另存為 PDF」，PDF 才有可選取的文字')}</span>,
                     <Tooltip key="download" title={isResultNonCompliantStatus ? nonCompliantDownloadBlockedText : undefined}>
                         <Button type="primary" icon={<DownloadOutlined />} loading={isExportingPdfStatus} disabled={isResultNonCompliantStatus} onClick={handleDownloadPDF} style={isResultNonCompliantStatus ? undefined : { background: '#4F46E5' }}>{translate('step4.modal.export_pdf', '列印／另存 PDF')}</Button>
                     </Tooltip>
