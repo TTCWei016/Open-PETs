@@ -76,11 +76,13 @@ function PlainRow({ question, tooltip, answer, answerColor, detail, helpIcon, co
 }) {
     return (
         <div data-testid={testId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 16px', borderTop: isFirst ? 'none' : `1px solid ${colors.border}` }}>
-            <div style={{ fontSize: scaleFontSize(14), color: colors.text, display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+            {/* ★ 2026-11-27 版面修正：右側答案原本 flexShrink: 0，K-匿名「變化最大的欄位搭配」列出很長的英文欄位名稱時，
+                右側撐得比卡片還寬，左邊問題被擠成一字一行。改成右側可縮、長字可斷行，左邊至少保留 7em。 */}
+            <div style={{ fontSize: scaleFontSize(14), color: colors.text, display: 'flex', alignItems: 'center', gap: 4, flex: '0 1 auto', minWidth: '7em' }}>
                 {question}
                 {tooltip && helpIcon ? helpIcon(tooltip) : null}
             </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ textAlign: 'right', flex: '1 1 auto', minWidth: 0, overflowWrap: 'anywhere' }}>
                 <div style={{ fontSize: scaleFontSize(15), fontWeight: 700, color: answerColor || colors.text }}>{answer}</div>
                 {detail && <div style={{ fontSize: scaleFontSize(12), color: colors.muted, marginTop: 2 }}>{detail}</div>}
             </div>

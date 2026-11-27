@@ -28,7 +28,7 @@ interface ComplianceReportDocumentProps {
     entry: ComplianceReportEntry;
     /** 匯出 PDF 中：欄位對照表完全展開、不加捲軸 */
     isExportingPdf: boolean;
-    /** html2pdf 擷取用的 DOM id */
+    /** 列印（另存為 PDF）時擷取用的 DOM id */
     containerId: string;
     containerRef?: Ref<HTMLDivElement>;
 }

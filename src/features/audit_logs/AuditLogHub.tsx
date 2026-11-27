@@ -28,33 +28,13 @@ import RiskLevelBadge from '../../components/RiskLevelBadge';
 import { computeReportOverallRisk, resolveAuditLogComplianceStatus } from '../../utils/complianceReport';
 
 import { scaleFontSize } from '../../utils/fontScale';
-import { createHtml2PdfLoader, startHtml2PdfLoader } from '../../utils/html2pdfLoader';
+import { printReportElement } from '../../utils/printReport';
 /**
  * 預設常數宣告
  * 規範對照: 符合規範 e) 避免魔術數字 (Magic Number)
  */
 const DEFAULT_PAGE_SIZE = 10;
 const PDF_COMPILATION_DELAY_MS = 400;
-
-/**
- * html2pdf 套件之方法型別介面
- * 規範對照: 符合規範 h) 資料結構宣告註記，欄位說明置於右方
- */
-interface Html2Pdf 
-{
-	set: (options: Record<string, unknown>) => Html2Pdf; // 設定 PDF 編譯參數
-	from: (element: HTMLElement | null) => Html2Pdf;  // 綁定待繪製之 DOM 元素
-	save: () => Promise<void>;                       // 執行下載儲存動作
-}
-
-/**
- * 擴充 Window 物件介面
- * 規範對照: 符合規範 h) 資料結構宣告註記，欄位說明置於右方
- */
-interface WindowWithHtml2Pdf extends Window 
-{
-	html2pdf: () => Html2Pdf; // 動態載入之 html2pdf 實例建立函式
-}
 
 const { Text, Title } = Typography;
 
@@ -204,7 +184,8 @@ export default function AuditLogHub(): React.ReactElement
 
 	/**
 	 * 函數名稱: handleDownloadPDF
-	 * 函數功能: 動態載入 html2pdf.js 套件，將 DOM 節點 (#printable-historical-report) 轉繪編譯為 A4 格式 PDF 憑證並啟動下載。
+	 * 函數功能: 把調閱的報告（#printable-historical-report）交給瀏覽器列印；在列印視窗選「另存為 PDF」會保留可選取的文字。
+	 * ★ 專家回饋 P-13：原本用 html2pdf 把畫面轉成圖片，PDF 沒有文字層。見 utils/printReport.ts。
 	 * 
 	 * 輸入參數 (Input): 無
 	 * 輸出參數 (Output): 無
@@ -221,78 +202,30 @@ export default function AuditLogHub(): React.ReactElement
 		{
 			return;
 		}
-		
-		const hideLoadingMessageFunction = messageApi.loading(
-			translate('audit.msg_pdf_compiling', '正在編譯高畫質 PDF，請稍候...'), 
-			0
-		);
 
 		setIsPdfExporting(true);
-		
+
+		// 等畫面切到「匯出模式」（欄位表不再捲動、完整展開）後再複製進列印用頁框
 		await new Promise(
 			(resolveDelay) => setTimeout(resolveDelay, PDF_COMPILATION_DELAY_MS)
 		);
 
-		// ★ 2026-10-29：改用打包進前端的 html2pdf（離線也能匯出），見 utils/html2pdfLoader.ts
-		const html2pdfLoader = createHtml2PdfLoader();
-		
-		html2pdfLoader.onload = () => 
+		try 
 		{
-			const pdfCompilationOptions = {
-				margin:      [10, 10, 10, 10], 
-				filename:    `Privacy_Audit_Certificate_${selectedAuditLog?.certificateId}.pdf`, // ★ 2026-10-08：檔名與 Step4 一致
-				image:       { type: 'jpeg', quality: 0.98 },
-				html2canvas: { 
-					scale: 2, 
-					useCORS: true, 
-					backgroundColor: '#ffffff',
-					scrollY: 0,
-					scrollX: 0
-				},
-				jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-				pagebreak:   { mode: ['avoid-all', 'css', 'legacy'], avoid: ['tr', '.pdf-page-break', '.avoid-break'] }
-			};
-
-			(window as unknown as WindowWithHtml2Pdf).html2pdf().set(pdfCompilationOptions).from(targetPrintDomElement).save().then(
-				() => 
-				{
-					hideLoadingMessageFunction();
-
-					messageApi.success(
-						translate('step4.msg.pdf_success', '檢測報告 PDF 已成功下載！')
-					);
-				}
-			).catch(
-				(pdfExecutionError: unknown) => 
-				{
-					hideLoadingMessageFunction();
-
-					messageApi.error(
-						translate('audit.msg_pdf_failed', 'PDF 下載失敗')
-					);
-
-					console.error(pdfExecutionError);
-				}
-			).finally(
-				() => 
-				{
-					setIsPdfExporting(false);
-				}
-			);
-		};
-		
-		html2pdfLoader.onerror = () => 
+			printReportElement(targetPrintDomElement, `Privacy_Audit_Certificate_${selectedAuditLog?.certificateId}`); // ★ 2026-10-08：檔名與 Step4 一致
+		}
+		catch (pdfExecutionError: unknown) 
 		{
-			hideLoadingMessageFunction();
-
 			messageApi.error(
-				translate('audit.msg_pdf_no_lib', '無法載入 PDF 轉檔套件，請重新整理頁面後再試一次。')
+				translate('audit.msg_pdf_failed', '無法開啟列印視窗')
 			);
 
+			console.error(pdfExecutionError);
+		}
+		finally 
+		{
 			setIsPdfExporting(false);
-		};
-		
-		startHtml2PdfLoader(html2pdfLoader);
+		}
 	};
 
 	/**
@@ -564,7 +497,7 @@ export default function AuditLogHub(): React.ReactElement
 						? translate('audit.export_blocked_unassessed', '此筆紀錄未完成風險評估，不提供 PDF 匯出。')
 						: selectedAuditLogStatus === 'failed' ? translate('audit.export_blocked_failed', '此筆紀錄未達標，不提供 PDF 匯出。') : undefined}>
 						<Button type="primary" icon={<DownloadOutlined />} loading={isPdfExporting} disabled={selectedAuditLogStatus !== 'passed'} onClick={handleDownloadPDF} style={selectedAuditLogStatus !== 'passed' ? undefined : { background: '#4F46E5' }}>
-							{translate('audit.btn_export_pdf', '匯出 PDF 憑證')}
+							{translate('audit.btn_export_pdf', '列印／另存 PDF')}
 						</Button>
 					</Tooltip>
 				]}

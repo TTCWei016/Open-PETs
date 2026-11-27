@@ -290,13 +290,20 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
     }, []);
     // ★ 2026-10-29：離開 Step4（例如閒置逾時被登出）時中止進行中的運算，避免結果在登出後又寫回工作區
     // ★ 2026-11-02：同時通知後端停止這一輪（不等結果）；只中斷前端連線時，後端仍會把這一輪算完
-    useEffect(() => () => {
-        clearPipelineCompletionTimeout();
-        const runningAbortController = pipelineAbortControllerRef.current;
-        if (!runningAbortController || runningAbortController.signal.aborted) return;
-        const clientRunId = pipelineClientRunIdRef.current;
-        if (clientRunId) backendCancelRequestRef.current = cancelBackendRun(clientRunId).then(() => true, () => false);
-        runningAbortController.abort();
+    // ★ 專家回饋 P-16：運算中按「重新開始」（或離開 Step4）會走到這裡中止運算，這是使用者自己的操作，
+    //   之後 catch 裡不該再跳「已取消運算」的提示、也不該標示後端忙碌（畫面已經回到第一步）。用 ref 記住元件已卸載。
+    const isPipelineHookUnmountedRef = useRef(false);
+    useEffect(() => {
+        isPipelineHookUnmountedRef.current = false;
+        return () => {
+            isPipelineHookUnmountedRef.current = true;
+            clearPipelineCompletionTimeout();
+            const runningAbortController = pipelineAbortControllerRef.current;
+            if (!runningAbortController || runningAbortController.signal.aborted) return;
+            const clientRunId = pipelineClientRunIdRef.current;
+            if (clientRunId) backendCancelRequestRef.current = cancelBackendRun(clientRunId).then(() => true, () => false);
+            runningAbortController.abort();
+        };
     }, [clearPipelineCompletionTimeout]);
     // ★ 新增：若 processedCsvBlob 明明有內容（bytes > 0），但解析出來的資料列數卻是 0，
     //   代表後端回傳的 CSV 內容本身可能有非預期格式（例如編碼、分隔符號等問題）。
@@ -823,6 +830,13 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                 if (isApiRequestCanceled(error)) {
                     // ★ 2026-11-02：已登出或換人登入：這一輪屬於上一次登入，不提示、不標示後端忙碌，安靜結束
                     if (isPipelineSessionChanged) return;
+                    // ★ 專家回饋 P-16：使用者在運算中按「重新開始」／離開 Step4：安靜結束，不跳「已取消運算」；
+                    //   只有取消請求送不到後端時，才照原本規則標示後端忙碌（下次送出前提醒）
+                    if (isPipelineHookUnmountedRef.current) {
+                        const isBackendCancelReceivedAfterLeave = await (backendCancelRequestRef.current ?? Promise.resolve(false));
+                        if (!isBackendCancelReceivedAfterLeave) markBackendLikelyBusy(Date.now(), 'canceled');
+                        return;
+                    }
                     appendStepLog('已取消運算');
                     messageApi.info(translate('step4.msg.canceled', '已取消運算'));
                     setIsPipelineCanceledStatus(true);

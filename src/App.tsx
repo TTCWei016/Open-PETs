@@ -48,6 +48,7 @@ import { Dashboard } from './features/dashboard/Dashboard';
 import MainLayout from './features/workspace/MainLayout';
 import { validateProgression } from './features/workspace/validateProgression';
 import { useIdleTimeout } from './features/settings/useIdleTimeout';
+import { useUnloadGuard } from './features/workspace/useUnloadGuard';
 import { DEFAULT_SESSION_TIMEOUT_MINUTES, loadSystemSettings } from './utils/systemSettingsSync';
 
 import { scaleFontSize, FONT_SCALE_BASE_PX } from './utils/fontScale';
@@ -197,6 +198,8 @@ function InnerApp({ isDarkMode }: InnerAppProps): React.ReactElement {
     // ★ 2026-10-29：系統設定存在後端，登入期間每 60 秒重新讀取一次——管理員修改閒置登出時間，其他電腦 1 分鐘內套用
     //   （同日曾一併輪詢的系統公告已移除）
     const isUserSignedInStatus = !!currentUserSessionData;
+    // ★ 專家回饋 P-15：運算中或已上傳資料時，重新整理／關閉分頁前先確認（重新整理會中斷運算並清空工作區）
+    useUnloadGuard(isUserSignedInStatus);
     useEffect(() => {
         if (!isUserSignedInStatus) return;
         const refreshTimerId = window.setInterval(() => { void loadSystemSettings(); }, SERVER_DATA_REFRESH_INTERVAL_MS);
@@ -220,12 +223,18 @@ function InnerApp({ isDarkMode }: InnerAppProps): React.ReactElement {
                     if (parsedUrlTargetStepIndexValue > storeCurrentStepIndexValue) {
                         const validationErrorMessageString = validateProgression(parsedUrlTargetStepIndexValue, storeCurrentStepIndexValue, currentWorkspaceStoreStateSnapshot, translate);
                         if (validationErrorMessageString) {
-                            globalNotificationApi.error({
-                                message: translate('workspace.step_jump_blocked_title', '無法跳至該步驟'),
-                                description: validationErrorMessageString,
-                                duration: STEP_VALIDATION_NOTIFICATION_AUTO_CLOSE_SECONDS,
-                                placement: 'bottomRight',
-                            });
+                            // ★ 專家回饋 P-15：工作區是空的（例如在 Step2～4 重新整理頁面後，網址仍是 ?step=3）時，
+                            //   不是使用者操作錯誤，改用一般提示說明原因，不再跳紅色的「無法跳至該步驟」讓人以為被踢出
+                            if (!currentWorkspaceStoreStateSnapshot.dataFile && storeCurrentStepIndexValue === MIN_STEP_INDEX) {
+                                globalMessageApi.info(translate('workspace.reload_reset_notice', '工作區是空的，已回到第一步。重新整理頁面會中斷運算並清空工作區，請重新上傳資料。'));
+                            } else {
+                                globalNotificationApi.error({
+                                    message: translate('workspace.step_jump_blocked_title', '無法跳至該步驟'),
+                                    description: validationErrorMessageString,
+                                    duration: STEP_VALIDATION_NOTIFICATION_AUTO_CLOSE_SECONDS,
+                                    placement: 'bottomRight',
+                                });
+                            }
                             executeNavigationAction(`/workspace?step=${storeCurrentStepIndexValue + 1}`, { replace: true });
                             return;
                         }
@@ -238,7 +247,7 @@ function InnerApp({ isDarkMode }: InnerAppProps): React.ReactElement {
                 executeNavigationAction(`/workspace?step=${useWorkspaceStore.getState().currentStep + 1}`, { replace: true });
             }
         }
-    }, [stepQueryParameterString, currentLocationData.pathname, executeNavigationAction, globalNotificationApi, translate]);
+    }, [stepQueryParameterString, currentLocationData.pathname, executeNavigationAction, globalNotificationApi, globalMessageApi, translate]);
 
     const [isSidebarCollapsedStatus, setIsSidebarCollapsedStatus] = useState<boolean>(true);
 

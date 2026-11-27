@@ -748,10 +748,10 @@ const translationResourcesDictionary = {
 					title_non_compliant: "檢測紀錄（未達標）",
 					title_unassessed: "檢測紀錄（未完成風險評估）",
 					close: "關閉",
-					export_pdf: "輸出 PDF 紀錄"
+					export_pdf: "列印／另存 PDF"
 				},
 				report: {
-					// ★ 使用者反映（2026-09-23）：合規審計報告（前端 html2pdf 產出）與官方風險評估報告
+					// ★ 使用者反映（2026-09-23）：合規審計報告（前端產出）與官方風險評估報告
 					//   （後端 /api/v1/report 簽發）風格版面不一致，使用者覺得太複雜。這裡將合規審計
 					//   報告改版，統一比照官方風險評估報告的版面風格（深色標題列、置中大標題、
 					//   一二三四五編號段落、樸素邊框表格），並把官方報告獨有的「隱私強化處理配置」
@@ -930,6 +930,7 @@ const translationResourcesDictionary = {
 			layout:{
 				confirm_reset: "確定要放棄目前進度並重新開始嗎？",
 				reset_workspace: "清空所有資料與設定，回到初始狀態",
+				reset_done: "已清空工作區，回到第一步"
 			},
 			preferences: {
 				title: "介面偏好",
@@ -1020,7 +1021,7 @@ const translationResourcesDictionary = {
 				btn_view_cert: "調閱紀錄",
 				modal_title: "歷史檢測紀錄調閱",
 				btn_close: "關閉",
-				btn_export_pdf: "輸出 PDF 紀錄",
+				btn_export_pdf: "列印／另存 PDF",
 				msg_pdf_compiling: "正在編譯高畫質 PDF，請稍候...",
 				msg_pdf_success: "歷史檢測紀錄 PDF 已成功下載！",
 				msg_pdf_failed: "PDF 下載失敗",
@@ -1801,7 +1802,7 @@ const translationResourcesDictionary = {
 					title_non_compliant: "Assessment Record (Below Standard)",
 					title_unassessed: "Assessment Record (Risk Not Assessed)",
 					close: "Close",
-					export_pdf: "Export PDF Certificate"
+					export_pdf: "Print / Save as PDF"
 				},
 				report: {
 					header: "Privacy Risk Assessment Report",
@@ -1986,6 +1987,7 @@ const translationResourcesDictionary = {
 			layout:{
 				confirm_reset: "Are you sure you want to reset the workspace? All unsaved settings will be lost.",
 				reset_workspace: "Reset Workspace",
+				reset_done: "Workspace cleared. Back to step 1."
 			},
 			preferences: {
 				saved_per_account: "Saved per account, on any computer",
@@ -2076,7 +2078,7 @@ const translationResourcesDictionary = {
 				btn_view_cert: "View Cert",
 				modal_title: "Historical Certificate Viewer",
 				btn_close: "Close",
-				btn_export_pdf: "Export PDF",
+				btn_export_pdf: "Print / Save as PDF",
 				msg_pdf_compiling: "Compiling high-quality PDF, please wait...",
 				msg_pdf_success: "Audit Certificate PDF exported successfully!",
 				msg_pdf_failed: "Failed to download PDF.",

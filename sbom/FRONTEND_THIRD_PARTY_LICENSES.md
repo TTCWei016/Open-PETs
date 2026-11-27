@@ -2,7 +2,7 @@
 
 SBOM（CycloneDX 1.5）：前端 `frontend-sbom.cdx.json`（依 `package-lock.json` 產生，僅含執行期相依）。
 各 npm 套件授權全文見 `FRONTEND_LICENSES_FULLTEXT.txt`（映像檔 `/licenses` 與交付包都附；原始碼內的檔名是 `3.2_附件一_開源元件授權全文_前端.txt`，內容相同，版面比照廠商《第三階段執行報告書》附件一）。
-共 142 筆（SBOM 共 145 個元件；同名同版本但安裝在不同位置的元件，授權只列一次）。
+共 119 筆（SBOM 共 122 個元件；同名同版本但安裝在不同位置的元件，授權只列一次）。
 
 ## 前端 npm 套件（執行期）
 
@@ -63,28 +63,20 @@ SBOM（CycloneDX 1.5）：前端 `frontend-sbom.cdx.json`（依 `package-lock.js
 | @rc-component/util | 1.14.1 | MIT | https://react-component.github.io/util |
 | @rc-component/virtual-list | 1.6.0 | MIT | https://react-component.github.io/virtual-list |
 | @scarf/scarf | 1.4.0 | Apache-2.0 | https://github.com/scarf-sh/scarf-js |
-| @types/pako | 2.0.4 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/pako |
-| @types/raf | 3.4.3 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/raf |
-| @types/trusted-types | 2.0.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/trusted-types |
 | agent-base | 6.0.2 | MIT | https://github.com/TooTallNate/node-agent-base |
 | antd | 6.7.0 | MIT | https://ant.design |
 | asynckit | 0.4.0 | MIT | https://github.com/alexindigo/asynckit |
 | axios | 1.21.1 | MIT | https://axios-http.com |
-| base64-arraybuffer | 1.0.2 | MIT | https://github.com/niklasvh/base64-arraybuffer |
 | call-bind-apply-helpers | 1.0.2 | MIT | https://github.com/ljharb/call-bind-apply-helpers |
-| canvg | 3.0.11 | MIT | https://github.com/canvg/canvg |
 | clsx | 2.1.1 | MIT | https://github.com/lukeed/clsx |
 | combined-stream | 1.0.8 | MIT | https://github.com/felixge/node-combined-stream |
 | compute-scroll-into-view | 3.1.1 | MIT | https://scroll-into-view.dev |
 | cookie | 1.1.1 | MIT | https://github.com/jshttp/cookie |
-| core-js | 3.51.0 | MIT | https://core-js.io |
 | crypto-js | 4.2.0 | MIT | http://github.com/brix/crypto-js |
-| css-line-break | 2.1.0 | MIT | https://github.com/niklasvh/css-line-break |
 | csstype | 3.2.3 | MIT | https://github.com/frenic/csstype |
 | dayjs | 1.11.23 | MIT | https://day.js.org |
 | debug | 4.4.3 | MIT | https://github.com/debug-js/debug |
 | delayed-stream | 1.0.0 | MIT | https://github.com/felixge/node-delayed-stream |
-| dompurify | 3.4.17 | (MPL-2.0 OR Apache-2.0) | https://github.com/cure53/DOMPurify |
 | dunder-proto | 1.0.1 | MIT | https://github.com/es-shims/dunder-proto |
 | echarts | 6.1.0 | Apache-2.0 | https://echarts.apache.org |
 | echarts-for-react | 3.0.6 | MIT | https://github.com/hustcc/echarts-for-react |
@@ -93,8 +85,6 @@ SBOM（CycloneDX 1.5）：前端 `frontend-sbom.cdx.json`（依 `package-lock.js
 | es-object-atoms | 1.1.2 | MIT | https://github.com/ljharb/es-object-atoms |
 | es-set-tostringtag | 2.1.0 | MIT | https://github.com/es-shims/es-set-tostringtag |
 | fast-deep-equal | 3.1.3 | MIT | https://github.com/epoberezkin/fast-deep-equal |
-| fast-png | 6.4.0 | MIT | https://github.com/image-js/fast-png |
-| fflate | 0.8.3 | MIT | https://101arrowz.github.io/fflate |
 | follow-redirects | 1.16.2 | MIT | https://github.com/follow-redirects/follow-redirects |
 | form-data | 4.0.6 | MIT | https://github.com/form-data/form-data |
 | function-bind | 1.1.2 | MIT | https://github.com/Raynos/function-bind |
@@ -105,47 +95,34 @@ SBOM（CycloneDX 1.5）：前端 `frontend-sbom.cdx.json`（依 `package-lock.js
 | has-tostringtag | 1.0.2 | MIT | https://github.com/inspect-js/has-tostringtag |
 | hasown | 2.0.4 | MIT | https://github.com/inspect-js/hasOwn |
 | html-parse-stringify | 4.0.1 | MIT | https://github.com/i18next/html-parse-stringify |
-| html2canvas | 1.4.1 | MIT | https://html2canvas.hertzen.com |
-| html2pdf.js | 0.14.0 | MIT | https://ekoopmans.github.io/html2pdf.js/ |
 | https-proxy-agent | 5.0.1 | MIT | https://github.com/TooTallNate/node-https-proxy-agent |
 | i18next | 26.7.2 | MIT | https://www.i18next.com |
-| iobuffer | 5.4.0 | MIT | https://github.com/image-js/iobuffer |
 | is-mobile | 5.0.0 | MIT | https://github.com/juliangruber/is-mobile |
 | json2mq | 0.2.0 | MIT | https://github.com/akiran/json2mq |
-| jspdf | 4.2.1 | MIT | https://github.com/parallax/jsPDF |
 | lucide-react | 1.73.0 | ISC | https://lucide.dev |
 | math-intrinsics | 1.1.0 | MIT | https://github.com/es-shims/math-intrinsics |
 | mime-db | 1.52.0 | MIT | https://github.com/jshttp/mime-db |
 | mime-types | 2.1.35 | MIT | https://github.com/jshttp/mime-types |
 | ms | 2.1.3 | MIT | https://github.com/vercel/ms |
-| pako | 2.2.0 | (MIT AND Zlib) | https://github.com/nodeca/pako |
 | papaparse | 5.7.1 | MIT | https://www.papaparse.com/ |
-| performance-now | 2.1.0 | MIT | https://github.com/braveg1rl/performance-now |
 | proxy-from-env | 2.1.0 | MIT | https://github.com/Rob--W/proxy-from-env |
-| raf | 3.4.1 | MIT | https://github.com/chrisdickinson/raf |
 | react | 19.3.1 | MIT | https://react.dev/ |
 | react-dom | 19.3.1 | MIT | https://react.dev/ |
 | react-i18next | 17.1.13 | MIT | https://github.com/i18next/react-i18next |
 | react-is | 19.3.1 | MIT | https://react.dev/ |
 | react-router | 7.18.5 | MIT | https://github.com/remix-run/react-router |
 | react-router-dom | 7.18.5 | MIT | https://github.com/remix-run/react-router |
-| regenerator-runtime | 0.13.11 | MIT | https://github.com/facebook/regenerator/tree/main |
-| rgbcolor | 1.0.1 | MIT OR SEE LICENSE IN FEEL-FREE.md | https://github.com/yetzt/node-rgbcolor |
 | scheduler | 0.28.0 | MIT | https://react.dev/ |
 | scroll-into-view-if-needed | 3.1.0 | MIT | https://scroll-into-view.dev |
 | set-cookie-parser | 2.7.3 | MIT | https://github.com/nfriedly/set-cookie-parser |
 | size-sensor | 1.0.3 | ISC | https://git.hust.cc/size-sensor |
-| stackblur-canvas | 2.7.0 | MIT | http://www.quasimondo.com/StackBlurForCanvas/StackBlurDemo.html |
 | string-convert | 0.2.1 | MIT | https://github.com/akiran/string-convert |
 | stylis | 4.4.0 | MIT | https://github.com/thysultan/stylis.js |
-| svg-pathdata | 6.0.3 | MIT | https://github.com/nfroidure/svg-pathdata |
 | swagger-ui-dist | 5.35.0 | Apache-2.0 | https://github.com/swagger-api/swagger-ui |
-| text-segmentation | 1.0.3 | MIT | https://github.com/niklasvh/text-segmentation |
 | throttle-debounce | 5.0.2 | MIT | https://github.com/niksy/throttle-debounce |
 | tslib | 2.3.0 | 0BSD | https://www.typescriptlang.org/ |
 | tslib | 2.8.1 | 0BSD | https://www.typescriptlang.org/ |
 | use-sync-external-store | 1.6.0 | MIT | https://github.com/facebook/react |
-| utrie | 1.0.2 | MIT | https://github.com/niklasvh/utrie |
 | xlsx | 0.20.3 | Apache-2.0 | https://sheetjs.com/ |
 | yaml | 2.9.1 | ISC | https://eemeli.org/yaml/ |
 | zrender | 6.1.0 | BSD-3-Clause | https://github.com/ecomfe/zrender |
@@ -153,8 +130,6 @@ SBOM（CycloneDX 1.5）：前端 `frontend-sbom.cdx.json`（依 `package-lock.js
 
 ## 授權注意事項
 
-- **dompurify（MPL-2.0 OR Apache-2.0）**：雙授權，擇一適用；本專案以 Apache-2.0 使用，未修改其原始碼。MPL-2.0 全文（`LICENSE-MPL`）一併收錄於授權全文。
-- **rgbcolor（MIT OR SEE LICENSE IN FEEL-FREE.md）**：套件宣告為 MIT，並附 FEEL-FREE.md 說明；授權全文見 `FRONTEND_LICENSES_FULLTEXT.txt`。
 - **xlsx（Apache-2.0）**：取自 SheetJS 官方 CDN（cdn.sheetjs.com/xlsx-0.20.3），npm 上的版本較舊且有已知弱點。
 - **size-sensor（ISC）**：套件及上游原始碼庫都沒有附授權檔，授權全文欄位僅列授權種類與網址。
 - 其餘元件為 MIT、ISC、BSD、Apache-2.0、0BSD 等寬鬆授權，沒有著佐權（copyleft）授權元件。
