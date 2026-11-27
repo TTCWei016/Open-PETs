@@ -15,7 +15,7 @@ import { extractCapRequestFailureReasonText, buildCapUnavailableReceipt } from '
 import { computeCapShuffleBaseline, encodeCsvBlobForCapBaseline, computeCapExcessRisk, isCapExcessNotApplicable, type CapEncodedTable } from '../../../utils/capBaseline';
 import {
     resolveKAnonymityRiskColumns, selectKAnonymitySensitiveCandidates, describeKAnonymityHighCardinalityHandling,
-    buildKAnonymityRiskColumnsForCandidate, buildKAnonymityConfigBlockForRisk, selectDifferentialPrivacySensitiveCandidates,
+    buildKAnonymityRiskColumnsForCandidate, resolveKAnonymityAutoRotationCandidates, buildKAnonymityAutoRotationRiskColumnsForCandidate, buildKAnonymityConfigBlockForRisk, selectDifferentialPrivacySensitiveCandidates,
     describeDifferentialPrivacyHighCardinalityHandling, buildDifferentialPrivacyRiskColumnsForCandidate, buildDifferentialPrivacyConfigBlockForRisk, buildRiskAttackConfigObject,
     buildCapConfigObject, createJsonConfigFile, runWorstCaseAttackRounds, runWorstCaseCapRounds, buildOverrideRiskColumnsForCandidate,
     type RiskColumnsMap, type HighCardinalitySensitiveInfo
@@ -194,8 +194,13 @@ export const runRiskAssessmentPhase = async (input: RiskAssessmentPhaseInput): P
         const sensitiveCandidateColumnNamesList = Object.keys(riskColumnsMap).filter(
             (colName) => riskColumnsMap[colName].role === 'sensitive'
         );
+        // ★ 專家回饋 P-10：沒有指定敏感欄位時，比照差分隱私輪流以每個類別型欄位為敏感欄位評估（匯入的風險評估欄位角色優先，不走這條）
+        const isKAnonAutoRotation = sensitiveCandidateColumnNamesList.length === 0 && !resolvedRiskColumnOverrides;
+        const kAnonAutoRotationCandidateNamesList = isKAnonAutoRotation
+            ? resolveKAnonymityAutoRotationCandidates({ processedColumnNames: actualProcessedColumnsList, kAnonymityFields: kAnonymityFieldsList, riskColumnsMap })
+            : [];
         const kAnonCandidateSelection = selectKAnonymitySensitiveCandidates({
-            candidateColumnNames: sensitiveCandidateColumnNamesList,
+            candidateColumnNames: isKAnonAutoRotation ? kAnonAutoRotationCandidateNamesList : sensitiveCandidateColumnNamesList,
             datasetProfile: datasetProfileForRisk,
             binWidthOverrides: sensitiveBinWidthOverridesMap,
             forceRunHighCardinality: forceRunHighCardinalitySensitiveFieldsStatus
@@ -204,7 +209,7 @@ export const runRiskAssessmentPhase = async (input: RiskAssessmentPhaseInput): P
         // 只需要間接識別＋敏感欄位（riskColumnsMap 本來就只收這兩種）；沒有候選欄位時不會送出請求，不必裁切
         if (kAnonCandidateSelection.effectiveCandidateColumnNames.length > 0) {
             // 使用匯入的欄位角色時，K-匿名原本的間接識別也要保留（後端依 k_anonymity 區塊重做去識別化，裁掉會改變結果）
-            riskUploadKeepColumnNames = resolveRiskUploadKeepColumnNames([...Object.keys(riskColumnsMap), ...Object.keys(kAnonymityDerivedRiskColumnsMap)]);
+            riskUploadKeepColumnNames = resolveRiskUploadKeepColumnNames([...Object.keys(riskColumnsMap), ...Object.keys(kAnonymityDerivedRiskColumnsMap), ...kAnonCandidateSelection.effectiveCandidateColumnNames]);
         }
         await prepareRiskOriginalDataFile();
         setHighCardinalitySensitiveWarningInfo(kAnonCandidateSelection.highCardinalityInfo);
@@ -214,10 +219,15 @@ export const runRiskAssessmentPhase = async (input: RiskAssessmentPhaseInput): P
         const effectiveSensitiveCandidateColumnNamesList = kAnonCandidateSelection.effectiveCandidateColumnNames;
         const buildKAnonRiskColumnsMapForCandidate = (candidateSensitiveFieldName: string) => resolvedRiskColumnOverrides
             ? buildOverrideRiskColumnsForCandidate(resolvedRiskColumnOverrides, riskEvaluationBinWidthMap, candidateSensitiveFieldName)
-            : buildKAnonymityRiskColumnsForCandidate(riskColumnsMap, riskEvaluationBinWidthMap, candidateSensitiveFieldName);
+            : isKAnonAutoRotation
+                ? buildKAnonymityAutoRotationRiskColumnsForCandidate(riskColumnsMap, candidateSensitiveFieldName)
+                : buildKAnonymityRiskColumnsForCandidate(riskColumnsMap, riskEvaluationBinWidthMap, candidateSensitiveFieldName);
         capCandidateColumnNamesList = effectiveSensitiveCandidateColumnNamesList;
         buildCapRiskColumnsMapForCandidateFn = buildKAnonRiskColumnsMapForCandidate;
 
+        if (isKAnonAutoRotation && effectiveSensitiveCandidateColumnNamesList.length > 0) {
+            appendPipelineLog(`ℹ️ 步驟二未指定敏感欄位，改為輪流以 ${effectiveSensitiveCandidateColumnNamesList.length} 個類別型欄位為敏感欄位評估，取風險最高的結果（欄位越多耗時越長，建議優先指定敏感欄位）`);
+        }
         if (effectiveSensitiveCandidateColumnNamesList.length === 0) {
             if (sensitiveCandidateColumnNamesList.length === 0) {
                 // 主控台印出逐欄比對快照，F12 → Console 可直接看出為何沒有敏感欄位

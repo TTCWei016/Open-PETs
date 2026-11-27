@@ -910,3 +910,56 @@ def test_dp_time_params_only_for_datetime(field, value):
     )
     with pytest.raises(ValueError, match="ERR_DP_INVALID_BUDGET"):
         config.validate_config()
+
+# ── 專家回饋 P-07：sensitivity 小於截斷寬度時警告「實際保護力低於顯示的 ε」──────────
+
+def test_dp_warns_when_sensitivity_is_below_clipping_width(sample_df):
+    """年齡截斷 0～120、敏感度只填 30：有效 ε ＝ 1 × 120 ÷ 30 ＝ 4，報告要主動警告。"""
+    config = DPColumnConfig(
+        column_budgets={
+            "年齡": {"type": "continuous", "epsilon_budget": 1.0, "sensitivity": 30.0, "clipping_bounds": [0, 120]},
+        },
+    )
+    _, report = run_dp(sample_df, config)
+    detail = {d.column: d for d in report.per_column}
+    assert detail["年齡"].effective_epsilon == pytest.approx(4.0)
+    assert "有效 ε" in report.message
+    assert "實際保護力低於顯示的 ε" in report.message
+
+
+def test_dp_no_warning_when_sensitivity_equals_clipping_width(sample_df):
+    config = DPColumnConfig(
+        column_budgets={
+            "年齡": {"type": "continuous", "epsilon_budget": 1.0, "sensitivity": 120.0, "clipping_bounds": [0, 120]},
+        },
+    )
+    _, report = run_dp(sample_df, config)
+    assert report.per_column[0].effective_epsilon is None
+    assert "有效 ε" not in report.message
+
+
+def test_dp_no_warning_without_declared_sensitivity_or_bounds(sample_df):
+    """沒申報 sensitivity（系統推導）或沒設截斷範圍：無從比較，不警告。"""
+    config = DPColumnConfig(
+        column_budgets={
+            "年齡": {"type": "continuous", "epsilon_budget": 1.0, "clipping_bounds": [0, 120]},
+            "薪資": {"type": "continuous", "epsilon_budget": 1.0, "sensitivity": 1000.0},
+        },
+    )
+    _, report = run_dp(sample_df, config)
+    assert all(d.effective_epsilon is None for d in report.per_column)
+
+
+def test_dp_datetime_warns_when_sensitivity_is_below_time_clipping_width(sample_df):
+    """日期欄：邊界寬度以 noise_unit（天）計；1930～2026 約 35,000 天，敏感度 365 天偏小。"""
+    config = DPColumnConfig(
+        column_budgets={
+            "生日": {
+                "type": "datetime", "epsilon_budget": 1.0, "sensitivity": 365.0, "noise_unit": "day",
+                "time_clipping_bounds": ["1930-01-01", "2026-12-31"],
+            },
+        },
+    )
+    _, report = run_dp(sample_df, config)
+    effective = report.per_column[0].effective_epsilon
+    assert effective is not None and effective > 90  # 1 × 35,429 ÷ 365 ≈ 97

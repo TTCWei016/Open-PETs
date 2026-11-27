@@ -157,4 +157,22 @@ describe('Step4 報告與歷史檢測紀錄調閱內容一致', () => {
         expect(text).toContain('未納入再識別風險評估的欄位');
         expect(text).toContain('不列入風險評估通過與否的判定');
     });
+
+    // ★ 專家回饋 P-06：差分隱私的逐欄資料變化寫進報告
+    it('報告：差分隱私的逐欄資料變化與偏差程度', () => {
+        const entry = buildEntry();
+        entry.reportSnapshot = {
+            ...entry.reportSnapshot!,
+            dpUtility: {
+                evaluatedRows: 100, sampled: false, largeDeviationColumns: ['薪資'],
+                columns: [{ column: '薪資', type: 'continuous', epsilon: 5, evaluatedCount: 100, level: 3, meanChangePercent: 31, stdChangePercent: 100, meanAbsoluteError: 40000, errorPercentOfRange: 13 }]
+            }
+        };
+        const view = render(<AntdApp><ComplianceReportDocument entry={{ ...entry, id: 'dp-utility' }} isExportingPdf={false} containerId="dp-utility" /></AntdApp>);
+        const text = normalizeText(view.getByTestId('compliance-report-document').textContent);
+        expect(text).toContain('資料變化：薪資');
+        expect(text).toContain('平均 +31.0%');
+        expect(text).toContain('偏差程度：大');
+        expect(text).toContain('欄位之間的關聯（例如年齡與生日）未檢查');
+    });
 });

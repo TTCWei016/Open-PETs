@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { resolveKAnonymityAutoRotationCandidates } from '../../utils/riskAssessment';
 import { Card, Table, Select, Button, Input, InputNumber, Segmented, theme, Tabs, Space, Popconfirm, Tooltip, TimePicker, App as AntdApp, Alert } from 'antd';
 import {
     DeleteOutlined, PlusOutlined, MinusOutlined,
@@ -1581,7 +1582,7 @@ export default function KAnonymityMapping(): React.ReactElement
         // ★ 2026-10-08 使用者反映：先匯入設定檔（帶入 K、l／t、抑制設定）再套用推薦設定，Step3 仍停在匯入的值、
         //   「進階：敏感資料保護」也還開著。推薦設定應整組回到系統預設：Step3 一併還原為「標準（K=3）」、l／t 關閉、抑制預設值。
         useWorkspaceStore.setState({ ...DEFAULT_KANON_RULE_PARAMS, cellFillValuesByColumn: {} });
-        messageApi.success(translate('message.apply_recommend_success_with_step3', '已為所有欄位套用推薦設定；Step3 保護強度也已還原為「加強（預設）」。'));
+        messageApi.success(translate('message.apply_recommend_success_with_step3', '已為所有欄位套用推薦設定；Step3 保護強度也已還原為「加強（預設）」。推薦僅供初始輸入，請依資料用途逐欄檢查並調整。'));
     };
 
     const handleFieldChange = (targetFieldIdStr: string, targetAttributeKeyName: keyof FieldDef, newAttributeValueData: string | number | null): void => {
@@ -1669,6 +1670,18 @@ export default function KAnonymityMapping(): React.ReactElement
         [kAnonymityFieldsList, storeColumnsList]
     );
     // ★ 2026-10-30：類別型間接識別碼層級 0（不泛化）——後端照原值參與 k 分組，不擋但提醒（值種類多時抑制量可能很大）
+    // ★ 專家回饋 P-10：沒有指定敏感欄位時，Step4 會輪流以類別型欄位為敏感欄位評估風險（與差分隱私相同），欄位越多耗時越長
+    const kAnonAutoRotationCandidateCount = useMemo(() => {
+        if (kAnonymityFieldsList.length === 0 || kAnonymityFieldsList.some((fieldItemRecord) => fieldItemRecord.role === 'Sensitive')) return 0;
+        const quasiIdentifierRiskColumnsMap = Object.fromEntries(kAnonymityFieldsList
+            .filter((fieldItemRecord) => fieldItemRecord.role === 'Quasi-identifier' && fieldItemRecord.maskStrategy !== 'remove')
+            .map((fieldItemRecord) => [fieldItemRecord.name, { role: 'quasi_identifier' as const, type: fieldItemRecord.type }]));
+        return resolveKAnonymityAutoRotationCandidates({
+            processedColumnNames: kAnonymityFieldsList.map((fieldItemRecord) => fieldItemRecord.name),
+            kAnonymityFields: kAnonymityFieldsList,
+            riskColumnsMap: quasiIdentifierRiskColumnsMap
+        }).length;
+    }, [kAnonymityFieldsList]);
     const ungeneralizedCategoricalQiNamesList = useMemo(
         () => kAnonymityFieldsList
             .filter((fieldItemRecord) => fieldItemRecord.role === 'Quasi-identifier' && fieldItemRecord.type === 'categorical'
@@ -2413,9 +2426,11 @@ export default function KAnonymityMapping(): React.ReactElement
                                             ) : (
                                                 <Button size="small" icon={<EyeOutlined />} onClick={() => setIsJsonPreviewVisibleStatus(true)}>{translate('step2.json_preview_show', '顯示預覽')}</Button>
                                             )}
-                                            <Button type="primary" icon={<ThunderboltOutlined />} onClick={handleApplyRecommendations} style={{ background: '#4F46E5', border: 'none', borderRadius: '6px' }}>
-                                                {translate('step2.btn_apply_recommend')}
-                                            </Button>
+                                            <Tooltip title={translate('step2.recommend_notice', '系統推薦依欄位名稱與內容提供初始建議，僅供測試或初始輸入。通用工具無法涵蓋所有資料情境，請依資料用途逐欄檢查並調整。')}>
+                                                <Button type="primary" icon={<ThunderboltOutlined />} onClick={handleApplyRecommendations} style={{ background: '#4F46E5', border: 'none', borderRadius: '6px' }}>
+                                                    {translate('step2.btn_apply_recommend')}
+                                                </Button>
+                                            </Tooltip>
                                         </Space>
                                     </div>
 
@@ -2438,6 +2453,19 @@ export default function KAnonymityMapping(): React.ReactElement
                                                 defaultValue: `資料中的 ${datasetColumnsNotConfiguredList.map((columnNameString) => `「${columnNameString}」`).join('、')} 尚未設定，執行時會當作「非敏感欄位」原樣保留。`
                                             })}
                                             action={<Button size="small" onClick={addDatasetColumnsNotConfigured}>{translate('step2.btn_add_columns_not_configured', '補上缺漏欄位')}</Button>}
+                                        />
+                                    )}
+                                    {kAnonAutoRotationCandidateCount > 0 && (
+                                        <Alert
+                                            type="warning"
+                                            showIcon
+                                            data-testid="kanon-auto-rotation-hint"
+                                            style={{ marginBottom: '12px' }}
+                                            title={translate('step2.kanon_risk_sensitive_auto_title', '尚未指定敏感欄位')}
+                                            description={translate('step2.kanon_risk_sensitive_auto_desc', {
+                                                count: kAnonAutoRotationCandidateCount,
+                                                defaultValue: `Step4 將輪流以 ${kAnonAutoRotationCandidateCount} 個類別型欄位為敏感欄位，各執行一輪三攻擊與 CAP，取風險最高的結果；執行時間約為指定 1 個敏感欄位時的 ${kAnonAutoRotationCandidateCount} 倍。建議把真正需要保護的欄位（例如疾病）設為「敏感」，結果較有意義，也比較快。`
+                                            })}
                                         />
                                     )}
                                     {ungeneralizedCategoricalQiNamesList.length > 0 && (

@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useWorkspaceStore } from '../../store/useWorkspaceStore';
 import { useEnsureDatasetProfile } from '../../utils/datasetProfile';
-import { findSmallestSensitiveColumnDistinct, computeLSliderMaxValue, isLValueExceedingSensitiveDistinct, isLNotLessThanK } from '../../utils/lDiversityLimits';
+import { findSmallestSensitiveColumnDistinct, computeLSliderMaxValue, isLValueExceedingSensitiveDistinct, isLGreaterThanK } from '../../utils/lDiversityLimits';
 import DatasetScaleHint from '../../components/DatasetScaleHint';
 
 import { scaleFontSize, scaleChartFontSize } from '../../utils/fontScale';
@@ -267,15 +267,15 @@ export default function KAnonymityRules(): React.ReactElement
                 return;
             }
 
-            // 3. 驗證 l 必須小於 K
-            //    ★ 2026-10-13：依使用者規格由 K ≥ L 改為 l < K（K=5 時 l 只能 1～4）。
+            // 3. 驗證 l 不可大於 K（l ≤ K，l = K 成立）
+            //    ★ 專家回饋 P-05：2026-10-13 曾改為 l < K，經專家指出 l ≤ k 才正確，改回。
             //    ★ 僅在使用者實際啟用 l-多樣性檢測時才驗證，未啟用時 l 值不會送給後端，不需卡關。
-            if (isEnableLDiversityStatus && isLNotLessThanK(currentLValue, currentKValue))
+            if (isEnableLDiversityStatus && isLGreaterThanK(currentLValue, currentKValue))
             {
                 setStepValidationAction(false, translate(
-                    'step3.error_l_not_less_than_k',
-                    '參數衝突：l 必須小於 K（目前 K={{k}}、l={{l}}），請把 l 調到 {{max}} 以下。',
-                    { k: currentKValue, l: currentLValue, max: Math.max(MIN_L_VALUE, currentKValue - 1) }
+                    'step3.error_l_greater_than_k',
+                    '參數衝突：l 不可大於 K（目前 K={{k}}、l={{l}}），請把 l 調到 {{max}} 以下。',
+                    { k: currentKValue, l: currentLValue, max: Math.max(MIN_L_VALUE, currentKValue) }
                 ));
 
                 return;
@@ -620,7 +620,7 @@ export default function KAnonymityRules(): React.ReactElement
     const isKValueBelowMinStatus = currentKValue === undefined || currentKValue === null || currentKValue < MIN_K_VALUE;
     const isKValueExceedsDatasetStatus = datasetRowCountValue > 0 && currentKValue > datasetRowCountValue;
     // ★ 未啟用 l-多樣性／t-緊密度檢測時，這兩個參數不會送給後端，畫面上也不應顯示紅框／錯誤提示
-    const isKLessThanLStatus = isEnableLDiversityStatus && isLNotLessThanK(currentLValue, currentKValue); // ★ 2026-10-13：l 必須小於 K
+    const isKLessThanLStatus = isEnableLDiversityStatus && isLGreaterThanK(currentLValue, currentKValue); // ★ 專家回饋 P-05：l 不可大於 K（l = K 成立）
     const isKValueInvalidStatus = isKValueBelowMinStatus || isKValueExceedsDatasetStatus || isKLessThanLStatus;
     const isTValueInvalidStatus = isEnableTClosenessStatus && (currentTValue === undefined || currentTValue === null || currentTValue <= 0 || currentTValue > 1);
 
@@ -683,7 +683,7 @@ export default function KAnonymityRules(): React.ReactElement
         })
         : '';
 
-    const kLessThanLConflictMessageText = translate('step3.error_l_not_less_than_k', '參數衝突：l 必須小於 K（目前 K={{k}}、l={{l}}），請把 l 調到 {{max}} 以下。', { k: currentKValue, l: currentLValue, max: Math.max(MIN_L_VALUE, currentKValue - 1) });
+    const kLessThanLConflictMessageText = translate('step3.error_l_greater_than_k', '參數衝突：l 不可大於 K（目前 K={{k}}、l={{l}}），請把 l 調到 {{max}} 以下。', { k: currentKValue, l: currentLValue, max: Math.max(MIN_L_VALUE, currentKValue) });
 
     const kValueInlineErrorMessageText = isKValueBelowMinStatus
         ? translate('step3.error_k_too_small', 'K 值必須大於等於 2（K=1 等同於沒有匿名效果）。')
@@ -996,7 +996,7 @@ export default function KAnonymityRules(): React.ReactElement
                                         onChange={(radioChangeEvent) => handleLimitExceededActionChange(radioChangeEvent.target.value)}
                                         options={[
                                             { value: 'stop_and_error', label: translate('step3.plain_exceed_stop', '停止') },
-                                            { value: 'allow_with_warning', label: translate('step3.plain_exceed_allow', '仍產出（標示未達標）') }
+                                            { value: 'allow_with_warning', label: translate('step3.plain_exceed_allow', '仍產出結果與報告（未達標不提供下載）') }
                                         ]}
                                     />
                                 </Col>
@@ -1059,8 +1059,8 @@ export default function KAnonymityRules(): React.ReactElement
                                                 <div style={{ fontSize: scaleFontSize(12), color: isLExceedsSensitiveDistinctStatus ? token.colorError : token.colorTextDescription }}>
                                                     {translate('step3.plain_l_max', '上限 {{max}}', { max: effectiveMaxLValue })}
                                                     {helpIcon(sensitiveColumnDistinctCountInfo
-                                                        ? translate('step3.l_max_hint_sensitive_v2', '上限 {{max}}（l 必須小於 K）。敏感欄位「{{column}}」有 {{count}} 種不同的值，l 超過 {{count}} 一定無法通過。', { max: effectiveMaxLValue, column: sensitiveColumnDistinctCountInfo.columnName, count: sensitiveColumnDistinctCountInfo.distinctCount })
-                                                        : translate('step3.l_max_hint_default_v2', '上限 {{max}}（l 必須小於 K）。尚未設定敏感欄位或尚未載入資料，無法檢查敏感欄位有幾種值。', { max: effectiveMaxLValue }))}
+                                                        ? translate('step3.l_max_hint_sensitive_v2', '上限 {{max}}（l 不可大於 K）。敏感欄位「{{column}}」有 {{count}} 種不同的值，l 超過 {{count}} 一定無法通過。', { max: effectiveMaxLValue, column: sensitiveColumnDistinctCountInfo.columnName, count: sensitiveColumnDistinctCountInfo.distinctCount })
+                                                        : translate('step3.l_max_hint_default_v2', '上限 {{max}}（l 不可大於 K）。尚未設定敏感欄位或尚未載入資料，無法檢查敏感欄位有幾種值。', { max: effectiveMaxLValue }))}
                                                 </div>
                                                 {isLExceedsSensitiveDistinctStatus && sensitiveColumnDistinctCountInfo && (
                                                     <div data-testid="l-exceeds-sensitive-distinct" style={{ marginTop: 4, color: token.colorError, fontSize: scaleFontSize(12) }}><WarningOutlined style={{ marginRight: 4 }} />{translate('step3.error_l_exceeds_sensitive_distinct', '敏感欄位「{{column}}」只有 {{count}} 種不同的值，任何群組都湊不出 {{l}} 種，l 設為 {{l}} 一定無法通過。請把 l 調到 {{count}} 以下，或回 Step2 確認敏感欄位是否選對。', { l: currentLValue, column: sensitiveColumnDistinctCountInfo.columnName, count: sensitiveColumnDistinctCountInfo.distinctCount })}</div>

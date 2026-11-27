@@ -23,7 +23,7 @@ import {
 	resolveIsDateTimeDpField, resolveInputNumberStepByDecimals, alignDpBoundsToMinimumUnit, alignDpDateTimeBoundsToNoiseGrid, resolveDpDatetimeNoiseUnit, applyDpDatetimeNoiseUnit, findDpBoundsFinerThanNoiseUnit,
 	DP_DATETIME_NOISE_UNITS, type DpDatetimeNoiseUnit, resolveDpNoiseStepMax, isDpNoiseStepOutOfRange
 } from '../../utils/dpFieldHelpers';
-import { computeDefaultDpSensitivity, sumDpConsumedBudgets, isDpBudgetExceeded } from '../../utils/pipelineConfig';
+import { computeDefaultDpSensitivity, detectUnderDeclaredDpSensitivity, sumDpConsumedBudgets, isDpBudgetExceeded } from '../../utils/pipelineConfig';
 import { useEnsureDatasetProfile } from '../../utils/datasetProfile';
 import DatasetScaleHint from '../../components/DatasetScaleHint';
 
@@ -418,7 +418,7 @@ export default function DifferentialPrivacyRules(): React.ReactElement
 			? translate('step3_dp.plain_budget_danger', '接近上限')
 			: isBudgetWarningAlertStatus
 				? translate('step3_dp.plain_budget_warning', '用量偏高')
-				: translate('step3_dp.plain_budget_safe', '正常');
+				: translate('step3_dp.plain_budget_safe', '未超過設定上限');
 
 	const fieldTypeLabel = (fieldItemRecord: DPField): string => fieldItemRecord.fieldType === 'Numeric'
 		? (resolveIsDateTimeDpField(fieldItemRecord) ? translate('step3_dp.plain_type_datetime', '日期') : translate('step3_dp.plain_type_numeric', '數值'))
@@ -547,6 +547,25 @@ export default function DifferentialPrivacyRules(): React.ReactElement
 						</div>
 					);
 				})()}
+			</div>
+		);
+	};
+
+	/** ★ 專家回饋 P-07：敏感度小於上下限寬度時警告「實際保護力低於顯示的 ε」 */
+	const renderUnderDeclaredSensitivityWarning = (activeFieldItemRecord: DPField): React.ReactNode => {
+		if (activeFieldItemRecord.fieldType !== 'Numeric' || !activeFieldItemRecord.enabled) return null;
+		const underDeclared = detectUnderDeclaredDpSensitivity(activeFieldItemRecord, resolveIsDateTimeDpField(activeFieldItemRecord));
+		if (!underDeclared) return null;
+		const formatNumber = (value: number): string => String(Number(value.toFixed(2)));
+		return (
+			<div data-testid="dp-sensitivity-under-declared-warning">
+				<Alert type="warning" showIcon style={{ marginTop: 8, padding: '4px 12px', fontSize: scaleFontSize(12) }}
+					title={translate('step3_dp.sensitivity_under_declared', '敏感度 {{declared}} 小於上下限寬度 {{width}}：加的雜訊比這個 ε 所需要的少，實際保護力低於顯示的 ε{{effective}}。建議留空（自動＝寬度）或設成 {{width}}。', {
+						declared: formatNumber(underDeclared.declared),
+						width: formatNumber(underDeclared.width),
+						effective: underDeclared.effectiveEpsilon !== null ? `（有效 ε 約 ${formatNumber(underDeclared.effectiveEpsilon)}）` : ''
+					})}
+				/>
 			</div>
 		);
 	};
@@ -731,6 +750,7 @@ export default function DifferentialPrivacyRules(): React.ReactElement
 											</div>
 											{isFieldAdvancedOpen && renderFieldAdvancedSettings(activeFieldItemRecord)}
 											{renderFieldHints(activeFieldItemRecord)}
+											{renderUnderDeclaredSensitivityWarning(activeFieldItemRecord)}
 										</div>
 									);
 								})}
@@ -819,7 +839,7 @@ export default function DifferentialPrivacyRules(): React.ReactElement
 							<div data-testid="dp-plain-sum-status" style={summaryTileStyle}>
 								<div style={summaryTileLabelStyle}>
 									{translate('step3_dp.plain_sum_status', '預算狀態')}
-									{helpIcon(translate('step3_dp.budget_center_tooltip', '此處顯示目前所有欄位的 ε 加總，佔您設定之預算上限的比例。顏色越紅代表用量越接近上限；一旦實際超過上限將無法進入下一步，建議調降部分欄位的 ε，或提高預算上限。用量夠低時不會顯示紅色警示。'))}
+									{helpIcon(translate('step3_dp.budget_center_tooltip', '此處顯示目前所有欄位的 ε 加總，佔您設定之預算上限的比例。顏色越紅代表用量越接近上限；一旦實際超過上限將無法進入下一步，建議調降部分欄位的 ε，或提高預算上限。用量夠低時不會顯示紅色警示。這只是和您設定的預算上限比較，不代表實際保護力。'))}
 								</div>
 								<div style={{ ...summaryTileValueStyle, color: budgetStatusColor }}>{budgetStatusText}</div>
 							</div>

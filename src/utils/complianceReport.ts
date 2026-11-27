@@ -11,6 +11,7 @@
  *   components/ComplianceReportDocument.tsx 以同一份快照繪製，內容保證相同。
  */
 import type { KAnonymityFidelityResult } from './kAnonymityFidelity';
+import type { DpUtilityResult } from './dpUtility';
 import type { CapReport, DpQualityReport, KAnonymityQualityReport } from '../api/apiService';
 import { isDpBudgetExceeded } from './pipelineConfig';
 import { computeOverallRiskLevel, type OverallRiskSummary } from './riskLevel';
@@ -87,6 +88,8 @@ export interface ComplianceReportSnapshot {
     deidChecks?: DeidentificationCheck[];
     /** ★ 專家回饋 P-01／P-02：結論適用範圍——已設定去識別化處理的欄位、原樣輸出的欄位、未納入風險評估的原樣輸出欄位；舊紀錄無此欄位 */
     outputScope?: OutputScope;
+    /** ★ 專家回饋 P-06：差分隱私逐欄資料變化（實用性指標，僅供參考）；K-匿名與舊紀錄無此欄位 */
+    dpUtility?: DpUtilityResult | null;
 }
 
 export interface BuildComplianceReportSnapshotInput {
@@ -121,6 +124,8 @@ export interface BuildComplianceReportSnapshotInput {
     deidChecks?: DeidentificationCheck[];
     /** ★ 專家回饋 P-01／P-02：結論適用範圍——已設定去識別化處理的欄位、原樣輸出的欄位、未納入風險評估的原樣輸出欄位；舊紀錄無此欄位 */
     outputScope?: OutputScope;
+    /** ★ 專家回饋 P-06：差分隱私逐欄資料變化（實用性指標，僅供參考）；K-匿名與舊紀錄無此欄位 */
+    dpUtility?: DpUtilityResult | null;
 }
 
 const toFiniteOrNull = (value: unknown): number | null => {
@@ -183,6 +188,7 @@ export const buildComplianceReportSnapshot = (input: BuildComplianceReportSnapsh
         ...(!isKAnonymity && input.dpColumnEpsilon ? { dpColumnEpsilon: { ...input.dpColumnEpsilon } } : {}),
         ...(input.deidChecks ? { deidChecks: input.deidChecks.map((checkItem) => ({ ...checkItem })) } : {}),
         ...(input.outputScope ? { outputScope: { processedColumns: [...input.outputScope.processedColumns], rawColumns: [...input.outputScope.rawColumns], unevaluatedRawColumns: [...input.outputScope.unevaluatedRawColumns] } } : {}),
+        ...(input.dpUtility ? { dpUtility: input.dpUtility } : {}),
         backendNotes: (input.backendNotes || []).filter((noteText) => typeof noteText === 'string' && noteText.trim() !== '')
     };
 };

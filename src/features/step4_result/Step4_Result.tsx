@@ -35,9 +35,11 @@ import ComplianceReportDocument, { type ComplianceReportEntry } from '../../comp
 import { buildComplianceReportSnapshot, formatEpsilonForDisplay, isCapEvaluated, resolveComplianceStatus, resolveSensitiveGuessRisk } from '../../utils/complianceReport';
 import { useAuthStore } from '../../store/useAuthStore';
 import { RiskSummaryCard, UtilitySummaryCard, type RiskQuestionRow, type PlainCardColors } from '../../components/PlainResultSummary';
+import { DpUtilityCard } from '../../components/DpUtilityCard';
 import { classifyKAnonymityFidelity, resolveColumnTreatment, resolveReleaseDecision, pickExampleValue } from '../../utils/plainResultSummary';
 import { computeOverallRiskLevel } from '../../utils/riskLevel';
 import { useAuditStore } from '../../store/useAuditStore';
+import { looksLikeQuasiIdentifierByName } from '../../utils/columnNameRole';
 import { getDataUsageNotes, describeProcessingMethod, buildDataUsageNotesText, type DataUsageNotesContext } from '../../utils/dataUsageNotes';
 
 // ★ 2026-10-02：使用者要求暫不顯示「後端處理報告明細」（內容偏技術，一般使用者看了反而更混淆），
@@ -218,7 +220,8 @@ export default function Step4_Result(): React.ReactElement
             if (isExplicitIdentifierMatched)
                 return { role: 'Identifier', tagColor: 'magenta', maskStrategy: matchedIdentifierMaskStrategyString };
 
-            if (/(station|time|date|zip|age|gender|card_type|年齡|地區|職業|性別|地址|生日)/i.test(lowerCaseColumnNameString))
+            // ★ 專家回饋 P-18：英文關鍵字改為整個單字才算（marriage_cd 不再因含有 age 被標成間接識別碼）
+            if (looksLikeQuasiIdentifierByName(lowerCaseColumnNameString))
                 return { role: 'Quasi-identifier', tagColor: 'orange', maskStrategy: matchedIdentifierMaskStrategyString };
 
             return { role: 'Non-sensitive', tagColor: 'blue', maskStrategy: matchedIdentifierMaskStrategyString };
@@ -366,6 +369,7 @@ export default function Step4_Result(): React.ReactElement
         capReportData,
         datasetRowStatsData,
         kAnonymityFidelityData,
+        dpUtilityData,
         attackSimulationMetricsData,
         auditMetadataObject,
         highCardinalitySensitiveWarningInfo,
@@ -1284,6 +1288,16 @@ export default function Step4_Result(): React.ReactElement
                             </Card>
                         </Col>
                     </Row>
+
+                    {/* ★ 專家回饋 P-06：差分隱私模式補上實用性指標（逐欄資料變化，僅供參考） */}
+                    {currentPrivacyModeTypeStr === 'differential-privacy' && dpUtilityData && (
+                        <Card
+                            title={<span><LineChartOutlined style={{ marginRight: 8, color: '#1677ff' }} />{translate('step4.dp_utility.title', '各欄位資料變化（僅供參考）')}</span>}
+                            variant="borderless" style={{ background: token.colorBgContainer, marginTop: '24px' }}
+                        >
+                            <DpUtilityCard result={dpUtilityData} />
+                        </Card>
+                    )}
 
                     <Card
                         title={

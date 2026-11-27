@@ -61,15 +61,17 @@ export const isLValueExceedingSensitiveDistinct = (
 ): boolean => !!sensitiveDistinctInfo && currentLValue > sensitiveDistinctInfo.distinctCount;
 
 /**
- * l 滑桿／輸入框可選上限：只受 K 限制，且 l 必須「小於」K（上限 = K − 1）；
+ * l 滑桿／輸入框可選上限：只受 K 限制，l 不可大於 K（l ≤ K，l = K 成立；上限 = K）；
  * 尚無 K 時退回備援上限，且至少為 minLValue。
- * ★ 2026-10-13：使用者規格要求 l < K（K=5 時 l 只能 1～4），由原本 l ≤ K 改為 K − 1。
+ * ★ 專家回饋 P-05：2026-10-13 曾依使用者規格改為 l < K（上限 K − 1），但 l-多樣性只需 l ≤ k
+ *   （每個等價類至少有 k 筆，最多有 k 種不同的敏感值），l = k 是成立的設定，官方設定檔也用 l = k = 2，
+ *   故改回 l ≤ K。後端本來就沒有 l < K 的限制。
  */
 export const computeLSliderMaxValue = (
     currentKValue: number | null | undefined,
     minLValue: number,
     fallbackMaxLValue: number
-): number => (typeof currentKValue === 'number' && currentKValue > minLValue ? currentKValue - 1 : Math.max(minLValue, fallbackMaxLValue));
+): number => (typeof currentKValue === 'number' && currentKValue >= minLValue ? currentKValue : Math.max(minLValue, fallbackMaxLValue));
 
-/** l 是否未小於 K（l ≥ K）；違反 l < K 規格 */
-export const isLNotLessThanK = (currentLValue: number, currentKValue: number): boolean => currentLValue >= currentKValue;
+/** l 是否大於 K（l > K，必定無法通過）；l = K 是成立的 */
+export const isLGreaterThanK = (currentLValue: number, currentKValue: number): boolean => currentLValue > currentKValue;

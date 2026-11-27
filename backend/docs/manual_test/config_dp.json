@@ -10,20 +10,10 @@
         "type": "continuous",
         "epsilon_budget": 1.0,
         "delta_budget": 0.0,
-        "sensitivity": 30.0,
+        "sensitivity": 120.0,
         "minimum_unit": 5,
         "clipping_bounds": [0, 120],
         "out_of_bounds_strategy": "clamp"
-      },
-      "生日": {
-        "type": "datetime",
-        "epsilon_budget": 1.0,
-        "delta_budget": 0.0,
-        "sensitivity": 365.0,
-        "noise_unit": "day",
-        "noise_step": 30,
-        "time_clipping_bounds": ["1930-01-01", "2026-12-31"],
-        "time_out_of_bounds_strategy": "clamp"
       },
       "地區": {
         "type": "categorical",

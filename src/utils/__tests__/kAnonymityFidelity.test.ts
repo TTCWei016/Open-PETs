@@ -98,3 +98,43 @@ describe('computeKAnonymityFidelity（指引保真度三項指標）', () => {
         expect(formatFidelityPercent(0.7499)).toBe('74%');
     });
 });
+
+// ── 專家回饋 P-11：被刪除的欄位納入相似度，刪欄位不會讓相似度變高；欄位搭配指標保留 ─────────────
+describe('被刪除的欄位納入相似度（專家回饋 P-11）', () => {
+    const header = ['年齡', '疾病', '職業'];
+    // 疾病與職業完全對應：刪掉職業會讓「疾病 × 職業」的關聯消失
+    const original = toCsv(header, [[31, '感冒', 'A'], [35, '感冒', 'A'], [42, '糖尿病', 'B'], [48, '糖尿病', 'B'], [50, '糖尿病', 'B'], [29, '感冒', 'A']]);
+    const withoutOccupation = toCsv(['年齡', '疾病'], [[31, '感冒'], [35, '感冒'], [42, '糖尿病'], [48, '糖尿病'], [50, '糖尿病'], [29, '感冒']]);
+    const input = { evaluatedColumns: header, anchorColumns: ['疾病'] };
+
+    it('輸出少了一欄：該欄仍被評估，列在評估欄位裡', () => {
+        const result = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: withoutOccupation, ...input })!;
+        expect(result.evaluatedColumns).toContain('職業');
+    });
+
+    it('刪掉欄位後相似度低於完整保留，不會反而偏高', () => {
+        const kept = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: original, ...input })!;
+        const removed = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: withoutOccupation, ...input })!;
+        expect(removed.overall).toBeLessThan(kept.overall);
+        expect(removed.columnPairTrends!).toBeLessThan(kept.columnPairTrends!);
+    });
+
+    it('刪除等同整欄遮蔽：兩者算出的相似度一樣', () => {
+        const masked = toCsv(header, [[31, '感冒', '*'], [35, '感冒', '*'], [42, '糖尿病', '*'], [48, '糖尿病', '*'], [50, '糖尿病', '*'], [29, '感冒', '*']]);
+        const removed = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: withoutOccupation, ...input })!;
+        const allMasked = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: masked, ...input })!;
+        expect(removed.overall).toBeCloseTo(allMasked.overall, 6);
+        expect(removed.columnShapes).toBeCloseTo(allMasked.columnShapes, 6);
+    });
+
+    it('欄位搭配指標仍保留（刪除欄位不會讓它消失）', () => {
+        const removed = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: withoutOccupation, ...input })!;
+        expect(removed.columnPairTrends).not.toBeNull();
+        expect(removed.belowThresholdItems.map((item) => item.label).some((label) => label.includes('職業'))).toBe(true);
+    });
+
+    it('原始資料本來就沒有的欄位仍略過', () => {
+        const result = computeKAnonymityFidelity({ originalCsvText: original, processedCsvText: original, evaluatedColumns: [...header, '不存在的欄位'], anchorColumns: ['疾病'] })!;
+        expect(result.evaluatedColumns).not.toContain('不存在的欄位');
+    });
+});

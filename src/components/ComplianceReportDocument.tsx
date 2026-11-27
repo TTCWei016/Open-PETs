@@ -17,6 +17,7 @@ import type { AuditLogItem } from '../store/useAuditStore';
 import AuditIntegrityPanel from './AuditIntegrityPanel';
 import { OverallRiskLevelPanel } from './RiskLevelBadge';
 import { computeReportOverallRisk, formatEpsilonForDisplay, isCapEvaluated, resolveAuditLogComplianceStatus, resolveReportColumnTechText, type ComplianceReportEntry, type DeidentificationCheck } from '../utils/complianceReport';
+import { DP_DEVIATION_LABELS, describeDpColumnUtility } from '../utils/dpUtility';
 import { scaleFontSize } from '../utils/fontScale';
 import { formatHashAlgorithmLabel } from '../utils/reportDescriptions';
 
@@ -152,7 +153,18 @@ export default function ComplianceReportDocument({ entry, isExportingPdf, contai
             { label: translate('step4.report.scope_unevaluated_label', '未納入再識別風險評估的欄位'), value: joinColumnNames(outputScope.unevaluatedRawColumns) }
         ]
         : [];
-    const privacyConfigRowsList = [...preprocessingRowsList, ...deidConfigRowsList, ...deidCheckRowsList, ...outputScopeRowsList, ...riskAttackParamRowsList];
+    // ★ 專家回饋 P-06：差分隱私的逐欄資料變化（實用性指標，僅供參考）；K-匿名與舊紀錄沒有，不列這一段
+    const dpUtility = snapshot?.dpUtility ?? null;
+    const dpUtilityRowsList: { label: string; value: string }[] = dpUtility
+        ? [
+            ...dpUtility.columns.map((columnItem) => ({
+                label: `${translate('step4.report.dp_utility_prefix', '資料變化')}：${columnItem.column}`,
+                value: `${describeDpColumnUtility(columnItem)}（${translate('step4.report.dp_utility_level', '偏差程度')}：${DP_DEVIATION_LABELS[columnItem.level]}）`
+            })),
+            { label: translate('step4.report.dp_utility_note_label', '資料變化說明'), value: translate('step4.report.dp_utility_note', '逐欄比較處理前後，僅供參考，不代表資料能不能用；欄位之間的關聯（例如年齡與生日）未檢查。') }
+        ]
+        : [];
+    const privacyConfigRowsList = [...preprocessingRowsList, ...deidConfigRowsList, ...deidCheckRowsList, ...outputScopeRowsList, ...dpUtilityRowsList, ...riskAttackParamRowsList];
 
     // ★ 2026-10-28：風險評估對象（評估欄位依據、間接識別、敏感欄位、族群條件、連結性分組）
     const riskTargets = snapshot?.riskTargets;

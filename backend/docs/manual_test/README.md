@@ -87,6 +87,9 @@
 
 - **輸入**：原始資料＋設定檔（JSON，開啟 `differential_privacy` 區塊，內含逐欄 `type`/`epsilon_budget`/`delta_budget`/`sensitivity`）。加噪一律以整數刻度進行，數值欄的刻度由選填的 `minimum_unit` 指定（未填即 1）、日期欄由 `noise_unit` 搭 `noise_step` 指定（如 `minute` + `5` 即 5 分鐘一格）；加噪後可再以 `clipping_bounds`／`out_of_bounds_strategy`（數值欄）或 `time_clipping_bounds`／`time_out_of_bounds_strategy`（日期欄）把超出合理範圍的值收回，三種策略為 `clamp`／`wrap`／`fold`。同一個區塊內另可填選填的整體參數：`accumulated_epsilon`/`accumulated_delta`（無狀態、由呼叫方自帶累計，引擎只讀不寫，跑完須自行把報告回傳的新累計值填回設定檔）、`default_delta`。
 - **輸出**：加噪後 CSV。預算報告（本次消耗／累計／逐欄明細）—— CLI 以 JSON 輸出至標準輸出；API 放於 `X-Budget-Report` 回應標頭。兩者結構相同。
+- **敏感度與截斷範圍要一致**：數值欄的 `sensitivity` 應等於 `clipping_bounds` 的寬度（本範例年齡 0～120，敏感度 120）。敏感度小於截斷寬度時，實際加的雜訊比 ε 所需要的少，實際保護力低於報告顯示的 ε。
+- **年齡與生日只加噪一個**：兩者可互相推導，分別加噪後會互相矛盾（例如年齡與生日推算的年齡差很多），本範例只對年齡加噪。
+- **超界處理建議用 `clamp`**：`wrap`、`fold` 會讓分布偏移。
 - **CLI**：
   ```bash
   python -m app.cli.main dp \
