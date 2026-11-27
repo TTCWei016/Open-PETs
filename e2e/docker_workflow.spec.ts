@@ -37,12 +37,14 @@ test('Docker 版：登入、上傳、K-匿名化並下載結果', async ({ page 
   const downloadBtn = page.getByRole('button', { name: /下載處理後資料/ });
   await expect(downloadBtn).toBeEnabled({ timeout: 180_000 });
   await shot('05-result');
-  // 下載會依序觸發多個檔案（結果 CSV、注意事項 txt），全部收集後存檔
+  // 專家回饋 P-19：結果 CSV 與注意事項 txt 各自一次點擊（不再同一次點擊連續下載，避免被瀏覽器攔截）
   const downloads: import('@playwright/test').Download[] = [];
   page.on('download', (d) => downloads.push(d));
   await downloadBtn.click();
+  await page.getByTestId('usage-notes-download-file').click();
+  await expect.poll(() => downloads.length, { timeout: 60_000 }).toBe(1);
   await page.getByRole('button', { name: /我已了解/ }).click();
-  await expect.poll(() => downloads.length, { timeout: 60_000 }).toBeGreaterThan(0);
+  await expect.poll(() => downloads.length, { timeout: 60_000 }).toBe(2);
   await page.waitForTimeout(2000);
   for (const d of downloads) {
     const target = path.resolve('test-results-docker', 'dl-' + d.suggestedFilename());
@@ -52,21 +54,41 @@ test('Docker 版：登入、上傳、K-匿名化並下載結果', async ({ page 
   const csv = downloads.find((d) => /\.csv$/i.test(d.suggestedFilename()));
   expect(csv, '應下載到處理後的 CSV').toBeTruthy();
 
-  // 檢測報告（PDF，含中文字型）
+  // 檢測報告：專家回饋 P-13 起改為瀏覽器列印（另存為 PDF 才有文字層）。Playwright 無法操作列印視窗，
+  // 這裡攔住列印頁框裡的 print()，取回送去列印的 HTML，再用 Chromium 轉成 PDF，確認 PDF 內是文字而不是圖片。
   await page.getByRole('button', { name: /查看與下載報告/ }).click();
   await page.waitForTimeout(1500);
   await shot('07-report-dialog');
 
   const consoleErrors: string[] = [];
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
-  const pdfPromise = page.waitForEvent('download', { timeout: 60_000 }).catch(() => null);
-  await page.getByRole('button', { name: /輸出 PDF 紀錄/ }).click();
-  const pdf = await pdfPromise;
+  const printedHtml = await page.evaluate(async () => {
+    const originalAppendChild = document.body.appendChild.bind(document.body);
+    let captured: string | null = null;
+    document.body.appendChild = ((node: Node) => {
+      const appended = originalAppendChild(node);
+      if (node instanceof HTMLIFrameElement && node.contentWindow) {
+        node.contentWindow.print = () => { captured = node.contentDocument!.documentElement.outerHTML; };
+      }
+      return appended;
+    }) as typeof document.body.appendChild;
+    (Array.from(document.querySelectorAll('button')).find((b) => b.innerText.includes('列印／另存 PDF')) as HTMLButtonElement).click();
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    return captured as string | null;
+  });
   await shot('08-after-pdf');
   console.log('console errors:', JSON.stringify(consoleErrors));
-  expect(pdf, '應下載到 PDF 報告').toBeTruthy();
-  const pdfPath = path.resolve('test-results-docker', 'dl-' + pdf!.suggestedFilename());
-  await pdf!.saveAs(pdfPath);
-  console.log('pdf:', pdf!.suggestedFilename(), fs.statSync(pdfPath).size, 'bytes');
-  expect(fs.readFileSync(pdfPath).subarray(0, 4).toString()).toBe('%PDF');
+  expect(printedHtml, '應呼叫列印並送出報告').toBeTruthy();
+  expect(printedHtml!).toContain('隱私');
+  const printPage = await page.context().newPage();
+  await printPage.setContent(printedHtml!);
+  const pdfPath = path.resolve('test-results-docker', 'dl-report.pdf');
+  await printPage.pdf({ path: pdfPath, format: 'A4', preferCSSPageSize: true, printBackground: true });
+  const pdfBytes = fs.readFileSync(pdfPath);
+  console.log('pdf:', pdfBytes.length, 'bytes');
+  expect(pdfBytes.subarray(0, 4).toString()).toBe('%PDF');
+  // 文字層：PDF 內有字型物件、沒有圖片物件
+  const pdfText = pdfBytes.toString('latin1');
+  expect(pdfText).toMatch(/\/Type\s*\/Font\b/);
+  expect(pdfText).not.toMatch(/\/Subtype\s*\/Image/);
 });

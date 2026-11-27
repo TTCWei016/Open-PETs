@@ -4,7 +4,7 @@
  * 模組功能 (Description): 風險判定徽章（圖示＋通過／不通過），Step4 畫面與合規報告 PDF 共用。
  * ★ 2026-11-04：L1／L2／L3 三級改為通過／不通過（門檻見 utils/riskLevel.ts）。
  * ============================================================================
- * 只用 inline style 與 antd icon（SVG），html2canvas 轉 PDF 時顏色不會跑掉；
+ * 只用 inline style 與 antd icon（SVG），列印（另存為 PDF）時顏色不會跑掉；
  * 等級同時以圖示形狀與文字表示，不只靠顏色區分。
  */
 import type { CSSProperties } from 'react';

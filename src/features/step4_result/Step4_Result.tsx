@@ -51,21 +51,9 @@ import { resolveKAnonymityGeneralizationTechKey } from '../../utils/kAnonymityTe
 
 import { scaleFontSize } from '../../utils/fontScale';
 import { formatFidelityPercent, FIDELITY_PASS_THRESHOLD } from '../../utils/kAnonymityFidelity';
-import { createHtml2PdfLoader, startHtml2PdfLoader } from '../../utils/html2pdfLoader';
+import { printReportElement } from '../../utils/printReport';
 const PDF_COMPILATION_DELAY_MS = 400;
 
-
-interface Html2Pdf
-{
-    set: (options: Record<string, unknown>) => Html2Pdf;
-    from: (element: HTMLElement | null) => Html2Pdf;
-    save: () => Promise<void>;
-}
-
-interface WindowWithHtml2Pdf extends Window 
-{
-    html2pdf: () => Html2Pdf;
-}
 
 // formatEpsilonForDisplay 移至 utils/complianceReport.ts（合規報告元件共用）
 
@@ -129,7 +117,6 @@ export default function Step4_Result(): React.ReactElement
     const [isExportingPdfStatus, setIsExportingPdfStatus] = useState<boolean>(false);
     // ★ 2026-10-08 諮詢會：下載前先顯示「資料使用注意事項」，可勾選一併下載成文字檔交給資料使用方
     const [isUsageNotesModalOpenStatus, setIsUsageNotesModalOpenStatus] = useState<boolean>(false);
-    const [isIncludeUsageNotesFileStatus, setIsIncludeUsageNotesFileStatus] = useState<boolean>(true);
 
     const pdfReportContainerRef = useRef<HTMLDivElement>(null);
     const simulationLogsEndRef = useRef<HTMLDivElement>(null);
@@ -666,7 +653,13 @@ export default function Step4_Result(): React.ReactElement
         setIsUsageNotesModalOpenStatus(true);
     };
 
-    /** 注意事項視窗按「下載」：下載 CSV，勾選時一併下載同名的注意事項文字檔 */
+    // ★ 專家回饋 P-19：同一份下載的 CSV 與注意事項 txt 共用檔名時間戳（開啟視窗時決定，兩個檔案的檔名才對得起來）
+    const usageNotesDownloadStampRef = useRef<number>(0);
+    useEffect(() => {
+        if (isUsageNotesModalOpenStatus) usageNotesDownloadStampRef.current = Date.now();
+    }, [isUsageNotesModalOpenStatus]);
+
+    /** 注意事項視窗按「下載資料」：只下載 CSV（一次點擊一個檔案，瀏覽器不會把第二個下載當成連續下載而攔截） */
     const handleConfirmDownloadCSV = () =>
     {
         if (isResultNonCompliantStatus) return;
@@ -676,49 +669,43 @@ export default function Step4_Result(): React.ReactElement
             messageApi.error(translate('step4.msg.download_failed', '無法取得脫敏檔案，請重新運算。'));
             return;
         }
-        const downloadTimestampNumber = Date.now();
-        triggerBlobDownload(processedCsvBlob, `deidentified_dataset_${downloadTimestampNumber}.csv`);
-        if (isIncludeUsageNotesFileStatus)
-        {
-            // 加 UTF-8 BOM，Windows 記事本開啟中文不會亂碼
-            const usageNotesBlob = new Blob(['\uFEFF' + buildDataUsageNotesText(dataUsageNotesContext)], { type: 'text/plain;charset=utf-8' });
-            triggerBlobDownload(usageNotesBlob, `deidentified_dataset_${downloadTimestampNumber}_使用注意事項.txt`);
-        }
+        triggerBlobDownload(processedCsvBlob, `deidentified_dataset_${usageNotesDownloadStampRef.current}.csv`);
         setIsUsageNotesModalOpenStatus(false);
-        messageApi.success(isIncludeUsageNotesFileStatus
-            ? translate('step4.msg.download_success_with_notes', '已下載處理後資料與使用注意事項，請一併提供給資料使用方。')
-            : translate('step4.msg.download_success', '已成功匯出全量脫敏 CSV 數據！'));
+        messageApi.success(translate('step4.msg.download_success', '已成功匯出全量脫敏 CSV 數據！'));
     };
 
+    /** 注意事項視窗內另一顆按鈕：單獨下載注意事項文字檔（自己的一次點擊），視窗維持開啟，方便接著再下載資料 */
+    const handleDownloadUsageNotesFile = () =>
+    {
+        // 加 UTF-8 BOM，Windows 記事本開啟中文不會亂碼
+        const usageNotesBlob = new Blob(['\uFEFF' + buildDataUsageNotesText(dataUsageNotesContext)], { type: 'text/plain;charset=utf-8' });
+        triggerBlobDownload(usageNotesBlob, `deidentified_dataset_${usageNotesDownloadStampRef.current}_使用注意事項.txt`);
+        messageApi.success(translate('step4.msg.download_notes_success', '已下載使用注意事項，請一併提供給資料使用方。'));
+    };
+
+    // ★ 專家回饋 P-13：原本用 html2pdf 把畫面轉成圖片，PDF 沒有文字層（不能選取、搜尋）。
+    //   改交給瀏覽器列印：在列印視窗選「另存為 PDF」會保留真正的文字，見 utils/printReport.ts。
     const handleDownloadPDF = async () =>
     {
         if (isResultNonCompliantStatus) return; // 未達標不提供 PDF 匯出
         const targetPdfPrintHtmlElement = document.getElementById('printable-audit-report');
         if (!targetPdfPrintHtmlElement) return;
-        const hideGlobalLoadingMessageFunction = messageApi.loading(translate('step4.msg.pdf_compiling', '正在編譯高畫質 PDF，請稍候...'), 0);
         setIsExportingPdfStatus(true);
+        // 等畫面切到「匯出模式」（欄位表不再捲動、完整展開）後再複製進列印用頁框
         await new Promise((resolveDelayPromise) => setTimeout(resolveDelayPromise, PDF_COMPILATION_DELAY_MS));
-
-        // ★ 2026-10-29：改用打包進前端的 html2pdf（離線也能匯出），見 utils/html2pdfLoader.ts
-        const html2pdfLoader = createHtml2PdfLoader();
-        html2pdfLoader.onload = () => 
+        try
         {
-            const pdfGenerationConfigurationOptions = {
-                margin:       [10, 10, 10, 10],
-                filename:     `Privacy_Audit_Certificate_${auditMetadataObject.certificateId}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, scrollX: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'], avoid: ['tr', '.pdf-page-break'] }
-            };
-            (window as unknown as WindowWithHtml2Pdf).html2pdf().set(pdfGenerationConfigurationOptions).from(targetPdfPrintHtmlElement).save().then(
-                () => { hideGlobalLoadingMessageFunction(); messageApi.success(translate('step4.msg.pdf_success', '檢測報告 PDF 已成功下載！')); }
-            ).catch(
-                (pdfExecutionErrorPayload: unknown) => { hideGlobalLoadingMessageFunction(); messageApi.error(translate('step4.msg.pdf_failed', 'PDF 下載失敗')); console.error(pdfExecutionErrorPayload); }
-            ).finally(() => setIsExportingPdfStatus(false));
-        };
-        html2pdfLoader.onerror = () => { hideGlobalLoadingMessageFunction(); messageApi.error(translate('step4.msg.pdf_no_lib', '無法載入 PDF 轉檔套件，請重新整理頁面後再試一次。')); setIsExportingPdfStatus(false); };
-        startHtml2PdfLoader(html2pdfLoader);
+            printReportElement(targetPdfPrintHtmlElement, `Privacy_Audit_Certificate_${auditMetadataObject.certificateId}`);
+        }
+        catch (pdfExecutionErrorPayload: unknown)
+        {
+            messageApi.error(translate('step4.msg.pdf_failed', '無法開啟列印視窗'));
+            console.error(pdfExecutionErrorPayload);
+        }
+        finally
+        {
+            setIsExportingPdfStatus(false);
+        }
     };
 
     // ★ 新增：錯誤卡片測試面板只在網址加上 ?debugErrors=1 (重新整理過一次) 時才會出現，
@@ -1388,7 +1375,7 @@ export default function Step4_Result(): React.ReactElement
                 footer={[
                     <Button key="cancel" onClick={() => setIsUsageNotesModalOpenStatus(false)}>{translate('common.cancel', '取消')}</Button>,
                     <Button key="download" type="primary" icon={<DownloadOutlined />} data-testid="usage-notes-confirm-download" onClick={handleConfirmDownloadCSV} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
-                        {translate('step4.usage_notes.confirm', '我已了解，下載資料')}
+                        {translate('step4.usage_notes.confirm', '我已了解，下載資料（CSV）')}
                     </Button>
                 ]}
             >
@@ -1405,14 +1392,15 @@ export default function Step4_Result(): React.ReactElement
                             <li key={noteText} style={{ marginBottom: 4 }}>{noteText}</li>
                         ))}
                     </ol>
-                    <Checkbox
-                        data-testid="usage-notes-include-file"
-                        checked={isIncludeUsageNotesFileStatus}
-                        onChange={(checkboxChangeEvent) => setIsIncludeUsageNotesFileStatus(checkboxChangeEvent.target.checked)}
-                        style={{ marginTop: 12 }}
-                    >
-                        {translate('step4.usage_notes.include_file', '一併下載注意事項文字檔（.txt），方便隨資料交給使用方')}
-                    </Checkbox>
+                    {/* ★ 專家回饋 P-19：注意事項文字檔改成獨立按鈕（各自一次點擊），不再與 CSV 在同一次點擊連續下載 */}
+                    <div style={{ marginTop: 12 }}>
+                        <Button size="small" icon={<DownloadOutlined />} data-testid="usage-notes-download-file" onClick={handleDownloadUsageNotesFile}>
+                            {translate('step4.usage_notes.download_file', '另外下載注意事項文字檔（.txt），方便隨資料交給使用方')}
+                        </Button>
+                    </div>
+                    <div data-testid="usage-notes-multi-download-hint" style={{ marginTop: 8, fontSize: scaleFontSize(12), color: token.colorTextSecondary }}>
+                        {translate('step4.usage_notes.multi_download_hint', '一次下載多個檔案時，瀏覽器可能詢問是否允許下載多個檔案，請選「允許」。')}
+                    </div>
                 </div>
             </Modal>
 
@@ -1425,8 +1413,10 @@ export default function Step4_Result(): React.ReactElement
                 open={isReportModalVisibleStatus} onCancel={() => setIsReportModalVisibleStatus(false)} width={'57em'} styles={{ body: { maxHeight: '72vh', overflowY: 'auto', paddingRight: '6px' } }}
                 footer={[
                     <Button key="close" onClick={() => setIsReportModalVisibleStatus(false)}>{translate('step4.modal.close', '關閉')}</Button>,
+                    // ★ 專家回饋 P-13：PDF 改走瀏覽器列印，提醒使用者在列印視窗選「另存為 PDF」才有可選取的文字
+                    !isResultNonCompliantStatus && <span key="print-hint" data-testid="pdf-print-hint" style={{ marginRight: 8, fontSize: scaleFontSize(12), color: token.colorTextSecondary }}>{translate('step4.modal.pdf_print_hint', '在列印視窗選「另存為 PDF」，PDF 才有可選取的文字')}</span>,
                     <Tooltip key="download" title={isResultNonCompliantStatus ? nonCompliantDownloadBlockedText : undefined}>
-                        <Button type="primary" icon={<DownloadOutlined />} loading={isExportingPdfStatus} disabled={isResultNonCompliantStatus} onClick={handleDownloadPDF} style={isResultNonCompliantStatus ? undefined : { background: '#4F46E5' }}>{translate('step4.modal.export_pdf', '匯出 PDF 憑證')}</Button>
+                        <Button type="primary" icon={<DownloadOutlined />} loading={isExportingPdfStatus} disabled={isResultNonCompliantStatus} onClick={handleDownloadPDF} style={isResultNonCompliantStatus ? undefined : { background: '#4F46E5' }}>{translate('step4.modal.export_pdf', '列印／另存 PDF')}</Button>
                     </Tooltip>
                 ]}
             >

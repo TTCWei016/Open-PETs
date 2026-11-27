@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Steps, Button, Card, Layout, theme, App as AntdApp, Popconfirm, Tooltip } from 'antd';
+import { Steps, Button, Card, Layout, theme, App as AntdApp, Popconfirm } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -83,7 +83,7 @@ export default function MainLayout(): React.ReactElement
     //   若使用 message（頂部小提示條）預設僅顯示 3 秒且無法手動關閉，使用者常常來不及看完
     //   就自動消失。改用 notification（右下角通知卡片）：本身內建可手動關閉的 X 按鈕，
     //   並將顯示時間拉長，兩者一併解決「顯示時間太短」與「無法手動關閉」兩項回饋。
-    const { notification: globalNotificationApi, modal: globalModalApi } = AntdApp.useApp();
+    const { notification: globalNotificationApi, modal: globalModalApi, message: globalMessageApi } = AntdApp.useApp();
 
     /**
      * 函數名稱: confirmDpNoiseUnitBeforeLeavingRules
@@ -349,6 +349,8 @@ export default function MainLayout(): React.ReactElement
     {
         resetWorkspaceAction();
         executeNavigationAction(`/workspace?step=1`, { replace: true });
+        // ★ 專家回饋 P-16：重置後給明確回饋（原本只靜靜換頁，使用者看不出有沒有成功）
+        globalMessageApi.success(translate('layout.reset_done', '已清空工作區，回到第一步'));
     };
 
     /**
@@ -403,18 +405,19 @@ export default function MainLayout(): React.ReactElement
                     </div>
                     
                     {/* 右側：一鍵重新開始按鈕 (只要不在第一步就顯示) */}
+                    {/* ★ 專家回饋 P-16：原本 Popconfirm 內包 Tooltip，滑鼠停在按鈕上時提示氣泡剛好蓋住確認視窗的「取消／確認」，
+                        點確認等於點到氣泡，看起來「重新開始沒反應」。改成不用 Tooltip，說明文字放進確認視窗的 description。 */}
                     {currentStepIndexValue > STEP_INDEX_UPLOAD && (
                         <Popconfirm 
                             title={translate('layout.confirm_reset', '確定要放棄當前進度並重新開始嗎？')} 
+                            description={translate('layout.reset_workspace', '清空所有資料與設定，回到初始狀態')}
                             onConfirm={handleResetWorkspace}
                             okText={translate('button.confirm', '確定')}
                             cancelText={translate('button.cancel', '取消')}
                         >
-                            <Tooltip title={translate('layout.reset_workspace', '清空所有資料與設定，回到初始狀態')}>
-                                <Button danger type="dashed" icon={<ReloadOutlined />}>
-                                    {translate('button.restart', '重新開始')}
-                                </Button>
-                            </Tooltip>
+                            <Button danger type="dashed" icon={<ReloadOutlined />} data-testid="workspace-restart-button">
+                                {translate('button.restart', '重新開始')}
+                            </Button>
                         </Popconfirm>
                     )}
 

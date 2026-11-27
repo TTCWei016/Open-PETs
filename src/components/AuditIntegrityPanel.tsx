@@ -2,7 +2,7 @@
  * 稽核憑證「防篡改指紋與數位簽章」區塊（AuditLogHub 憑證調閱視窗、Step4 合規報告共用）。
  * ★ 2026-10-02：取代寫死的假指紋與假簽章，改顯示 utils/auditIntegrity.ts 產生的真實值，並即時驗證。
  * ★ 2026-10-29：簽章改由伺服器簽發，驗證改請後端重算（GET /api/v1/history/{id}/verify），任何電腦看到的結果都一樣。
- * 使用一般 span／div 與行內樣式（不用 antd Tag），確保 html2pdf 匯出 PDF 時排版一致。
+ * 使用一般 span／div 與行內樣式（不用 antd Tag），確保列印（另存為 PDF）時排版一致。
  */
 import { useEffect, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
