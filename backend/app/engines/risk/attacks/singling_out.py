@@ -19,6 +19,43 @@ from app.core.cancellation import check_cancelled
 from .base import AttackStrategy
 
 
+class _CodedFrame:
+    """把每個欄位的值預先編成整數代碼（每欄只編一次），重複比對時只比整數陣列。
+
+    ★ 2026-11-27（展示站逾時）：原本每次查詢都拿整欄物件（字串）陣列逐筆做 `== 值`，
+      100 萬筆資料 500 次迭代 × 3 種查詢要花近 4 分鐘；改成先編碼，同樣的比對只要幾秒。
+      比對語意與「欄位陣列 == 值」相同：缺值自成一類；值與欄位型別對不上時視為不符；
+      數值以相等判斷（1 與 1.0 視為相同）。
+    """
+
+    def __init__(self, df: pd.DataFrame):
+        self._df = df
+        self._columns: dict = {}
+
+    def _column(self, col: str):
+        cached = self._columns.get(col)
+        if cached is None:
+            codes, uniques = pd.factorize(self._df[col])  # 缺值編為 -1
+            cached = (codes, {unique: index for index, unique in enumerate(uniques)})
+            self._columns[col] = cached
+        return cached
+
+    def match_count(self, col_values: dict) -> int:
+        """數同時滿足所有「欄位==值」條件的列數（語意同 SinglingOutAttack._match_count）。"""
+        mask = None
+        for col, val in col_values.items():
+            codes, lookup = self._column(col)
+            if pd.isna(val):
+                hit = codes == -1
+            else:
+                code = lookup.get(val)
+                if code is None:
+                    return 0  # 這個值在該欄根本不存在，整個查詢不可能命中
+                hit = codes == code
+            mask = hit if mask is None else (mask & hit)
+        return 0 if mask is None else int(mask.sum())
+
+
 class SinglingOutAttack(AttackStrategy):
     """指認性攻擊模擬（無狀態）。"""
 
@@ -45,6 +82,8 @@ class SinglingOutAttack(AttackStrategy):
         s_ori = 0
         s_ctrl = 0
         s_base = 0
+        ori_index = _CodedFrame(ori)
+        ctrl_index = _CodedFrame(ctrl)
 
         for _ in range(n_iter):
             check_cancelled()  # ★ TTC 2026-10-31
@@ -56,9 +95,9 @@ class SinglingOutAttack(AttackStrategy):
             # 主要／控制攻擊：條件取自一筆真實 syn 紀錄（真實共現的值組合）
             sample_row = syn.sample(n=1, random_state=rng).iloc[0]
             query_values = {c: sample_row[c] for c in query_cols}
-            if self._match_count(ori, query_values) == 1:
+            if ori_index.match_count(query_values) == 1:
                 s_ori += 1
-            if self._match_count(ctrl, query_values) == 1:
+            if ctrl_index.match_count(query_values) == 1:
                 s_ctrl += 1
 
             # 基準攻擊：每欄的值獨立隨機抽取（不綁在同一筆紀錄上）＝值真實但組合亂湊、
@@ -66,7 +105,7 @@ class SinglingOutAttack(AttackStrategy):
             base_values = {
                 c: syn[c].sample(n=1, random_state=rng).iloc[0] for c in query_cols
             }
-            if self._match_count(ori, base_values) == 1:
+            if ori_index.match_count(base_values) == 1:
                 s_base += 1
 
         return s_ori / n_iter, s_ctrl / n_iter, s_base / n_iter
