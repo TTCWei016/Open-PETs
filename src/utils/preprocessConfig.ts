@@ -62,6 +62,8 @@ export interface BackendPreprocessBlock
 	enabled: true;
 	algorithm: PreprocessHashAlgorithm;
 	columns: { column: string; actions: BackendPreprocessAction[] }[];
+	/** ★ 專家回饋 P-04：處理完成後隨機重排列順序（選用；未啟用時不送） */
+	shuffle_rows?: boolean;
 }
 
 const toFiniteNumberOrUndefined = (rawValue: unknown): number | undefined =>
@@ -82,6 +84,9 @@ export const convertPreprocessStep = (stepItem: PreprocessingRule): BackendPrepr
 	{
 		case 'trim':
 			return { action: 'trim', params: { mode: params.mode === 'all' ? 'all' : 'edges' } };
+		// ★ 專家回饋 P-01：刪除整欄（差分隱私模式不負責刪欄位，由前處理先移除姓名、身分證號等欄位）
+		case 'drop_column':
+			return { action: 'drop_column', params: {} };
 		case 'slice':
 		{
 			const countValue = Math.floor(Number(params.count) || 0);
@@ -171,11 +176,13 @@ export const convertMissingValueRule = (missingRule: MissingValueRule | undefine
  *   - columnNames: 資料集欄位（決定輸出順序；設定中但資料集沒有的欄位不送出）
  *   - preprocessingRules: 各欄位清洗步驟
  *   - missingValueRules: 各欄位缺失值處理
+ *   - shuffleRows: ★ 專家回饋 P-04：處理完成後是否隨機重排列順序（選用）
  */
 export const buildPreprocessBlock = (
 	columnNames: string[],
 	preprocessingRules: Record<string, PreprocessingRule[]> | null | undefined,
-	missingValueRules: Record<string, MissingValueRule> | null | undefined
+	missingValueRules: Record<string, MissingValueRule> | null | undefined,
+	shuffleRows: boolean | null | undefined = false
 ): BackendPreprocessBlock | null =>
 {
 	const ownValue = <ValueType,>(sourceMap: Record<string, ValueType> | null | undefined, keyName: string): ValueType | undefined =>
@@ -187,6 +194,7 @@ export const buildPreprocessBlock = (
 	{
 		const stepList = ownValue(preprocessingRules, columnName);
 		const actionList: BackendPreprocessAction[] = [];
+		let isColumnDropped = false;
 		for (const stepItem of Array.isArray(stepList) ? stepList : [])
 		{
 			const convertedAction = convertPreprocessStep(stepItem);
@@ -195,12 +203,19 @@ export const buildPreprocessBlock = (
 			if (convertedAction.action === 'hash' && hashAlgorithm === null) hashAlgorithm = normalizePreprocessHashAlgorithm(stepItem.params?.algorithm);
 			actionList.push(convertedAction);
 			if (stepItem.action === 'hash') break; // 雜湊為終點，與畫面預覽一致
+			if (convertedAction.action === 'drop_column')
+			{
+				// 刪除整欄也是終點：後端規定刪掉的欄位之後不能再有任何動作
+				isColumnDropped = true;
+				break;
+			}
 		}
-		const missingAction = convertMissingValueRule(ownValue(missingValueRules, columnName));
+		// 整欄都刪了，缺失值處理就沒有對象（若照送，後端會因「刪除之後又處理同一欄」拒絕）
+		const missingAction = isColumnDropped ? null : convertMissingValueRule(ownValue(missingValueRules, columnName));
 		if (missingAction) actionList.push(missingAction);
 		if (actionList.length > 0) columnEntries.push({ column: columnName, actions: actionList });
 	}
 
-	if (columnEntries.length === 0) return null;
-	return { enabled: true, algorithm: hashAlgorithm ?? DEFAULT_PREPROCESS_HASH_ALGORITHM, columns: columnEntries };
+	if (columnEntries.length === 0 && !shuffleRows) return null; // 沒有欄位動作也沒有啟用重排＝不需要前處理
+	return { enabled: true, algorithm: hashAlgorithm ?? DEFAULT_PREPROCESS_HASH_ALGORITHM, columns: columnEntries, ...(shuffleRows ? { shuffle_rows: true } : {}) };
 };

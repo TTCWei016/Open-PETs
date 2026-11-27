@@ -77,14 +77,15 @@ describe('檢測報告快照', () => {
         expect(dpSnapshot.utility.suppressionRatePercent).toBeNull();
     });
 
-    it('整體等級：三個問題取最高，CAP 用扣除基線後的值（不是原始 CAP 50%）', () => {
+    it('整體等級：三個問題取最高；CAP 只是參考數據，不列入判定（專家回饋 P-03）', () => {
         const snapshot = buildEntry().reportSnapshot!;
-        const summary = computeReportOverallRisk(snapshot.attackRisks, snapshot.cap, labels);
-        expect(summary?.driver.label).toBe('猜出');
-        expect(summary?.driver.value).toBeCloseTo(0.1667);
-        expect(summary?.info.code).toBe('FAIL'); // 0.1667 ≥ 0.09（★ 2026-11-04 改為通過／不通過）
-        expect(resolveSensitiveGuessRisk(0.03, null)).toBe(0.03);
-        expect(resolveSensitiveGuessRisk(undefined, null)).toBeNull();
+        // 快照裡 CAP 扣除基線後是 16.67%，若仍計入會是 FAIL；現在只看三種攻擊，最高為連結性 4.56%
+        const summary = computeReportOverallRisk(snapshot.attackRisks, labels);
+        expect(summary?.driver.label).toBe('對上');
+        expect(summary?.driver.value).toBeCloseTo(0.0456);
+        expect(summary?.info.code).not.toBe('FAIL');
+        expect(resolveSensitiveGuessRisk(0.03)).toBe(0.03);
+        expect(resolveSensitiveGuessRisk(undefined)).toBeNull();
     });
 });
 
@@ -112,16 +113,17 @@ describe('Step4 報告與歷史檢測紀錄調閱內容一致', () => {
         // 新版內容確實出現：處理配置、CAP、整體等級、效用、兩位小數
         expect(historyText).toContain('隱私強化處理配置');
         expect(historyText).toContain('1.23%');
-        expect(historyText).toContain('不通過'); // ★ 2026-11-04：等級改為通過／不通過
+        // ★ 專家回饋 P-03：CAP 不列入判定，報告另註明它只是參考數據（原本 CAP 會讓這份紀錄變成不通過）
+        expect(historyText).toContain('不列入風險評估通過與否的判定');
         expect(historyText).toContain('2.000%');
         expect(historyText).toContain('2 / 3');
         expect(within(historyDocument).getByText('直接移除')).toBeTruthy();
     });
 
-    it('列表的整體判定與報告相同（不通過），不再用舊的「綜合殘餘風險 %」', () => {
+    it('列表的整體判定與報告相同（CAP 不列入判定，三種攻擊都低於門檻＝通過），不再用舊的「綜合殘餘風險 %」', () => {
         useAuditStore.getState().addAuditLog(buildEntry());
         render(<AntdApp><AuditLogHub /></AntdApp>);
-        expect(screen.getByTestId('risk-level-badge-FAIL')).toBeTruthy();
+        expect(screen.getByTestId('risk-level-badge-PASS')).toBeTruthy();
         expect(screen.queryByText('三大攻擊殘餘風險 (Singling/Link/Inf)')).toBeNull();
     });
 
@@ -134,5 +136,25 @@ describe('Step4 報告與歷史檢測紀錄調閱內容一致', () => {
         const historyDocument = await screen.findByTestId('compliance-report-document');
         expect(historyDocument.textContent).toContain('此紀錄建立於舊版，未保存此項');
         expect(historyDocument.textContent).toContain('1.2%');
+    });
+
+    // ★ 專家回饋 P-01／P-02／P-03：報告列出各項檢查結果、結論適用範圍與原樣輸出的欄位
+    it('報告：各項檢查分別標示（未啟用的標示未檢查）、列出原樣輸出與未納入風險評估的欄位，CAP 註明不列入判定', () => {
+        const entry = buildEntry();
+        entry.reportSnapshot = {
+            ...entry.reportSnapshot!,
+            deidChecks: [
+                { key: 'k', result: 'passed' }, { key: 'l', result: 'not_selected' }, { key: 't', result: 'failed' }, { key: 'suppression', result: 'passed' }
+            ],
+            outputScope: { processedColumns: ['年齡'], rawColumns: ['備註', '疾病'], unevaluatedRawColumns: ['備註'] }
+        };
+        const view = render(<AntdApp><ComplianceReportDocument entry={{ ...entry, id: 'x' }} isExportingPdf={false} containerId="scope" /></AntdApp>);
+        const text = normalizeText(view.getByTestId('compliance-report-document').textContent);
+        expect(text).toContain('未啟用（未檢查）');
+        expect(text).toContain('未通過（以未通過的項目為準）');
+        expect(text).toContain('未經處理、原樣輸出的欄位');
+        expect(text).toContain('備註、疾病');
+        expect(text).toContain('未納入再識別風險評估的欄位');
+        expect(text).toContain('不列入風險評估通過與否的判定');
     });
 });

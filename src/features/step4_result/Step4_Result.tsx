@@ -32,7 +32,7 @@ import { confirmIfBackendBusy } from '../workspace/backendBusyConfirm';
 import { PipelineElapsedText } from './PipelineElapsedText';
 import BackendReportDetails from './BackendReportDetails';
 import ComplianceReportDocument, { type ComplianceReportEntry } from '../../components/ComplianceReportDocument';
-import { buildComplianceReportSnapshot, formatEpsilonForDisplay, isCapEvaluated, resolveCapExcessRisk, resolveComplianceStatus, resolveSensitiveGuessRisk } from '../../utils/complianceReport';
+import { buildComplianceReportSnapshot, formatEpsilonForDisplay, isCapEvaluated, resolveComplianceStatus, resolveSensitiveGuessRisk } from '../../utils/complianceReport';
 import { useAuthStore } from '../../store/useAuthStore';
 import { RiskSummaryCard, UtilitySummaryCard, type RiskQuestionRow, type PlainCardColors } from '../../components/PlainResultSummary';
 import { classifyKAnonymityFidelity, resolveColumnTreatment, resolveReleaseDecision, pickExampleValue } from '../../utils/plainResultSummary';
@@ -428,12 +428,11 @@ export default function Step4_Result(): React.ReactElement
     //   直接比門檻幾乎永遠不通過。舊快取沒有扣除值時該項不納入判定（★ 2026-11-04 等級改為通過／不通過）。
     //   （2026-10-08：判定與取值改用 utils/complianceReport.ts，與合規報告／歷史紀錄共用）
     const isCapEvaluatedStatus = isCapEvaluated(capReportData);
-    const capExcessRiskValue = resolveCapExcessRisk(capReportData);
     // ★ 2026-10-06 白話版：三個問題。「猜出敏感資料」取推斷性攻擊與扣除基線後 CAP 的較高者（兩者都在問同一件事）。
     const riskQuestionSinglingText = translate('step4.risk.q_singling', '能否認出是誰');
     const riskQuestionLinkabilityText = translate('step4.risk.q_linkability', '能否和其他資料對上');
     const riskQuestionSensitiveText = translate('step4.risk.q_sensitive', '能否猜出敏感資料');
-    const sensitiveGuessRiskValue = resolveSensitiveGuessRisk(attackSimulationMetricsData?.inference.risk, capExcessRiskValue);
+    const sensitiveGuessRiskValue = resolveSensitiveGuessRisk(attackSimulationMetricsData?.inference.risk);
     const overallRiskSummary = computeOverallRiskLevel([
         { label: riskQuestionSinglingText, value: attackSimulationMetricsData?.singling.risk },
         { label: riskQuestionLinkabilityText, value: attackSimulationMetricsData?.linkability.risk },
@@ -459,10 +458,7 @@ export default function Step4_Result(): React.ReactElement
         {
             key: 'sensitive', question: riskQuestionSensitiveText, value: sensitiveGuessRiskValue,
             tooltip: translate('step4.risk.q_sensitive_tooltip', '模擬攻擊者用年齡、地區等欄位，猜出某人的敏感資料（例如疾病）。已扣掉「純憑運氣也猜得中」的部分。'),
-            // 舊快取只有原始 CAP、沒有扣除基線值時提示重新運算
-            notEvaluatedText: isCapEvaluatedStatus && capExcessRiskValue === null && capReportData?.cap_baseline_after === undefined
-                ? translate('step4.risk.cap_need_rerun', '請重新運算')
-                : translate('step4.risk.row_not_evaluated', '未評估')
+            notEvaluatedText: translate('step4.risk.row_not_evaluated', '未評估')
         },
     ];
 
@@ -650,6 +646,8 @@ export default function Step4_Result(): React.ReactElement
         sourceFileName: currentDatasetFileNameString,
         kValue: currentKValueNumber,
         consumedEpsilon: dpReport ? dpReport.consumed_epsilon : null,
+        // ★ 專家回饋 P-01：原樣輸出的欄位寫進注意事項（取自報告快照；舊紀錄沒有則不列）
+        rawOutputColumns: complianceReportEntry?.reportSnapshot?.outputScope?.rawColumns,
     };
 
     /** 按「下載處理後資料」：先開注意事項視窗，確認後才下載 */
@@ -827,6 +825,12 @@ export default function Step4_Result(): React.ReactElement
                                             )}
                                         </div>
                                         <div style={{ marginTop: 4 }}>{releaseDecision.adviceText}</div>
+                                        {/* ★ 專家回饋 P-01／P-02：結論只適用已設定去識別化處理的欄位；原樣輸出的欄位請使用者自行確認 */}
+                                        {(complianceReportEntry?.reportSnapshot?.outputScope?.rawColumns?.length ?? 0) > 0 && (
+                                            <div data-testid="output-scope-note" style={{ marginTop: 4, color: token.colorTextSecondary }}>
+                                                {translate('step4.alert.scope_note', '以上結論只適用已設定去識別化處理的欄位。以下欄位未經處理、原樣輸出，請自行確認是否為非隱私資料：{{columns}}', { columns: complianceReportEntry?.reportSnapshot?.outputScope?.rawColumns.join('、') })}
+                                            </div>
+                                        )}
                                     </div>
                                 )
                                 : (
@@ -836,6 +840,7 @@ export default function Step4_Result(): React.ReactElement
                                             「哪裡沒過」＋一行「怎麼改」的極簡提示，不顯示後端原始長篇文字。 */}
                                         {currentPrivacyModeTypeStr === 'k-anonymity' && kReport && (() => {
                                             const isSuppressionExceededStatus = kReport.suppression_rate_percent > (currentMaxSuppressionNumber ?? 20);
+                                            // ★ 專家回饋 P-03：後端報告新增「輸出 0 筆」這種未達標原因，原本畫面只認 k／l／t／抑制率，會被誤顯示成「抑制率」。
                                             // ★ 未啟用 l-多樣性／t-緊密度檢測時，即使報告內 l_passed／t_passed 剛好是
                                             // false（例如後端對「未檢測」的預設值不是 true），畫面上也不歸咎於 l／t，
                                             // 避免使用者誤以為自己沒關掉的 l/t 造成失敗。
@@ -843,7 +848,8 @@ export default function Step4_Result(): React.ReactElement
                                                 kReport.k_passed === false ? 'k' : null,
                                                 (isEnableLDiversityStatus && kReport.l_passed === false) ? 'l-多樣性' : null,
                                                 (isEnableTClosenessStatus && kReport.t_passed === false) ? 't-緊密度' : null,
-                                                isSuppressionExceededStatus ? '抑制率' : null
+                                                isSuppressionExceededStatus ? '抑制率' : null,
+                                                kReport.output_empty ? '輸出為空' : null
                                             ].filter((item): item is string => item !== null);
                                             const failedCheckSummaryText = failedCheckNamesList.length > 0
                                                 ? failedCheckNamesList.join('、')
@@ -853,7 +859,8 @@ export default function Step4_Result(): React.ReactElement
                                                 'k': `每組至少 ${currentKValueNumber} 筆（k）`,
                                                 'l-多樣性': `每組敏感值至少 ${currentLValueNumber} 種（l）`,
                                                 't-緊密度': `分布差距不超過 ${currentTValueNumber}（t）`,
-                                                '抑制率': '刪除／遮蔽比例超過上限'
+                                                '抑制率': '刪除／遮蔽比例超過上限',
+                                                '輸出為空': '處理後 0 筆資料（全部被刪除或遮蔽），無從檢測'
                                             };
                                             const failedCheckDisplayText = failedCheckNamesList.length > 0
                                                 ? failedCheckNamesList.map((nameItem) => failedCheckDisplayNameMap[nameItem] ?? nameItem).join('、')
@@ -966,6 +973,17 @@ export default function Step4_Result(): React.ReactElement
                                                     optionTextList: [
                                                         translate('step4.alert.k_option_coarser_qi', '回到 Step2，把「間接識別碼」欄位分廣泛一點（例如把年齡區間放寬），讓每個分組的筆數變多'),
                                                         translate('step4.alert.k_option_lower_k', '回到 Step3，把 k 值調低（數字越小，要求越寬鬆，但保護也較弱）')
+                                                    ]
+                                                });
+                                            }
+
+                                            if (kReport.output_empty) {
+                                                failureGuidanceSectionsList.push({
+                                                    key: 'empty',
+                                                    headlineNode: <>{translate('step4.alert.empty_plain_issue', '處理後沒有留下任何一筆資料（全部被刪除或遮蔽），空的資料集不能算通過檢測，也不能提供。')}</>,
+                                                    optionTextList: [
+                                                        translate('step4.alert.empty_option_coarser_qi', '回到 Step2，把「間接識別碼」欄位分廣泛一點，或減少間接識別碼的欄位數，讓更多筆資料能湊滿一組'),
+                                                        translate('step4.alert.empty_option_lower_k', '回到 Step3，把 K 值調低')
                                                     ]
                                                 });
                                             }
@@ -1124,6 +1142,16 @@ export default function Step4_Result(): React.ReactElement
                                 title={<span><SafetyCertificateOutlined style={{ marginRight: 8, color: token.colorPrimary }} />{translate('step4.risk.title_plain', '再識別風險評估（三種攻擊模擬）')}</span>}
                                 variant="borderless" style={{ background: token.colorBgContainer, width: '100%', display: 'flex', flexDirection: 'column' }} styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column' } }}
                             >
+                                {/* ★ 專家回饋 P-03：去識別化本身未達標時，上方結論是「未達標」，這張卡的風險數字卻可能全是「通過」，
+                                    兩者並列讓人誤讀成可以提供。這裡明講整體結論以未達標為準。 */}
+                                {apiReport && !pipelineFailedMessage && !isComplianceValidStatus && (
+                                    <Alert
+                                        type="warning"
+                                        showIcon
+                                        style={{ marginBottom: 12 }}
+                                        title={translate('step4.risk.processing_failed_note', '去識別化本身未達標，整體結論為「未達標」，不提供下載。下方的風險數字只是參考，不代表這份資料可以提供。')}
+                                    />
+                                )}
                                 {/* ★ 2026-10-06 白話版（見 components/PlainResultSummary.tsx）：結論＋三個白話問題，
                                     數字改說「每 100 筆約幾筆」；CAP 處理前後與亂猜基線只留在合規報告。 */}
                                 <RiskSummaryCard
@@ -1359,7 +1387,7 @@ export default function Step4_Result(): React.ReactElement
                         <span style={{ fontWeight: 600 }}>{describeProcessingMethod(dataUsageNotesContext)}</span>
                     </div>
                     <ol data-testid="usage-notes-list" style={{ paddingLeft: 22, margin: 0, background: token.colorFillQuaternary, borderRadius: 8, padding: '10px 12px 10px 32px' }}>
-                        {getDataUsageNotes(dataUsageNotesContext.mode).map((noteText) => (
+                        {getDataUsageNotes(dataUsageNotesContext.mode, dataUsageNotesContext.rawOutputColumns).map((noteText) => (
                             <li key={noteText} style={{ marginBottom: 4 }}>{noteText}</li>
                         ))}
                     </ol>

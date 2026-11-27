@@ -358,7 +358,7 @@ export default function AuditLogHub(): React.ReactElement
 					// 舊紀錄沒有報告快照，只能顯示當時記錄的百分比
 					return <Text type="secondary">{auditLogRecordItem.overallRisk}</Text>;
 				}
-				const overallSummary = computeReportOverallRisk(auditLogRecordItem.reportSnapshot.attackRisks, auditLogRecordItem.reportSnapshot.cap, { singling: '', linkability: '', sensitive: '' });
+				const overallSummary = computeReportOverallRisk(auditLogRecordItem.reportSnapshot.attackRisks, { singling: '', linkability: '', sensitive: '' });
 				return overallSummary
 					? <RiskLevelBadge level={overallSummary.info.level} size="small" />
 					: <Text type="secondary">{translate('step4.risk.row_not_evaluated', '未評估')}</Text>;

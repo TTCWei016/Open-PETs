@@ -18,7 +18,7 @@ export const applyPreprocessImportToWorkspace = (importResult: PreprocessImportF
 {
 	if (!importResult.disabled)
 	{
-		useWorkspaceStore.setState({ preprocessingRules: importResult.preprocessingRules, missingValueRules: importResult.missingValueRules });
+		useWorkspaceStore.setState({ preprocessingRules: importResult.preprocessingRules, missingValueRules: importResult.missingValueRules, shuffleRows: importResult.shuffleRows });
 	}
 	const { summary, warnings } = describePreprocessImport(importResult);
 	if (importResult.disabled) messageApi.warning(summary);

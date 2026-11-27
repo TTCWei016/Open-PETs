@@ -202,7 +202,7 @@ def cli_preprocess(
     output_path: str = typer.Option(..., "--output", "-o", help="輸出資料儲存路徑"),
     # 逐欄逐項的動作與參數一律隨設定檔提供，不另開指令列選項（同其他指令）
 ):
-    """依設定檔清單由上往下對指定欄位執行資料前處理（去空白、截斷、轉型、填補等 11 項）"""
+    """依設定檔清單由上往下對指定欄位執行資料前處理（去空白、截斷、轉型、填補、刪除欄位等 12 項）"""
     with _cli_operation("preprocess"):
         typer.echo("正在載入資料與設定檔...", err=True)
         cfgs = parse_bundled_config(config_path, "preprocess")

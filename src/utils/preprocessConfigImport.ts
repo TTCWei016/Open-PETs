@@ -35,6 +35,7 @@ export interface PreprocessImportResult
 	columnNames: string[];                                     // 設定檔中有處理的欄位（依首次出現順序）
 	warnings: string[];                                        // 無法照原樣表達、已調整或略過的項目（中文說明）
 	disabled: boolean;                                         // 區塊 enabled 為 false（未匯入任何規則）
+	shuffleRows: boolean;                                       // ★ 專家回饋 P-04：處理完成後隨機重排列順序
 }
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -69,6 +70,8 @@ const convertBackendActionToStep = (
 	{
 		case 'trim':
 			return { action: 'trim', params: { mode: params.mode === 'all' ? 'all' : 'edges' } };
+		case 'drop_column':
+			return { action: 'drop_column', params: {} };
 		case 'slice':
 			return { action: 'slice', params: { direction: params.side === 'right' ? 'right' : 'left', count: Math.max(1, Math.floor(Number(params.count) || 1)) } };
 		case 'anchor_truncate':
@@ -162,13 +165,15 @@ const convertBackendMissingAction = (columnName: string, actionName: string, par
  */
 export const parseBackendPreprocessBlock = (preprocessBlock: unknown): PreprocessImportResult =>
 {
-	const result: PreprocessImportResult = { preprocessingRules: {}, missingValueRules: {}, columnNames: [], warnings: [], disabled: false };
+	const result: PreprocessImportResult = { preprocessingRules: {}, missingValueRules: {}, columnNames: [], warnings: [], disabled: false, shuffleRows: false };
 	if (!isPlainObject(preprocessBlock)) return result;
 	if (preprocessBlock.enabled === false)
 	{
 		result.disabled = true;
 		return result;
 	}
+
+	result.shuffleRows = preprocessBlock.shuffle_rows === true;
 
 	const hashAlgorithm = preprocessBlock.algorithm === undefined || preprocessBlock.algorithm === null || preprocessBlock.algorithm === ''
 		? BACKEND_DEFAULT_PREPROCESS_HASH_ALGORITHM
@@ -178,6 +183,7 @@ export const parseBackendPreprocessBlock = (preprocessBlock: unknown): Preproces
 	const missingActionCountByColumn: Record<string, number> = {};
 	const cleaningAfterMissingColumns = new Set<string>();
 	const stepsAfterHashColumns = new Set<string>();
+	const stepsAfterDropColumns = new Set<string>();
 
 	for (const columnEntry of columnEntries)
 	{
@@ -205,9 +211,16 @@ export const parseBackendPreprocessBlock = (preprocessBlock: unknown): Preproces
 			}
 
 			const existingSteps = result.preprocessingRules[columnName] || [];
+			// 雜湊為終點：之後不能再接其他步驟
 			if (existingSteps.some((stepItem) => stepItem.action === 'hash'))
 			{
 				stepsAfterHashColumns.add(columnName);
+				continue;
+			}
+			// 刪除整欄也是終點：後端規定刪掉的欄位之後不能再有任何動作
+			if (existingSteps.some((stepItem) => stepItem.action === 'drop_column'))
+			{
+				stepsAfterDropColumns.add(columnName);
 				continue;
 			}
 			const convertedStep = convertBackendActionToStep(columnName, actionName, actionParams, hashAlgorithm, result.warnings);
@@ -225,6 +238,8 @@ export const parseBackendPreprocessBlock = (preprocessBlock: unknown): Preproces
 		result.warnings.push(`「${columnName}」的缺失值處理在設定檔中排在清洗步驟之前，本工具一律先清洗、最後才處理缺失值`));
 	stepsAfterHashColumns.forEach((columnName) =>
 		result.warnings.push(`「${columnName}」雜湊之後的步驟已略過（本工具雜湊須為最後一步）`));
+	stepsAfterDropColumns.forEach((columnName) =>
+		result.warnings.push(`「${columnName}」刪除欄位之後的步驟已略過（本工具刪除欄位須為最後一步）`));
 
 	return result;
 };

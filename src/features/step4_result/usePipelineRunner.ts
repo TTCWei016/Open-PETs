@@ -19,7 +19,7 @@ import { computeFileFingerprints } from '../../utils/auditIntegrity';
 import { takeLastProcessingRunId } from '../../api/apiErrorInterceptor';
 import { ensureDatasetProfile } from '../../utils/datasetProfile';
 import { RISK_ATTACK_DEFAULT_PARAMS, type HighCardinalitySensitiveInfo } from '../../utils/riskAssessment';
-import { buildComplianceReportSnapshot } from '../../utils/complianceReport';
+import { buildComplianceReportSnapshot, buildDeidentificationChecks, computeOutputScope } from '../../utils/complianceReport';
 import { computeKAnonymityFidelityInWorker, type KAnonymityFidelityResult } from '../../utils/kAnonymityFidelity';
 import { buildKAnonymityConfig, buildDifferentialPrivacyConfig, wrapBackendConfigDocument, type DpStoreField, type KAnonymityPipelineSettings, type DifferentialPrivacyConfigInput } from '../../utils/pipelineConfig';
 import { isApiRequestCanceled, isApiRequestTimeout, DEFAULT_API_TIMEOUT_MS, resolveApiTimeoutMs, type ApiRequestOptions, type KAnonymityQualityReport, type DpQualityReport, type AttackReport, type CapReport } from '../../api/apiService';
@@ -97,6 +97,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
     const currentPreprocessingRulesMapDict = useWorkspaceStore((state) => state.preprocessingRules);
     // ★ 2026-10-27：資料預先處理改由後端執行，缺失值處理也會影響結果，納入參數指紋
     const currentMissingValueRulesMapDict = useWorkspaceStore((state) => state.missingValueRules);
+    const currentShuffleRows = useWorkspaceStore((state) => state.shuffleRows);
     const currentDatasetFileNameString = useWorkspaceStore((state) => state.fileName);
     const simulatedQueryCountValue = useWorkspaceStore((state) => state.queryCount);
 
@@ -128,6 +129,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
             columnTypes: currentColumnTypesMapDict,
             preprocessingRules: currentPreprocessingRulesMapDict,
             missingValueRules: currentMissingValueRulesMapDict,
+            shuffleRows: currentShuffleRows,
             kAnonymityFields: kAnonymityFieldsList,
             kAnonymityHierarchies: kAnonymityHierarchiesList,
             // ★ 2026-10-01（第 16 項）：以下四項都會送給後端、影響結果，先前卻沒有納入雜湊——快取有效時改了
@@ -148,7 +150,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
             currentPrivacyModeTypeStr, currentKValueNumber, currentLValueNumber, currentTValueNumber,
             isEnableLDiversityStatus, isEnableTClosenessStatus, currentMaxSuppressionNumber,
             currentSuppressionMethodStr, currentLimitExceededActionStr, simulatedQueryCountValue,
-            currentDpFieldsListArray, columnPrivacyRolesMapDict, currentColumnTypesMapDict, currentPreprocessingRulesMapDict, currentMissingValueRulesMapDict,
+            currentDpFieldsListArray, columnPrivacyRolesMapDict, currentColumnTypesMapDict, currentPreprocessingRulesMapDict, currentMissingValueRulesMapDict, currentShuffleRows,
             kAnonymityFieldsList, kAnonymityHierarchiesList,
             currentCellFillMethodStr, cellFillValuesByColumnMap, riskSubgroupFiltersMapDict, riskColumnOverridesMap, riskLinkabilityGroups, riskAttackParamsValue, kAnonymityHashAlgorithmValue, globalTargetDeltaValue, dataFile
         ]
@@ -486,8 +488,19 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                     limitExceededAction: currentLimitExceededActionStr,
                     hashAlgorithm: kAnonymityHashAlgorithmValue
                 };
+                // ★ 專家回饋 P-01：前處理「刪除整欄」的欄位不會出現在處理後的資料。後面的去識別化與風險評估設定
+                //   不能再列出它，否則後端會以「設定引用了資料中不存在的欄位」拒絕；資料預先處理那一步仍用完整欄位清單。
+                const isColumnDroppedByPreprocess = (columnName: string): boolean =>
+                {
+                    const stepList = currentPreprocessingRulesMapDict ? currentPreprocessingRulesMapDict[columnName] : undefined;
+                    return Array.isArray(stepList) && stepList.some((stepItem) => stepItem.action === 'drop_column');
+                };
+                const effectiveColumnsList = actualProcessedColumnsList.filter((columnName) => !isColumnDroppedByPreprocess(columnName));
+                const effectiveDpFieldsList = (currentDpFieldsListArray || []).filter(
+                    (field: DpStoreField) => !isColumnDroppedByPreprocess(String(field.fieldName ?? '').replace(/^[\uFEFF\u200B]+/, '').trim())
+                );
                 const dpPipelineConfigInput: DifferentialPrivacyConfigInput = {
-                    dpFields: currentDpFieldsListArray,
+                    dpFields: effectiveDpFieldsList,
                     columnTypes: currentColumnTypesMapDict,
                     accumulatedEpsilon: dpAccumulatedEpsilonValue,
                     accumulatedDelta: dpAccumulatedDeltaValue,
@@ -502,7 +515,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                 if (currentPrivacyModeTypeStr === 'k-anonymity') {
                     configObject = wrapBackendConfigDocument(currentDatasetFileNameString, buildKAnonymityConfig({
                         ...kAnonymityPipelineSettings,
-                        processedColumnNames: actualProcessedColumnsList,
+                        processedColumnNames: effectiveColumnsList,
                         kAnonymityFields: kAnonymityFieldsList,
                         kAnonymityHierarchies: kAnonymityHierarchiesList,
                         resolveFallbackUiRole: (cleanColumnName) => getCalculatedRole(cleanColumnName).role
@@ -535,6 +548,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                     columnNames: actualProcessedColumnsList,
                     preprocessingRules: currentPreprocessingRulesMapDict,
                     missingValueRules: currentMissingValueRulesMapDict,
+                    shuffleRows: currentShuffleRows,
                     datasetFileName: currentDatasetFileNameString,
                     safeDataFile,
                     requestOptions: pipelineRequestOptions
@@ -588,10 +602,10 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                 // ② 風險評估（三攻擊＋CAP），見 pipeline/riskAssessmentPhase.ts
                 const riskAssessmentResult = await runRiskAssessmentPhase({
                     privacyMode: currentPrivacyModeTypeStr,
-                    processedColumnNames: actualProcessedColumnsList,
+                    processedColumnNames: effectiveColumnsList,
                     kAnonymityFields: kAnonymityFieldsList,
                     resolveColumnRole: getCalculatedRole,
-                    dpFields: currentDpFieldsListArray,
+                    dpFields: effectiveDpFieldsList,
                     columnTypes: currentColumnTypesMapDict,
                     datasetProfile: datasetProfileForRisk,
                     binWidthOverrides: sensitiveBinWidthOverridesMap,
@@ -629,10 +643,10 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                         generatedKAnonymityFidelity = await computeKAnonymityFidelityInWorker({
                             originalCsvBlob: safeDataFile,
                             processedCsvBlob: finalCsvBlobData,
-                            evaluatedColumns: actualProcessedColumnsList.filter((columnName) => getCalculatedRole(columnName).role !== 'Identifier'),
-                            anchorColumns: actualProcessedColumnsList.filter((columnName) => ['Sensitive', 'Non-sensitive', 'Retained'].includes(getCalculatedRole(columnName).role)),
+                            evaluatedColumns: effectiveColumnsList.filter((columnName) => getCalculatedRole(columnName).role !== 'Identifier'),
+                            anchorColumns: effectiveColumnsList.filter((columnName) => ['Sensitive', 'Non-sensitive', 'Retained'].includes(getCalculatedRole(columnName).role)),
                             // ★ 2026-10-16：數值 × 數值欄位對改用相關係數相似度（指引第貳章二之（五））
-                            numericColumns: actualProcessedColumnsList.filter((columnName) => currentColumnTypesMapDict[columnName] === '數值'),
+                            numericColumns: effectiveColumnsList.filter((columnName) => currentColumnTypesMapDict[columnName] === '數值'),
                             // ★ 2026-10-16：有列被刪除時，依泛化設定輔助處理前後配對（避免常數欄位導致整串錯位）
                             kAnonymityConfig: (configObject as { k_anonymity?: Record<string, unknown> }).k_anonymity ?? null
                         });
@@ -687,9 +701,13 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                         tValue: isKAnonymityMode && isEnableTClosenessStatus ? currentTValueNumber : null,
                         hashAlgorithm: isHashUsed ? (kReport?.hash_algorithm || sentConfig.k_anonymity?.algorithm || 'sha3-256') : null,
                         hashSalted: isHashUsed && typeof kReport?.hash_salted === 'boolean' ? kReport.hash_salted : null,
+                        // ★ 專家回饋 P-03：各項去識別化檢查分別的結果（沒選用的 l／t 標示為未檢查，不寫成通過）
+                        deidChecks: buildDeidentificationChecks({ privacyMode: currentPrivacyModeTypeStr, kReport, dpReport, lRequested: isEnableLDiversityStatus, tRequested: isEnableTClosenessStatus, maxSuppressionPercent: currentMaxSuppressionNumber ?? 20, budgetLimitEpsilon: budgetLimitEpsilonValue }),
+                        // ★ 專家回饋 P-01／P-02：結論適用範圍（已設定去識別化處理／原樣輸出／未納入風險評估的欄位）
+                        outputScope: computeOutputScope({ privacyMode: currentPrivacyModeTypeStr, columnNames: effectiveColumnsList, resolveColumnRole: getCalculatedRole, dpEnabledFieldNames: effectiveDpFieldsList.filter((field: DpStoreField) => field.enabled).map((field: DpStoreField) => field.fieldName), preprocessingRules: currentPreprocessingRulesMapDict, evaluatedColumns: evaluatedTargets ? [...evaluatedTargets.quasiIdentifiers, ...evaluatedTargets.sensitive] : [] }),
                         consumedDelta: dpReport?.consumed_delta ?? null,
                         preprocessing: preprocessResult
-                            ? describePreprocessingForReport(actualProcessedColumnsList, currentPreprocessingRulesMapDict, currentMissingValueRulesMapDict)
+                            ? describePreprocessingForReport(actualProcessedColumnsList, currentPreprocessingRulesMapDict, currentMissingValueRulesMapDict, currentShuffleRows)
                             : [],
                         riskTargets: evaluatedTargets
                             ? { ...evaluatedTargets, subgroupLines: describeRiskSubgroupForReport(riskSubgroupFiltersMapDict) }
@@ -719,10 +737,10 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                     simulationMetrics: generatedSimulationMetricsObject,
                     datasetRowStats: generatedDatasetRowStatsObject,
                     isComplianceValid: pipelineComplianceValidStatus,
-                    columnNames: actualProcessedColumnsList,
+                    columnNames: effectiveColumnsList,
                     resolveColumnRole: getCalculatedRole,
                     resolveQiGeneralizationTech,
-                    dpEnabledFieldNames: (currentDpFieldsListArray || []).filter((field: DpStoreField) => field.enabled).map((field: DpStoreField) => field.fieldName),
+                    dpEnabledFieldNames: effectiveDpFieldsList.filter((field: DpStoreField) => field.enabled).map((field: DpStoreField) => field.fieldName),
                     // ★ 2026-10-08：合規報告快照——Step4「查看與下載報告」與歷史檢測紀錄調閱都以此繪製，內容一致
                     reportSnapshot: buildComplianceReportSnapshot({
                         privacyMode: currentPrivacyModeTypeStr,
@@ -820,7 +838,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
             }
 
         },
-        [clearPipelineCompletionTimeout, actualProcessedColumnsList, addAuditLogAction, budgetLimitEpsilonValue, deidentifiedColumnsCount, currentCellFillMethodStr, cellFillValuesByColumnMap, currentColumnTypesMapDict, currentDatasetFileNameString, currentDpFieldsListArray, currentKValueNumber, currentLValueNumber, currentLimitExceededActionStr, currentMaxSuppressionNumber, currentMissingValueRulesMapDict, currentParametersHashString, currentPreprocessingRulesMapDict, currentPrivacyModeTypeStr, currentSuppressionMethodStr, currentTValueNumber, currentUserSession, dataFile, dpAccumulatedDeltaValue, dpAccumulatedEpsilonValue, forceRunHighCardinalitySensitiveFieldsStatus, getCalculatedRole, globalTargetDeltaValue, resolveQiGeneralizationTech, isAnalysisCacheValidStatus, isEnableLDiversityStatus, isEnableTClosenessStatus, kAnonymityFieldsList, kAnonymityHierarchiesList, messageApi, riskSubgroupFiltersMapDict, riskColumnOverridesMap, riskLinkabilityGroups, riskAttackParamsValue, effectiveRiskAttackParams, kAnonymityHashAlgorithmValue, sensitiveBinWidthOverridesMap, setStep4CacheAction, simulatedQueryCountValue, translate]
+        [clearPipelineCompletionTimeout, actualProcessedColumnsList, addAuditLogAction, budgetLimitEpsilonValue, deidentifiedColumnsCount, currentCellFillMethodStr, cellFillValuesByColumnMap, currentColumnTypesMapDict, currentDatasetFileNameString, currentDpFieldsListArray, currentKValueNumber, currentLValueNumber, currentLimitExceededActionStr, currentMaxSuppressionNumber, currentMissingValueRulesMapDict, currentShuffleRows, currentParametersHashString, currentPreprocessingRulesMapDict, currentPrivacyModeTypeStr, currentSuppressionMethodStr, currentTValueNumber, currentUserSession, dataFile, dpAccumulatedDeltaValue, dpAccumulatedEpsilonValue, forceRunHighCardinalitySensitiveFieldsStatus, getCalculatedRole, globalTargetDeltaValue, resolveQiGeneralizationTech, isAnalysisCacheValidStatus, isEnableLDiversityStatus, isEnableTClosenessStatus, kAnonymityFieldsList, kAnonymityHierarchiesList, messageApi, riskSubgroupFiltersMapDict, riskColumnOverridesMap, riskLinkabilityGroups, riskAttackParamsValue, effectiveRiskAttackParams, kAnonymityHashAlgorithmValue, sensitiveBinWidthOverridesMap, setStep4CacheAction, simulatedQueryCountValue, translate]
     );
 
     // ★ 2026-10-01（第 16 項）：自動執行只在「使用者可調整的參數」（currentParametersHashString）改變、且這組

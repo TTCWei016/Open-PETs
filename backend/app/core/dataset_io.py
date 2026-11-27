@@ -363,6 +363,21 @@ def load_dataset(
     return df
 
 
+def shuffle_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """隨機重排列順序（去識別化結果釋出前使用）。
+
+    ★ 專家回饋 P-04：輸出若保留原始列順序，拿到輸出的人可把第 i 列對回原始資料的第 i 列，
+    欄位被刪成什麼樣都擋不住；軌跡類資料（同一張卡的紀錄原本就相鄰）更能直接重建個人的移動軌跡。
+    重排用作業系統的亂數源（不給種子、不可重現）——可重現的洗牌等於留了一把還原順序的鑰匙。
+    索引重設為 0..n-1，不留下舊索引。
+    """
+    import numpy as np
+
+    check_cancelled()
+    order = np.random.default_rng().permutation(len(df))
+    return df.take(order).reset_index(drop=True)
+
+
 def export_result(
     df: pd.DataFrame, path: str, fmt: DatasetFormat = CSV_FORMAT
 ) -> str:

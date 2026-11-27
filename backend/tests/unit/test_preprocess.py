@@ -709,3 +709,137 @@ def test_config_self_check_rejects_column_without_actions():
     with pytest.raises(PetsError) as exc:
         PreprocessConfig(columns=[{"column": "地址", "actions": []}]).validate_config()
     assert exc.value.error_code == "ERR_CONFIG_INVALID"
+
+
+# ── 12 刪除整欄 drop_column（專家回饋 P-01）────────────────────────────────
+
+def test_drop_column_removes_the_whole_column_and_keeps_the_rest(sample_df):
+    """指定的欄位從輸出消失；其他欄位與列數完全不變。"""
+    out = run_preprocess(sample_df, make_config(one("姓名", "drop_column"), one("身分證號", "drop_column")))
+    assert "姓名" not in out.columns and "身分證號" not in out.columns
+    assert list(out.columns) == [c for c in sample_df.columns if c not in ("姓名", "身分證號")]
+    assert len(out) == len(sample_df)
+    pd.testing.assert_series_equal(out["年齡"], sample_df["年齡"])
+
+
+def test_drop_column_does_not_modify_the_callers_dataframe(sample_df):
+    run_preprocess(sample_df, make_config(one("姓名", "drop_column")))
+    assert "姓名" in sample_df.columns
+
+
+def test_drop_column_after_other_actions_on_the_same_column_is_allowed():
+    """同一欄先處理、最後再刪：刪除放在該欄所有動作的最後就可以。"""
+    df = pd.DataFrame({"地址": ["  台北  "], "年齡": [30]})
+    config = make_config(
+        {
+            "column": "地址",
+            "actions": [
+                {"action": "trim", "params": {"mode": "edges"}},
+                {"action": "drop_column", "params": {}},
+            ],
+        }
+    )
+    out = run_preprocess(df, config)
+    assert list(out.columns) == ["年齡"]
+
+
+def test_action_after_drop_column_on_the_same_column_is_rejected_up_front():
+    """刪了又處理同一欄：開跑前就擋成 422 的清單錯誤，不是跑到一半的內部錯誤。"""
+    df = pd.DataFrame({"地址": ["a"], "年齡": [30]})
+    config = make_config(
+        {
+            "column": "地址",
+            "actions": [
+                {"action": "drop_column", "params": {}},
+                {"action": "trim", "params": {"mode": "edges"}},
+            ],
+        }
+    )
+    with pytest.raises(PetsError) as exc:
+        run_preprocess(df, config)
+    assert exc.value.error_code == "ERR_PREPROCESS_COLUMN_NOT_FOUND"
+    assert "刪除欄位" in str(exc.value)
+
+
+def test_later_row_on_a_dropped_column_is_rejected_up_front():
+    df = pd.DataFrame({"地址": ["a"], "年齡": [30]})
+    config = make_config(one("地址", "drop_column"), one("地址", "trim", mode="edges"))
+    with pytest.raises(PetsError) as exc:
+        run_preprocess(df, config)
+    assert exc.value.error_code == "ERR_PREPROCESS_COLUMN_NOT_FOUND"
+
+
+def test_dropping_the_same_column_twice_is_rejected():
+    df = pd.DataFrame({"地址": ["a"], "年齡": [30]})
+    with pytest.raises(PetsError) as exc:
+        run_preprocess(df, make_config(one("地址", "drop_column"), one("地址", "drop_column")))
+    assert exc.value.error_code == "ERR_PREPROCESS_COLUMN_NOT_FOUND"
+
+
+def test_dropping_one_column_does_not_block_actions_on_other_columns():
+    df = pd.DataFrame({"地址": ["a"], "年齡": [30]})
+    out = run_preprocess(df, make_config(one("地址", "drop_column"), one("年齡", "clamp", max=10)))
+    assert list(out.columns) == ["年齡"] and out["年齡"][0] == 10
+
+
+def test_drop_column_rejects_any_param():
+    with pytest.raises(PetsError) as exc:
+        build_actions(make_config(one("年齡", "drop_column", mode="x")))
+    assert exc.value.error_code == "ERR_PREPROCESS_PARAM_INVALID"
+
+
+def test_drop_column_on_unknown_column_is_rejected_before_running():
+    with pytest.raises(PetsError) as exc:
+        run_preprocess(pd.DataFrame({"年齡": [1]}), make_config(one("不存在", "drop_column")))
+    assert exc.value.error_code == "ERR_PREPROCESS_COLUMN_NOT_FOUND"
+
+
+# ── 選用：列順序隨機重排 shuffle_rows（專家回饋 P-04）────────────────────────
+
+def _numbered_frame(rows: int = 300) -> pd.DataFrame:
+    return pd.DataFrame({"卡號": [f"c{i // 5}" for i in range(rows)], "序": list(range(rows))})
+
+
+def test_rows_keep_their_order_by_default():
+    """不啟用就維持原始列順序（重排是使用者依資料用途決定的選項）。"""
+    df = _numbered_frame()
+    out = run_preprocess(df, make_config(one("卡號", "trim", mode="edges")))
+    assert list(out["序"]) == list(range(300))
+
+
+def test_shuffle_rows_changes_order_but_keeps_every_row_intact():
+    df = _numbered_frame()
+    config = PreprocessConfig(columns=[one("卡號", "trim", mode="edges")], shuffle_rows=True)
+    out = run_preprocess(df, config)
+    assert sorted(out["序"]) == list(range(300))          # 一列都不少
+    assert list(out["序"]) != list(range(300))             # 順序已打亂
+    assert list(out.index) == list(range(300))             # 舊索引不外洩
+    # 整列一起搬：卡號與序的對應不變
+    assert all(row["卡號"] == f"c{row['序'] // 5}" for _, row in out.iterrows())
+
+
+def test_shuffle_runs_after_the_column_actions():
+    """先做完欄位動作再重排：處理後的值照樣在，只是順序不同。"""
+    df = pd.DataFrame({"地址": ["  台北  "] * 50, "序": list(range(50))})
+    config = PreprocessConfig(columns=[one("地址", "trim", mode="edges")], shuffle_rows=True)
+    out = run_preprocess(df, config)
+    assert set(out["地址"]) == {"台北"}
+
+
+def test_shuffle_only_config_is_allowed_with_empty_column_list():
+    df = _numbered_frame(100)
+    out = run_preprocess(df, PreprocessConfig(columns=[], shuffle_rows=True))
+    assert sorted(out["序"]) == list(range(100))
+
+
+def test_empty_column_list_without_shuffle_is_still_rejected():
+    with pytest.raises(PetsError) as exc:
+        PreprocessConfig(columns=[]).validate_config()
+    assert exc.value.error_code == "ERR_CONFIG_INVALID"
+
+
+def test_shuffle_with_drop_column():
+    df = _numbered_frame(100)
+    config = PreprocessConfig(columns=[one("卡號", "drop_column")], shuffle_rows=True)
+    out = run_preprocess(df, config)
+    assert list(out.columns) == ["序"] and sorted(out["序"]) == list(range(100))

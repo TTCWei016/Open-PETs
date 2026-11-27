@@ -511,26 +511,46 @@ class Anonymizer:
                 l_passed = False
             if t is not None:
                 t_passed = False
+        # ★ 專家回饋 P-03：輸入有資料、輸出卻 0 筆（全被抑制）。空資料集對 k／l／t 都是「空洞成立」，
+        #   不可因此判通過。k_passed／l_passed／t_passed 仍維持「檢查本身是否成立」的原意
+        #   （空集合恆成立），整體結論改由 is_valid 與 output_empty 表達，報告與畫面要一併看。
+        output_empty = n_original > 0 and len(df_out) == 0
         # 上限與實際抑制率同為百分比，直接比較（單位一致，報告的人也不必自行換算）
         suppression_ok = outcome.rate_percent <= suppression_limit_percent
-        # 整體達標：抑制率未超限，且 k／l／t 三項檢測皆通過
-        is_valid = suppression_ok and is_k_ok and l_passed and t_passed
+        # 整體達標：抑制率未超限，k／l／t 三項檢測皆通過，且輸出非空
+        is_valid = (
+            suppression_ok
+            and is_k_ok
+            and l_passed
+            and t_passed
+            and not output_empty
+        )
 
         if is_valid:
-            msg = "K-匿名化處理成功，k／l／t 檢測均通過。"
+            # ★ 專家回饋 P-03：只列「真的有要求並檢測」的項目；沒設定的 l／t 寫「未檢測」，不寫成通過
+            checked_names = ["k"] + (["l"] if l is not None else []) + (["t"] if t is not None else [])
+            skipped_names = [
+                name for name, requested in (("l-diversity", l is not None), ("t-closeness", t is not None))
+                if not requested
+            ]
+            msg = f"K-匿名化處理成功，{'／'.join(checked_names)} 檢測均通過。"
+            if skipped_names:
+                msg += f"{'、'.join(skipped_names)} 未啟用，未檢測。"
         else:
             problems = []
+            if output_empty:
+                problems.append("輸出 0 筆資料（全部被抑制），無從檢測")
             if not suppression_ok:
                 problems.append("抑制率超過上限")
-            if not is_k_ok:
+            if not is_k_ok and not output_empty:
                 problems.append(
                     "未執行 k-匿名（無準識別欄位）" if no_qi_for_k else "部分等價類未達 k 值"
                 )
-            if not l_passed:
+            if not l_passed and not output_empty:
                 problems.append(
                     "未執行 l-diversity（無敏感欄位）" if lt_requested_no_sensitive else "l-diversity 未通過"
                 )
-            if not t_passed:
+            if not t_passed and not output_empty:
                 problems.append(
                     "未執行 t-closeness（無敏感欄位）" if lt_requested_no_sensitive else "t-closeness 未通過"
                 )
@@ -741,4 +761,7 @@ class Anonymizer:
             applied_defaults=applied_defaults,
             hash_algorithm=config.algorithm,
             hash_salted=salted,
+            l_checked=l is not None,
+            t_checked=t is not None,
+            output_empty=output_empty,
         )

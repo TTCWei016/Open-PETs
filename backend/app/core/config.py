@@ -649,6 +649,7 @@ class DPColumnConfig(BaseModel):
 
     column_budgets: dict[str, ColumnBudget]
 
+
     # ── 整體參數（一律隨設定檔提供）─────────────────────────────────────────────
     input_format: str | None = Field(None, description=INPUT_FORMAT_DESC)
     accumulated_epsilon: float = Field(
@@ -996,7 +997,7 @@ class RiskConfig(BaseModel):
 class PreprocessActionSpec(BaseModel):
     """一次動作：功能名稱與它的參數。
 
-    params 刻意收成寬鬆的字典，不在此逐個功能宣告型別：11 個功能的參數各不相同，
+    params 刻意收成寬鬆的字典，不在此逐個功能宣告型別：12 個功能的參數各不相同，
     合法與否由各功能自己判斷（見 app.engines.preprocess.factory 的登記表），
     設定類別只負責形狀。
     """
@@ -1043,17 +1044,24 @@ class PreprocessConfig(BaseModel):
     algorithm: str = Field(
         "sha3-256", description="雜湊演算法 sha256／sha3-256／sha3-512（未填→sha3-256）"
     )
+    # ★ 專家回饋 P-04：所有欄位動作做完之後，是否把列順序隨機重排（選用，預設不重排）。
+    #   保留原始列順序時，拿到輸出的人可把第 i 列對回原始資料的第 i 列；軌跡類資料（同一個人的
+    #   紀錄原本相鄰）還能直接重建個人的移動軌跡。是否啟用由使用者依資料用途決定。
+    shuffle_rows: bool = Field(
+        False, description="處理完成後隨機重排列順序（不可重現）；未填→不重排"
+    )
 
     def validate_config(self):
         """設定檔自我檢查（純形狀，免比對資料，於解析時前置擋）。
 
         只驗「清單有東西、欄位名稱與功能名稱不是空白」；功能名稱認不認得、參數合不合法
         屬各功能自己的事，於引擎組裝時（仍在動到資料之前）檢查。
+        清單可以是空的，但那時必須啟用 shuffle_rows（只做列順序重排）。
         """
-        if not self.columns:
+        if not self.columns and not self.shuffle_rows:
             raise PetsError(
                 "ERR_CONFIG_INVALID",
-                "前處理清單是空的：請至少列一列「欄位＋要做的動作」。",
+                "前處理清單是空的：請至少列一列「欄位＋要做的動作」，或啟用 shuffle_rows。",
             )
         for idx, entry in enumerate(self.columns):
             where = f"前處理清單第 {idx + 1} 列"
@@ -1251,7 +1259,7 @@ _BLOCK_SPECS: dict[str, tuple[type[BaseModel], tuple[str, ...], str]] = {
     ),
     BLOCK_PREPROCESS: (
         PreprocessConfig,
-        ("columns", "algorithm"),
+        ("columns", "algorithm", "shuffle_rows"),
         "資料前處理",
     ),
 }

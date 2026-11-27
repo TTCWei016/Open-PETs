@@ -13,6 +13,7 @@ from app.engines.anonymization.strategies.masking import validate_hash_algorithm
 
 from .actions.base import PreprocessAction
 from .actions.casting import Cast
+from .actions.columns import DropColumn
 from .actions.masking import Hash, RegexReplace
 from .actions.missing import DropNulls, FillDefault, Impute
 from .actions.numeric import Clamp
@@ -21,13 +22,14 @@ from .pipeline import Preprocessor
 from .types import BuildContext, PlannedAction
 from .validation import PreprocessValidator
 
-# 功能名稱 → 動作類別。名稱即設定檔裡寫的 action，順序同規格書列的 11 項。
+# 功能名稱 → 動作類別。名稱即設定檔裡寫的 action，前 11 項同規格書列的順序，drop_column 為後加。
 ACTION_BY_NAME: dict[str, type[PreprocessAction]] = {
     "trim": Trim,
     "slice": Slice,
     "anchor_truncate": AnchorTruncate,
     "cast": Cast,
     "normalize": Normalize,
+    "drop_column": DropColumn,
     "drop_nulls": DropNulls,
     "fill_default": FillDefault,
     "impute": Impute,

@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import type { AuditLogItem } from '../store/useAuditStore';
 import AuditIntegrityPanel from './AuditIntegrityPanel';
 import { OverallRiskLevelPanel } from './RiskLevelBadge';
-import { computeReportOverallRisk, formatEpsilonForDisplay, isCapEvaluated, resolveAuditLogComplianceStatus, resolveReportColumnTechText, type ComplianceReportEntry } from '../utils/complianceReport';
+import { computeReportOverallRisk, formatEpsilonForDisplay, isCapEvaluated, resolveAuditLogComplianceStatus, resolveReportColumnTechText, type ComplianceReportEntry, type DeidentificationCheck } from '../utils/complianceReport';
 import { scaleFontSize } from '../utils/fontScale';
 import { formatHashAlgorithmLabel } from '../utils/reportDescriptions';
 
@@ -114,7 +114,45 @@ export default function ComplianceReportDocument({ entry, isExportingPdf, contai
             ? snapshot.preprocessing.map((item) => ({ label: `${translate('step4.report.preprocess_label', '資料預先處理')}：${item.columnName}`, value: item.stepsText }))
             : [{ label: translate('step4.report.preprocess_label', '資料預先處理'), value: translate('step4.report.preprocess_none', '無') }])
         : [];
-    const privacyConfigRowsList = [...preprocessingRowsList, ...deidConfigRowsList, ...riskAttackParamRowsList];
+    // ★ 專家回饋 P-03：各項去識別化檢查分別標示結果；使用者沒選用的項目標示「未啟用（未檢查）」，不寫成通過；
+    //   整體以未通過的項目為準。舊紀錄沒有 deidChecks，不列這一段。
+    const deidCheckLabelMap: Record<DeidentificationCheck['key'], string> = {
+        output: translate('step4.report.check_output', '輸出資料筆數大於 0'),
+        k: translate('step4.report.check_k', 'k-匿名（每組至少 k 筆）'),
+        l: translate('step4.report.check_l', 'l-多樣性'),
+        t: translate('step4.report.check_t', 't-緊密度'),
+        suppression: translate('step4.report.check_suppression', '刪除／遮蔽比例未超過上限'),
+        budget: translate('step4.report.check_budget', '隱私預算未超過設定上限')
+    };
+    const deidChecks = snapshot?.deidChecks ?? [];
+    const deidCheckResultText = (result: DeidentificationCheck['result']): string => result === 'passed'
+        ? translate('step4.report.check_passed', '通過')
+        : result === 'failed'
+            ? translate('step4.report.check_failed', '未通過')
+            : translate('step4.report.check_not_selected', '未啟用（未檢查）');
+    const deidCheckRowsList: { label: string; value: string }[] = deidChecks.length > 0
+        ? [
+            ...deidChecks.map((checkItem) => ({ label: `${translate('step4.report.check_item_prefix', '檢查項目')}：${deidCheckLabelMap[checkItem.key]}`, value: deidCheckResultText(checkItem.result) })),
+            {
+                label: translate('step4.report.check_overall_label', '去識別化檢查整體'),
+                value: deidChecks.some((checkItem) => checkItem.result === 'failed')
+                    ? translate('step4.report.check_overall_failed', '未通過（以未通過的項目為準）')
+                    : translate('step4.report.check_overall_passed', '已啟用的項目全部通過')
+            }
+        ]
+        : [];
+    // ★ 專家回饋 P-01／P-02：結論只適用「已設定去識別化處理的欄位」；原樣輸出的欄位列出來，由使用者自行確認是否為非隱私資料；
+    //   風險評估的範圍同樣只含已納入評估的欄位，未納入評估的原樣輸出欄位一併列出。舊紀錄沒有 outputScope，不列這一段。
+    const outputScope = snapshot?.outputScope;
+    const joinColumnNames = (names: string[]): string => names.length > 0 ? names.join('、') : translate('step4.report.scope_none', '無');
+    const outputScopeRowsList: { label: string; value: string }[] = outputScope
+        ? [
+            { label: translate('step4.report.scope_processed_label', '結論適用範圍（已設定去識別化處理的欄位）'), value: joinColumnNames(outputScope.processedColumns) },
+            { label: translate('step4.report.scope_raw_label', '未經處理、原樣輸出的欄位'), value: `${joinColumnNames(outputScope.rawColumns)}${outputScope.rawColumns.length > 0 ? translate('step4.report.scope_raw_hint', '（本報告的檢測結論不涵蓋這些欄位，請自行確認是否為非隱私資料）') : ''}` },
+            { label: translate('step4.report.scope_unevaluated_label', '未納入再識別風險評估的欄位'), value: joinColumnNames(outputScope.unevaluatedRawColumns) }
+        ]
+        : [];
+    const privacyConfigRowsList = [...preprocessingRowsList, ...deidConfigRowsList, ...deidCheckRowsList, ...outputScopeRowsList, ...riskAttackParamRowsList];
 
     // ★ 2026-10-28：風險評估對象（評估欄位依據、間接識別、敏感欄位、族群條件、連結性分組）
     const riskTargets = snapshot?.riskTargets;
@@ -146,7 +184,7 @@ export default function ComplianceReportDocument({ entry, isExportingPdf, contai
     const cap = snapshot?.cap ?? null;
     const isCapEvaluatedStatus = isCapEvaluated(cap);
     const overallRiskSummary = snapshot
-        ? computeReportOverallRisk(attackRisks, cap, {
+        ? computeReportOverallRisk(attackRisks, {
             singling: translate('step4.risk.q_singling', '能否認出是誰'),
             linkability: translate('step4.risk.q_linkability', '能否和其他資料對上'),
             sensitive: translate('step4.risk.q_sensitive', '能否猜出敏感資料')
@@ -254,6 +292,10 @@ export default function ComplianceReportDocument({ entry, isExportingPdf, contai
                                         </div>
                                     )}
                                 </div>
+                            )}
+                            {/* ★ 專家回饋 P-03：CAP 只是推斷風險的參考數據，不列入風險評估通過與否的判定 */}
+                            {cap && isCapEvaluatedStatus && (
+                                <div style={mutedTextStyle}>{translate('step4.report.cap_reference_note', 'CAP 為推斷風險的參考數據，不列入風險評估通過與否的判定；目前沒有公認的處理前後下降標準。')}</div>
                             )}
                             {overallRiskSummary && (
                                 <div style={{ marginTop: '10px', padding: '12px', border: `1px solid ${overallRiskSummary.info.color}`, borderRadius: '6px' }}>

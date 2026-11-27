@@ -97,4 +97,29 @@ describe('Step2_Mapping Component', () => {
     expect(missingPreviewText).toContain('未知');
     expect(missingPreviewText).toContain('預覽中');
   });
+
+  // ★ 專家回饋 P-01：前處理新增「刪除整欄」
+  it('套用「刪除整欄」：預覽顯示整欄刪除，且不能再新增步驟', () => {
+    useWorkspaceStore.setState({
+      privacyMode: 'differential-privacy', columns: ['phone_number'], previewData: [{ phone_number: '0912 345 678' }],
+      preprocessingRules: { phone_number: [{ action: 'drop_column', params: {} }] }, missingValueRules: {},
+    } as unknown as Partial<ReturnType<typeof useWorkspaceStore.getState>>);
+    useAuthStore.setState({ isAuthenticated: true, user: { role: 'data_owner' } } as unknown as Partial<ReturnType<typeof useAuthStore.getState>>);
+    render(<App><Step2_Mapping /></App>);
+    expect(screen.getByTestId('preprocess-preview-sample-phone_number').textContent).toContain('整欄刪除');
+    expect(screen.getByTestId('preprocess-add-step-phone_number')).toBeDisabled();
+  });
+
+
+  // ★ 專家回饋 P-04：列順序隨機重排是前處理的選用功能，預設不啟用
+  it('隨機重排列順序：預設關閉，可由使用者開啟並寫入工作區', () => {
+    setupStore();
+    useWorkspaceStore.setState({ shuffleRows: false } as Partial<ReturnType<typeof useWorkspaceStore.getState>>);
+    useAuthStore.setState({ isAuthenticated: true, user: { role: 'data_owner' } } as unknown as Partial<ReturnType<typeof useAuthStore.getState>>);
+    render(<App><Step2_Mapping /></App>);
+    const shuffleSwitch = screen.getByTestId('preprocess-shuffle-rows');
+    expect(shuffleSwitch.getAttribute('aria-checked')).toBe('false');
+    fireEvent.click(shuffleSwitch);
+    expect(useWorkspaceStore.getState().shuffleRows).toBe(true);
+  });
 });

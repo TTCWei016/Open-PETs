@@ -19,13 +19,15 @@ export interface DataUsageNotesContext
     kValue?: number | null;
     /** 差分隱私：實際消耗 ε */
     consumedEpsilon?: number | string | null;
+    /** ★ 專家回饋 P-01：未經去識別化處理、原樣輸出的欄位（檢測結論不涵蓋它們，請使用者自行確認是否為非隱私資料） */
+    rawOutputColumns?: string[];
     /** 產出時間（預設為現在） */
     generatedAt?: Date;
 }
 
 /** 兩種模式共通的注意事項 */
 export const COMMON_DATA_USAGE_NOTES: readonly string[] = [
-    '本資料已經過去識別化處理，部分欄位已被泛化、遮蔽或加入雜訊，與原始資料不同。',
+    '本資料中已設定去識別化處理的欄位，部分已被泛化、遮蔽、雜湊或加入雜訊，與原始資料不同；檢測結論只適用這些欄位。',
     '請勿嘗試以其他資料比對、還原或推測特定個人。',
     '本資料適合用於群體層級的統計分析，不宜用於針對個人的判斷或決策。',
 ];
@@ -46,8 +48,12 @@ export const DIFFERENTIAL_PRIVACY_DATA_USAGE_NOTES: readonly string[] = [
 ];
 
 /** 依模式取得完整注意事項清單（共通在前、模式專屬在後） */
-export const getDataUsageNotes = (mode: DataUsageNotesMode): string[] => [
+export const getDataUsageNotes = (mode: DataUsageNotesMode, rawOutputColumns: readonly string[] = []): string[] => [
     ...COMMON_DATA_USAGE_NOTES,
+    // ★ 專家回饋 P-01：有原樣輸出的欄位時明列出來，並說明檢測結論不涵蓋它們
+    ...(rawOutputColumns.length > 0
+        ? [`以下欄位未經去識別化處理、原樣輸出：${rawOutputColumns.join('、')}。這些欄位不在檢測結論的範圍內，請自行確認它們不含個人隱私資料後再使用或提供。`]
+        : []),
     ...(mode === 'k-anonymity' ? K_ANONYMITY_DATA_USAGE_NOTES : DIFFERENTIAL_PRIVACY_DATA_USAGE_NOTES),
 ];
 
@@ -80,7 +86,7 @@ export const buildDataUsageNotesText = (context: DataUsageNotesContext): string 
         `處理方式：${describeProcessingMethod(context)}`,
         `產出時間：${formatLocalDateTime(context.generatedAt ?? new Date())}`,
         '',
-        ...getDataUsageNotes(context.mode).map((noteText, noteIndex) => `${noteIndex + 1}. ${noteText}`),
+        ...getDataUsageNotes(context.mode, context.rawOutputColumns).map((noteText, noteIndex) => `${noteIndex + 1}. ${noteText}`),
         '',
         '如有疑問，請洽資料提供單位。',
     ];

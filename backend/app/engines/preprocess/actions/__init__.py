@@ -2,6 +2,7 @@
 
 from .base import ColumnAction, PreprocessAction, StringAction, ValueAction
 from .casting import Cast
+from .columns import DropColumn
 from .masking import Hash, RegexReplace
 from .missing import DropNulls, FillDefault, Impute
 from .numeric import Clamp, is_numeric_column, require_numeric_column
@@ -20,6 +21,8 @@ __all__ = [
     "Normalize",
     # 型態轉換
     "Cast",
+    # 欄位類
+    "DropColumn",
     # 缺失值類
     "DropNulls",
     "FillDefault",
