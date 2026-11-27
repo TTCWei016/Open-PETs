@@ -120,4 +120,27 @@ describe('usePipelineRunner 自動執行時機', { timeout: SETTLE_TEST_TIMEOUT_
         await settle();
         expect(phaseMocks.runDeidentificationPhase).toHaveBeenCalledTimes(2);
     });
+
+    // ★ 專家回饋 P-01：前處理「刪除整欄」的欄位不會出現在處理後資料，
+    //   送給後端的去識別化設定與風險評估都不能再列出它，否則後端會以「欄位不存在」拒絕。
+    it('前處理刪除整欄的欄位，不會出現在送給去識別化與風險評估的設定裡', async () => {
+        useWorkspaceStore.setState({
+            columns: ['姓名', '年齡', '疾病'],
+            preprocessingRules: { 姓名: [{ action: 'drop_column', params: {} }] },
+            dpFields: [
+                { fieldName: '姓名', enabled: true, fieldType: 'Categorical', epsilon: 1 },
+                { fieldName: '疾病', enabled: true, fieldType: 'Categorical', epsilon: 1 }
+            ] as never
+        });
+        const { result } = renderHook(() => usePipelineRunner({ ...hookInput, actualProcessedColumnsList: ['姓名', '年齡', '疾病'] }));
+        await settleUntil(() => deidentificationCallCount() > 0 && !result.current.isPipelineCalculatingStatus);
+        await settle();
+
+        const deidentificationInput = phaseMocks.runDeidentificationPhase.mock.calls[0][0] as { configObject: { differential_privacy: { column_budgets: Record<string, unknown> } } };
+        expect(Object.keys(deidentificationInput.configObject.differential_privacy.column_budgets)).toEqual(['疾病']);
+
+        const riskInput = phaseMocks.runRiskAssessmentPhase.mock.calls[0][0] as { dpFields: { fieldName: string }[]; processedColumnNames: string[] };
+        expect(riskInput.dpFields.map((field) => field.fieldName)).toEqual(['疾病']);
+        expect(riskInput.processedColumnNames).toEqual(['年齡', '疾病']);
+    });
 });

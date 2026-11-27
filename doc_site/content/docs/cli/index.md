@@ -54,7 +54,7 @@ docker run --rm -v "${PWD}:/work" -v open-pets_open-pets-data:/data open-pets-ap
 
 | 子指令 | 用途 | 參數 |
 | --- | --- | --- |
-| `preprocess` | 資料前處理（去空白、型態轉換等 11 項） | `-i` 輸入檔、`-c` 設定檔、`-o` 輸出檔（皆必填）；`--table` |
+| `preprocess` | 資料前處理（去空白、型態轉換、刪除欄位等 12 項） | `-i` 輸入檔、`-c` 設定檔、`-o` 輸出檔（皆必填）；`--table` |
 | `k-anonymity` | K-匿名化（含 l-多樣性、t-相近性與抑制） | `-i`、`-c`、`-o`（皆必填）；`--table` |
 | `dp` | 差分隱私加噪，並回報預算消耗 | `-i`、`-c`、`-o`（皆必填）；`--table` |
 | `risk-k-anonymity` | 三攻擊風險評估（K-匿名化）：系統自動把原始資料切成 80／20 後評估 | `-i` 原始資料、`-c` 設定檔；`--table` |

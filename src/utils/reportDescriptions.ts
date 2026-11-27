@@ -17,6 +17,7 @@ export const describePreprocessStep = (stepItem: PreprocessingRule): string | nu
     const params = stepItem.params || {};
     switch (stepItem.action) {
         case 'trim': return params.mode === 'all' ? '去除所有空白' : '去除前後空白';
+        case 'drop_column': return '刪除整欄（輸出不含此欄位）';
         case 'slice': {
             const count = Math.floor(Number(params.count) || 0);
             return count >= 1 ? `刪除${params.direction === 'right' ? '結尾' : '開頭'} ${count} 個字` : null;
@@ -65,21 +66,25 @@ export const describeMissingValueRule = (missingRule: MissingValueRule | undefin
 export const describePreprocessingForReport = (
     columnNames: string[],
     preprocessingRules: Record<string, PreprocessingRule[]> | null | undefined,
-    missingValueRules: Record<string, MissingValueRule> | null | undefined
+    missingValueRules: Record<string, MissingValueRule> | null | undefined,
+    shuffleRows: boolean | null | undefined = false
 ): { columnName: string; stepsText: string }[] => {
     const own = <ValueType,>(sourceMap: Record<string, ValueType> | null | undefined, key: string): ValueType | undefined =>
         sourceMap && Object.prototype.hasOwnProperty.call(sourceMap, key) ? sourceMap[key] : undefined;
-    return columnNames.flatMap((columnName) => {
+    const columnRows = columnNames.flatMap((columnName) => {
         const stepTexts: string[] = [];
+        const isColumnDropped = (own(preprocessingRules, columnName) || []).some((stepItem) => stepItem.action === 'drop_column');
         for (const stepItem of own(preprocessingRules, columnName) || []) {
             const stepText = describePreprocessStep(stepItem);
             if (stepText) stepTexts.push(stepText);
-            if (stepItem.action === 'hash') break;
+            if (stepItem.action === 'hash' || stepItem.action === 'drop_column') break;
         }
-        const missingText = describeMissingValueRule(own(missingValueRules, columnName));
+        const missingText = isColumnDropped ? null : describeMissingValueRule(own(missingValueRules, columnName));
         if (missingText) stepTexts.push(missingText);
         return stepTexts.length > 0 ? [{ columnName, stepsText: stepTexts.join(' → ') }] : [];
     });
+    // ★ 專家回饋 P-04：處理完成後隨機重排列順序（整份資料，不屬於任何一欄）
+    return shuffleRows ? [...columnRows, { columnName: '（整份資料）', stepsText: '隨機重排列順序' }] : columnRows;
 };
 
 /** 風險評估對象族群條件 → 白話（每欄一行） */

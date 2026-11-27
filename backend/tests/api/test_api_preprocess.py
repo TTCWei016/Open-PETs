@@ -166,3 +166,56 @@ def test_extra_enabled_block_is_ignored(client, sample_csv_bytes, bundle, kanon_
     )
 
     assert resp.status_code == 200, resp.text
+
+
+def test_upload_drop_column_removes_it_from_the_returned_file(client, sample_csv_bytes):
+    """專家回饋 P-01：前處理可以直接把姓名、身分證號整欄刪掉。"""
+    block = {
+        "columns": [
+            {"column": "姓名", "actions": [{"action": "drop_column", "params": {}}]},
+            {"column": "身分證號", "actions": [{"action": "drop_column", "params": {}}]},
+        ]
+    }
+    resp = _post(client, block, files={"file": _upload(sample_csv_bytes)})
+    assert resp.status_code == 200, resp.text
+    df_out = pd.read_csv(io.BytesIO(resp.content))
+    assert "姓名" not in df_out.columns and "身分證號" not in df_out.columns
+    assert "年齡" in df_out.columns and len(df_out) == 12
+
+
+def test_upload_action_after_drop_column_is_422(client, sample_csv_bytes):
+    block = {
+        "columns": [
+            {
+                "column": "姓名",
+                "actions": [
+                    {"action": "drop_column", "params": {}},
+                    {"action": "trim", "params": {"mode": "edges"}},
+                ],
+            }
+        ]
+    }
+    resp = _post(client, block, files={"file": _upload(sample_csv_bytes)})
+    assert resp.status_code == 422
+    assert "ERR_PREPROCESS_COLUMN_NOT_FOUND" in resp.text
+
+
+def _numbered_csv(rows: int = 300) -> bytes:
+    return pd.DataFrame({"序": list(range(rows)), "值": [i * 2 for i in range(rows)]}).to_csv(index=False).encode("utf-8")
+
+
+def test_upload_shuffle_rows_only(client):
+    """專家回饋 P-04：只啟用列順序重排（清單可以是空的）；內容不變、順序改變。"""
+    resp = _post(client, {"columns": [], "shuffle_rows": True}, files={"file": _upload(_numbered_csv())})
+    assert resp.status_code == 200, resp.text
+    df_out = pd.read_csv(io.BytesIO(resp.content))
+    assert sorted(df_out["序"]) == list(range(300))
+    assert list(df_out["序"]) != list(range(300))
+    assert (df_out["值"] == df_out["序"] * 2).all()
+
+
+def test_upload_without_shuffle_keeps_row_order(client):
+    block = {"columns": [{"column": "值", "actions": [{"action": "clamp", "params": {"max": 100000}}]}]}
+    resp = _post(client, block, files={"file": _upload(_numbered_csv())})
+    assert resp.status_code == 200, resp.text
+    assert list(pd.read_csv(io.BytesIO(resp.content))["序"]) == list(range(300))

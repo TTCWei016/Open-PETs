@@ -11,7 +11,8 @@
  *   components/ComplianceReportDocument.tsx 以同一份快照繪製，內容保證相同。
  */
 import type { KAnonymityFidelityResult } from './kAnonymityFidelity';
-import type { CapReport } from '../api/apiService';
+import type { CapReport, DpQualityReport, KAnonymityQualityReport } from '../api/apiService';
+import { isDpBudgetExceeded } from './pipelineConfig';
 import { computeOverallRiskLevel, type OverallRiskSummary } from './riskLevel';
 import { getKAnonymityGeneralizationTechLabel } from './kAnonymityTechLabel';
 import type { AuditLogItem, ComplianceStatus } from '../store/useAuditStore';
@@ -82,6 +83,10 @@ export interface ComplianceReportSnapshot {
     dpColumnEpsilon?: Record<string, number>;
     /** ★ 2026-10-28：後端回傳的處理與量測說明（套用的預設值、族群筆數、降級等） */
     backendNotes?: string[];
+    /** ★ 專家回饋 P-03：各項去識別化檢查分別的結果（只列使用者選用的項目；未選用的標示為未檢查，不寫成通過）；舊紀錄無此欄位 */
+    deidChecks?: DeidentificationCheck[];
+    /** ★ 專家回饋 P-01／P-02：結論適用範圍——已設定去識別化處理的欄位、原樣輸出的欄位、未納入風險評估的原樣輸出欄位；舊紀錄無此欄位 */
+    outputScope?: OutputScope;
 }
 
 export interface BuildComplianceReportSnapshotInput {
@@ -112,6 +117,10 @@ export interface BuildComplianceReportSnapshotInput {
     riskTargets?: ComplianceReportSnapshot['riskTargets'];
     dpColumnEpsilon?: Record<string, number>;
     backendNotes?: string[];
+    /** ★ 專家回饋 P-03：各項去識別化檢查分別的結果（只列使用者選用的項目；未選用的標示為未檢查，不寫成通過）；舊紀錄無此欄位 */
+    deidChecks?: DeidentificationCheck[];
+    /** ★ 專家回饋 P-01／P-02：結論適用範圍——已設定去識別化處理的欄位、原樣輸出的欄位、未納入風險評估的原樣輸出欄位；舊紀錄無此欄位 */
+    outputScope?: OutputScope;
 }
 
 const toFiniteOrNull = (value: unknown): number | null => {
@@ -172,6 +181,8 @@ export const buildComplianceReportSnapshot = (input: BuildComplianceReportSnapsh
         preprocessing: input.preprocessing ? input.preprocessing.map((item) => ({ ...item })) : [],
         riskTargets: input.riskTargets ? { ...input.riskTargets, subgroupLines: [...input.riskTargets.subgroupLines] } : null,
         ...(!isKAnonymity && input.dpColumnEpsilon ? { dpColumnEpsilon: { ...input.dpColumnEpsilon } } : {}),
+        ...(input.deidChecks ? { deidChecks: input.deidChecks.map((checkItem) => ({ ...checkItem })) } : {}),
+        ...(input.outputScope ? { outputScope: { processedColumns: [...input.outputScope.processedColumns], rawColumns: [...input.outputScope.rawColumns], unevaluatedRawColumns: [...input.outputScope.unevaluatedRawColumns] } } : {}),
         backendNotes: (input.backendNotes || []).filter((noteText) => typeof noteText === 'string' && noteText.trim() !== '')
     };
 };
@@ -184,22 +195,108 @@ export const isCapEvaluated = (cap: Pick<CapReport, 'cap_before' | 'cap_after'> 
 export const resolveCapExcessRisk = (cap: Pick<CapReport, 'cap_before' | 'cap_after' | 'cap_after_excess'> | null | undefined): number | null =>
     isCapEvaluated(cap) && typeof cap?.cap_after_excess === 'number' ? cap.cap_after_excess : null;
 
-/** 「能否猜出敏感資料」：推斷性攻擊與扣除基線後 CAP 取較高者 */
-export const resolveSensitiveGuessRisk = (inferenceRisk: number | null | undefined, capExcessRisk: number | null | undefined): number | null => {
-    const candidateValues = [inferenceRisk, capExcessRisk]
-        .filter((value): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0);
-    return candidateValues.length > 0 ? Math.max(...candidateValues) : null;
+/**
+ * 「能否猜出敏感資料」：只看推斷性攻擊。
+ * ★ 專家回饋 P-03：CAP 是推斷風險的參考數據，不列入風險評估通過與否的判定（目前也沒有公認的處理前後下降標準），
+ *   報告另列 CAP 數值並註明這一點。原本取推斷性攻擊與扣除基線後 CAP 的較高者，已改為只看推斷性攻擊。
+ */
+export const resolveSensitiveGuessRisk = (inferenceRisk: number | null | undefined): number | null =>
+    typeof inferenceRisk === 'number' && Number.isFinite(inferenceRisk) && inferenceRisk >= 0 ? inferenceRisk : null;
+
+/** ★ 專家回饋 P-01／P-02：這些前處理動作會把欄位改成「不再是原值」；去空白、轉型、正規化、限制範圍只是清洗，不算去識別化 */
+const DEIDENTIFYING_PREPROCESS_ACTIONS: ReadonlySet<string> = new Set(['hash', 'regex_replace', 'slice', 'anchor_truncate']);
+
+/**
+ * 檢測報告與下載注意事項的結論只適用「已設定去識別化處理的欄位」。
+ * - processedColumns：已設定去識別化處理（K-匿名的識別欄位、間接識別欄位；差分隱私已啟用的欄位；或前處理做了雜湊／替換／截斷）
+ * - rawColumns：沒有任何去識別化處理、原樣輸出的欄位，由使用者自行確認是否為非隱私資料
+ * - unevaluatedRawColumns：原樣輸出、且沒有納入再識別風險評估（不是間接識別欄位也不是敏感欄位）的欄位
+ * 已被刪除的欄位（前處理「刪除整欄」、K-匿名識別欄位選「刪除」）不在輸出裡，兩邊都不列。
+ */
+export interface OutputScope {
+    processedColumns: string[];
+    rawColumns: string[];
+    unevaluatedRawColumns: string[];
+}
+
+export const computeOutputScope = (input: {
+    privacyMode: string | null | undefined;
+    columnNames: string[];
+    resolveColumnRole: (columnName: string) => { role: string; maskStrategy?: string };
+    dpEnabledFieldNames: string[];
+    preprocessingRules: Record<string, { action: string }[]> | null | undefined;
+    /** 有納入風險評估的欄位（間接識別欄位＋敏感欄位） */
+    evaluatedColumns: string[];
+}): OutputScope => {
+    const isDifferentialPrivacy = input.privacyMode === 'differential-privacy';
+    const dpEnabledSet = new Set(input.dpEnabledFieldNames.map((fieldName) => String(fieldName ?? '').trim()));
+    const evaluatedSet = new Set(input.evaluatedColumns.map((columnName) => String(columnName ?? '').trim()));
+    const processedColumns: string[] = [];
+    const rawColumns: string[] = [];
+    for (const rawName of input.columnNames) {
+        const columnName = String(rawName ?? '').trim();
+        if (columnName === '') continue;
+        const stepList = input.preprocessingRules ? input.preprocessingRules[columnName] : undefined;
+        if (Array.isArray(stepList) && stepList.some((stepItem) => stepItem.action === 'drop_column')) continue; // 前處理已刪除
+        const { role, maskStrategy } = input.resolveColumnRole(columnName);
+        if (!isDifferentialPrivacy && role === 'Identifier' && maskStrategy === 'remove') continue; // K-匿名識別欄位已刪除
+        const isPreprocessDeidentified = Array.isArray(stepList) && stepList.some((stepItem) => DEIDENTIFYING_PREPROCESS_ACTIONS.has(stepItem.action));
+        const isDeidentified = isPreprocessDeidentified
+            || (isDifferentialPrivacy ? dpEnabledSet.has(columnName) : (role === 'Identifier' || role === 'Quasi-identifier'));
+        (isDeidentified ? processedColumns : rawColumns).push(columnName);
+    }
+    return { processedColumns, rawColumns, unevaluatedRawColumns: rawColumns.filter((columnName) => !evaluatedSet.has(columnName)) };
+};
+
+/** ★ 專家回饋 P-03：去識別化檢查的單項結果；not_selected＝使用者沒選用，未檢查（不是通過） */
+export type DeidentificationCheckResult = 'passed' | 'failed' | 'not_selected';
+
+export interface DeidentificationCheck {
+    key: 'k' | 'l' | 't' | 'suppression' | 'output' | 'budget';
+    result: DeidentificationCheckResult;
+}
+
+/**
+ * 各項去識別化檢查分別的結果（整體結論以未通過的項目為準）。
+ * - 沒選用的檢查（例如沒設定 l／t）標示為 not_selected，絕不寫成通過；
+ * - 輸出筆數為 0（全被刪除或遮蔽）時，輸出檢查為未通過，k／l／t 也無從檢測，一律未通過。
+ */
+export const buildDeidentificationChecks = (input: {
+    privacyMode: string | null | undefined;
+    kReport?: KAnonymityQualityReport | null;
+    dpReport?: DpQualityReport | null;
+    lRequested: boolean;
+    tRequested: boolean;
+    maxSuppressionPercent: number;
+    budgetLimitEpsilon: number;
+}): DeidentificationCheck[] => {
+    if (input.privacyMode === 'differential-privacy') {
+        if (!input.dpReport) return [];
+        return [{ key: 'budget', result: isDpBudgetExceeded(input.dpReport.consumed_epsilon, input.budgetLimitEpsilon) ? 'failed' : 'passed' }];
+    }
+    const report = input.kReport;
+    if (!report) return [];
+    const isEmptyOutput = report.output_empty === true;
+    const isLChecked = report.l_checked ?? input.lRequested;
+    const isTChecked = report.t_checked ?? input.tRequested;
+    const toResult = (isPassed: boolean): DeidentificationCheckResult => (isPassed && !isEmptyOutput ? 'passed' : 'failed');
+    return [
+        { key: 'output', result: isEmptyOutput ? 'failed' : 'passed' },
+        { key: 'k', result: toResult(report.k_passed !== false) },
+        { key: 'l', result: isLChecked ? toResult(report.l_passed !== false) : 'not_selected' },
+        { key: 't', result: isTChecked ? toResult(report.t_passed !== false) : 'not_selected' },
+        { key: 'suppression', result: report.suppression_rate_percent <= input.maxSuppressionPercent ? 'passed' : 'failed' },
+    ];
 };
 
 /** 整體風險等級（三個白話問題取最高），Step4 畫面、合規報告、歷史紀錄共用同一算法 */
 export const computeReportOverallRisk = (
     attackRisks: { singling: number; linkability: number; inference: number } | null | undefined,
-    cap: Pick<CapReport, 'cap_before' | 'cap_after' | 'cap_after_excess'> | null | undefined,
     labels: { singling: string; linkability: string; sensitive: string }
 ): OverallRiskSummary | null => computeOverallRiskLevel([
     { label: labels.singling, value: attackRisks?.singling },
     { label: labels.linkability, value: attackRisks?.linkability },
-    { label: labels.sensitive, value: resolveSensitiveGuessRisk(attackRisks?.inference, resolveCapExcessRisk(cap)) },
+    { label: labels.sensitive, value: resolveSensitiveGuessRisk(attackRisks?.inference) },
 ]);
 
 /**
@@ -224,7 +321,7 @@ const LEGACY_NOT_EVALUATED_TEXT = '未評估';
 export const resolveAuditLogComplianceStatus = (entry: Pick<AuditLogItem, 'status' | 'overallRisk' | 'reportSnapshot'>): ComplianceStatus => {
     if (entry.status === 'failed') return 'failed';
     if (entry.reportSnapshot) {
-        return resolveComplianceStatus(true, computeReportOverallRisk(entry.reportSnapshot.attackRisks, entry.reportSnapshot.cap, { singling: '', linkability: '', sensitive: '' }));
+        return resolveComplianceStatus(true, computeReportOverallRisk(entry.reportSnapshot.attackRisks, { singling: '', linkability: '', sensitive: '' }));
     }
     // 沒有報告快照的舊紀錄只有整體風險文字
     if (entry.status === 'unassessed' || entry.overallRisk === LEGACY_NOT_EVALUATED_TEXT) return 'unassessed';

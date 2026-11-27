@@ -74,6 +74,12 @@ class QualityReport:
     applied_defaults: list[str] = field(default_factory=list)
     hash_algorithm: str = "sha3-256"
     hash_salted: bool = False
+    # ★ 專家回饋 P-03：l／t 是否「真的有要求並檢測」。l_passed／t_passed 在未設定時仍是 True
+    #   （相容既有呼叫端），讀報告的人不能只看它判斷「通過」；以這兩欄分辨「通過」與「未檢測」。
+    l_checked: bool = False
+    t_checked: bool = False
+    # ★ 專家回饋 P-03：輸入有資料、輸出卻 0 筆（全被抑制）；此時 k／l／t 都無從檢測，不可判通過
+    output_empty: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -87,6 +93,9 @@ class QualityReport:
             "suppression_total_count": self.suppression_total_count,
             "hash_algorithm": self.hash_algorithm,
             "hash_salted": self.hash_salted,
+            "l_checked": self.l_checked,
+            "t_checked": self.t_checked,
+            "output_empty": self.output_empty,
             "message": self.msg,
             "recommendations": self.recommendations,
             "applied_defaults": self.applied_defaults,

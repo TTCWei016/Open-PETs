@@ -8,12 +8,12 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Table, Input, InputNumber, Button, Typography, theme, Space, Alert, Tooltip } from 'antd';
+import { Card, Table, Input, InputNumber, Button, Typography, theme, Space, Alert, Tooltip, Switch } from 'antd';
 import { ToolOutlined, SafetyOutlined, ArrowRightOutlined, LockOutlined, PlusOutlined, MinusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { useWorkspaceStore, type PreprocessingRule, type MissingValueRule } from '../../store/useWorkspaceStore';
-import { applyPreprocessSteps } from '../../utils/preprocessSteps';
+import { applyPreprocessSteps, PREPROCESS_DROPPED_COLUMN_PREVIEW_TEXT } from '../../utils/preprocessSteps';
 import { useServerHashPreviewStore } from '../../utils/serverHashPreview';
 import { normalizePreprocessHashAlgorithm, DEFAULT_PREPROCESS_HASH_ALGORITHM } from '../../utils/preprocessConfig';
 import { useEnsureDatasetProfile } from '../../utils/datasetProfile';
@@ -155,6 +155,10 @@ export default function Step2_Mapping(): React.ReactElement
         (state) => state.setMissingValueRules
     );
 
+    // ★ 專家回饋 P-04：處理完成後隨機重排列順序（選用，預設不重排）
+    const isShuffleRowsEnabled = useWorkspaceStore((state) => state.shuffleRows);
+    const setShuffleRowsAction = useWorkspaceStore((state) => state.setShuffleRows);
+
     /**
      * 函數名稱: getFieldPreprocessSteps
      * 函數功能: 取得指定欄位目前之預處理策略清單；若該欄位尚未設定任何策略，則退回僅含一筆「不處理」之預設清單。
@@ -278,6 +282,8 @@ export default function Step2_Mapping(): React.ReactElement
                 { key: 'max', type: 'number', label: translate('step2.param_clamp_max', '上限'), defaultValue: DEFAULT_CLAMP_UPPER_BOUND }
             ]
         },
+        // ★ 專家回饋 P-01：刪除整欄（差分隱私模式不負責刪欄位，姓名、身分證號等先在這裡移除）
+        { value: 'drop_column', label: translate('step2.action_drop_column', '刪除整欄'), paramFields: [] },
         {
             value: 'hash',
             label: translate('step2.action_hash', '雜湊 (Hash)'),
@@ -358,6 +364,7 @@ export default function Step2_Mapping(): React.ReactElement
         normalize: translate('step2.hint_action_normalize', '效果：統一文字的大小寫及全形／半形格式。適用情境：同一欄位存在格式不一致（如英數字全形與半形混用）需要統一比對基準時使用。'),
         clamp: translate('step2.hint_action_clamp', '效果：將數值限制在指定的上下限範圍內，超出範圍者會被調整為邊界值。適用情境：欄位存在明顯異常值（如年齡出現負數或超過合理上限）需要修正時使用。'),
         hash: translate('step2.hint_action_hash', '效果：以指定演算法將原始值轉換為單向雜湊字串，難以由雜湊值推回原始內容。適用情境：需隱藏原始值、但仍需保留可比對的唯一性（如識別碼）時使用。'),
+        drop_column: translate('step2.hint_action_drop_column', '效果：把整個欄位從處理後的資料移除，輸出檔不再有這一欄。適用情境：姓名、身分證字號、電話等直接識別個人的欄位，或與分析無關的欄位；刪除為最終處理，其後不可再串接其他策略。'),
         regex_replace: translate('step2.hint_action_regex_replace', '效果：以正則表達式比對特定樣式的文字並替換為指定內容。適用情境：需遮蔽或移除特定格式的敏感字串（如電話號碼、Email）時使用。')
     };
 
@@ -413,7 +420,7 @@ export default function Step2_Mapping(): React.ReactElement
                 // ★ 新增: 「雜湊」為不可逆之最終處理，若本次變更後之步驟為雜湊，其後方所有既存步驟一律
                 //   強制重設為「不處理」，避免留下「畫面鎖定顯示不處理、但實際儲存值仍為舊策略」的
                 //   不一致狀態 (對應下方下拉選單鎖定邏輯與新增按鈕停用邏輯)。
-                if (newActionValueStr === 'hash' && stepIndexNumber > targetStepIndexNumber) return { action: 'none', params: {} };
+                if ((newActionValueStr === 'hash' || newActionValueStr === 'drop_column') && stepIndexNumber > targetStepIndexNumber) return { action: 'none', params: {} };
 
                 return stepItemRecord;
             }
@@ -453,7 +460,7 @@ export default function Step2_Mapping(): React.ReactElement
 
         // ★ 新增: 「雜湊」為不可逆之最終處理，欄位之策略鏈中若已包含「雜湊」步驟 (不論位於哪一步)，
         //   不允許再新增後續步驟 (對應 UI 端新增按鈕之停用與提示)。
-        if (currentStepsForColumnArray.some((stepItemRecord) => stepItemRecord.action === 'hash'))
+        if (currentStepsForColumnArray.some((stepItemRecord) => stepItemRecord.action === 'hash' || stepItemRecord.action === 'drop_column'))
         {
             return;
         }
@@ -679,7 +686,7 @@ export default function Step2_Mapping(): React.ReactElement
                         size="small"
                         value={rowRecordItem.missingValueRule.strategy}
                         onChange={(selectedStrategyStr) => handleMissingValueStrategyChange(rowRecordItem.name, selectedStrategyStr)}
-                        disabled={!isUserAllowedToEditRulesStatus}
+                        disabled={!isUserAllowedToEditRulesStatus || rowRecordItem.steps.some((stepItemRecordForCheck) => stepItemRecordForCheck.action === 'drop_column')}
                         style={{ width: '100%' }}
                         options={missingValueStrategyOptionList}
                         optionRender={(optionItem) => renderSelectOptionWithHint(optionItem.label, missingValueStrategyHintMap[String(optionItem.data.value)])}
@@ -733,7 +740,7 @@ export default function Step2_Mapping(): React.ReactElement
                             // ★ 新增: 「雜湊」為不可逆之最終處理，若此步驟前方已存在雜湊步驟，此步驟鎖定為僅能
                             //   選擇「不處理」且無法變更；欄位策略鏈中只要含有雜湊步驟 (不論位置)，即不允許
                             //   再新增後續步驟。
-                            const isStepLockedByPriorHashStatus = rowRecordItem.steps.slice(0, stepIndexNumber).some((priorStepItemRecord) => priorStepItemRecord.action === 'hash');
+                            const isStepLockedByPriorHashStatus = rowRecordItem.steps.slice(0, stepIndexNumber).some((priorStepItemRecord) => priorStepItemRecord.action === 'hash' || priorStepItemRecord.action === 'drop_column');
                             // ★ 修正：與「參數設定」欄採用同一份可見參數欄位清單計算列高下限，確保同一步驟
                             //   在兩欄位中對齊於同一條水平線 (詳見 computeStepRowMinHeightPx 說明)。
                             const stepRowMinHeightPx = computeStepRowMinHeightPx(getVisibleParamFieldListForStep(stepItemRecord).length);
@@ -741,7 +748,7 @@ export default function Step2_Mapping(): React.ReactElement
                             return (
                                 <div key={stepIndexNumber} style={{ display: 'flex', alignItems: 'center', gap: 4, minHeight: stepRowMinHeightPx }}>
                                     <span data-testid="preprocess-step-number" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: '50%', flexShrink: 0, fontSize: scaleFontSize(11), fontWeight: 600, color: token.colorTextSecondary, background: token.colorFillSecondary }}>{stepIndexNumber + 1}</span>
-                                    <Tooltip title={isStepLockedByPriorHashStatus ? translate('step2.strategy_locked_by_hash', '此步驟前方已套用「雜湊」，雜湊為不可逆之最終處理，其後不可再串接其他策略。') : ''}>
+                                    <Tooltip title={isStepLockedByPriorHashStatus ? (rowRecordItem.steps.slice(0, stepIndexNumber).some((priorStepItemRecord) => priorStepItemRecord.action === 'drop_column') ? translate('step2.strategy_locked_by_drop_column', '此步驟前方已套用「刪除整欄」，整欄都不會輸出，其後不可再串接其他策略。') : translate('step2.strategy_locked_by_hash', '此步驟前方已套用「雜湊」，雜湊為不可逆之最終處理，其後不可再串接其他策略。')) : ''}>
                                         <AdaptivePopupSelect
                                             value={stepItemRecord.action}
                                             onChange={(selectedDropdownAction) => handleStepActionChange(rowRecordItem.name, stepIndexNumber, selectedDropdownAction)}
@@ -766,9 +773,9 @@ export default function Step2_Mapping(): React.ReactElement
                         }
                     )}
                     {isUserAllowedToEditRulesStatus && (() => {
-                        const hasHashStepInChainStatus = rowRecordItem.steps.some((stepItemRecordForCheck) => stepItemRecordForCheck.action === 'hash');
+                        const hasHashStepInChainStatus = rowRecordItem.steps.some((stepItemRecordForCheck) => stepItemRecordForCheck.action === 'hash' || stepItemRecordForCheck.action === 'drop_column');
                         return (
-                            <Tooltip title={hasHashStepInChainStatus ? translate('step2.add_strategy_step_disabled_hash', '「雜湊」為不可逆之最終處理，其後不可再新增策略。') : ''}>
+                            <Tooltip title={hasHashStepInChainStatus ? (rowRecordItem.steps.some((stepItemRecordForCheck) => stepItemRecordForCheck.action === 'drop_column') ? translate('step2.add_strategy_step_disabled_drop_column', '「刪除整欄」為最終處理，其後不可再新增策略。') : translate('step2.add_strategy_step_disabled_hash', '「雜湊」為不可逆之最終處理，其後不可再新增策略。')) : ''}>
                                 <Button
                                     type="dashed"
                                     size="small"
@@ -845,7 +852,7 @@ export default function Step2_Mapping(): React.ReactElement
             render: (_: unknown, rowRecordItem: MappingRecord) =>
             {
                 const originalSampleTextValue = rowRecordItem.sampleValue;
-                const processedSampleTextValue = originalSampleTextValue === DEFAULT_PREVIEW_SYMBOL ? originalSampleTextValue : applyPreprocessSteps(originalSampleTextValue, rowRecordItem.steps);
+                const processedSampleTextValue = rowRecordItem.steps.some((stepItemRecordForCheck) => stepItemRecordForCheck.action === 'drop_column') ? PREPROCESS_DROPPED_COLUMN_PREVIEW_TEXT : originalSampleTextValue === DEFAULT_PREVIEW_SYMBOL ? originalSampleTextValue : applyPreprocessSteps(originalSampleTextValue, rowRecordItem.steps);
                 const isContentModifiedStatus = originalSampleTextValue !== processedSampleTextValue;
 
                 const missingStrategyStr = rowRecordItem.missingValueRule.strategy;
@@ -906,6 +913,22 @@ export default function Step2_Mapping(): React.ReactElement
                     title={translate('step2.preprocess_backend_pending_title', '清洗設定會在 Step4 先交由後端處理')}
                     description={translate('step2.preprocess_backend_pending_desc', '執行時會先依這裡的清洗步驟與缺失值處理整理資料（後端資料前處理），再以整理後的資料進行去識別化與風險評估；右側預覽為依相同規則計算的範例。')}
                 />
+                {/* ★ 專家回饋 P-04：列順序隨機重排是資料預先處理的選用功能，由使用者依資料用途決定是否啟用 */}
+                <div data-testid="preprocess-shuffle-rows-panel" style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12, padding: '10px 12px', background: token.colorFillQuaternary, borderRadius: 8 }}>
+                    <Switch
+                        data-testid="preprocess-shuffle-rows"
+                        checked={Boolean(isShuffleRowsEnabled)}
+                        onChange={(isChecked) => setShuffleRowsAction(isChecked)}
+                        disabled={!isUserAllowedToEditRulesStatus}
+                        style={{ marginTop: 2 }}
+                    />
+                    <div>
+                        <Text strong>{translate('step2.shuffle_rows_title', '輸出前隨機重排列順序（選填）')}</Text>
+                        <div style={{ color: token.colorTextSecondary, fontSize: scaleFontSize(13) }}>
+                            {translate('step2.shuffle_rows_desc', '預設保留原始列順序。保留順序時，拿到輸出的人可能把輸出的每一列對回原始資料的同一列；同一個人的多筆紀錄原本相鄰（例如軌跡資料）時，更能重建個人的移動軌跡。啟用後會在所有前處理動作做完之後隨機重排，每次結果都不同。若資料後續需要依原始順序對照，請不要啟用。')}
+                        </div>
+                    </div>
+                </div>
                 <div ref={preprocessTableWrapperRef}>
                 <Table dataSource={mappingTableDataList} columns={preprocessTableColumnsConfig} pagination={false} size="small" bordered={false} rowKey="key" scroll={{ y: PREPROCESS_TABLE_SCROLL_HEIGHT_PX }} style={{ background: isDarkModeActive ? '#141414' : '#fafafa', borderRadius: 8, border: `1px solid ${token.colorBorderSecondary}` }} />
                 </div>

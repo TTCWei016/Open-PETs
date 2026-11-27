@@ -116,6 +116,9 @@ export interface KAnonymityQualityReport {
   suppression_total_count?: number;   // 抑制率分母：總列數（row）或總格數（cell）
   hash_algorithm?: string;            // 本次假名化採用的雜湊演算法（v3 報告新增）
   hash_salted?: boolean;              // 本次雜湊是否加鹽（鹽值由部署環境 .env 的 OPEN_PETS_DEFAULT_SALT 提供）
+  l_checked?: boolean;                // 專家回饋 P-03：l-多樣性是否有要求並檢測；false＝未檢測（l_passed 此時仍為 true，不可當成「通過」）
+  t_checked?: boolean;                // 同上，t-趨近性
+  output_empty?: boolean;             // 專家回饋 P-03：輸入有資料、輸出 0 筆；不可判通過
   message: string;
   recommendations: unknown[];
   applied_defaults: unknown[];        // 設定檔未指定、由系統套用預設值的項目

@@ -16,6 +16,7 @@ import pandas as pd
 
 from app.core.config import PreprocessConfig
 from app.core.cancellation import check_cancelled
+from app.core.dataset_io import shuffle_rows
 from app.core.errors import PetsError
 
 from .types import PlannedAction
@@ -67,4 +68,9 @@ class Preprocessor:
                 # 動作只知道自己遇到什麼，補上它在清單裡的位置才找得到要改哪一行。
                 raise PetsError(exc.error_code, f"{step.where}：{exc.message}") from exc
         logger.info("前處理完成，%d 個步驟全部套用", len(self._plan))
+        # ★ 專家回饋 P-04：選用的列順序隨機重排，放在所有欄位動作之後。
+        #   重排會產生新的資料（不再是傳入的同一個物件），inplace 的呼叫端要用回傳值。
+        if self.config.shuffle_rows:
+            df_out = shuffle_rows(df_out)
+            logger.info("已隨機重排列順序")
         return df_out

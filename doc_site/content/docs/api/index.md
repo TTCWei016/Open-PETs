@@ -163,7 +163,7 @@ print("執行編號：", r.headers["X-Run-Id"])
 | 部分 | 內容 |
 | --- | --- |
 | 主體 | 處理後的檔案，格式與上傳時相同。檔名為 `anonymized_<原檔名>`（見 `Content-Disposition` 標頭）。 |
-| `X-Quality-Report` 標頭 | 品質報告 JSON：`is_valid`、`k_passed`、`l_passed`、`t_passed`、`suppression_rate_percent`、`message`、`recommendations` 等。中文以 `\uXXXX` 編碼。 |
+| `X-Quality-Report` 標頭 | 品質報告 JSON：`is_valid`、`k_passed`、`l_passed`、`t_passed`、`l_checked`、`t_checked`、`output_empty`、`suppression_rate_percent`、`message`、`recommendations` 等。中文以 `\uXXXX` 編碼。`l_checked`、`t_checked` 為 `false` 表示設定檔沒有要求該項檢測，這時 `l_passed`、`t_passed` 的 `true` 只是預設值，不代表通過。`output_empty` 為 `true` 表示輸入有資料、輸出卻是 0 筆，`is_valid` 一律為 `false`。 |
 | `X-Run-Id` 標頭 | 本次執行編號。用 `POST /history` 儲存處理紀錄時要帶上它；它在 24 小時內有效，且只能用一次。 |
 
 實際回應標頭節錄：
@@ -189,6 +189,21 @@ x-run-id: 9b17990e9bcb4e848a88c6d29c9eba68
 
 - 想取消一次運算時，可以在請求加上 `X-Client-Run-Id` 標頭（一組 UUID），之後呼叫 `POST /runs/{handle}/cancel` 取消，被取消的請求會回 499。
 - 每次成功的處理請求都會回傳 `X-Run-Id` 標頭。
+
+### 資料前處理的設定補充
+
+- **`drop_column`（刪除整欄）：** 動作沒有參數，輸出裡不再有這一欄。同一欄在 `drop_column` 之後不能再排任何動作（含再刪一次），否則回 `422`（`ERR_PREPROCESS_COLUMN_NOT_FOUND`）。差分隱私與 K-匿名化都不負責判斷哪些是直接識別欄位，請用這個動作或 `hash` 先處理。
+- **`shuffle_rows`（隨機重排列順序，選用）：** 寫在 `preprocess` 區塊內，值為 `true` 時，在所有欄位動作做完之後隨機重排列順序，不可重現；未填則不重排。啟用時 `columns` 可以是空的（只做重排）。保留原始列順序時，輸出的每一列可能被對回原始資料的同一列。
+
+```json
+"preprocess": {
+  "enabled": true,
+  "columns": [
+    { "column": "姓名", "actions": [{ "action": "drop_column", "params": {} }] }
+  ],
+  "shuffle_rows": true
+}
+```
 
 ## 錯誤格式與限制
 

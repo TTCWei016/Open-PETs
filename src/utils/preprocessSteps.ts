@@ -247,8 +247,14 @@ export const applyPreprocessStep = (cellValueStr: string, stepItemRecord: Prepro
  *   - string: 依序套用所有策略後之最終字串結果
  * 呼叫關係 (Call Relations): 於即時預覽欄位呈現時被呼叫
  */
+/** ★ 專家回饋 P-01：預覽欄位遇到「刪除欄位」時顯示的文字（該欄整個不會出現在處理後資料） */
+export const PREPROCESS_DROPPED_COLUMN_PREVIEW_TEXT = '（整欄刪除）';
+
 export const applyPreprocessSteps = (cellValueData: unknown, stepsArray: PreprocessingRule[]): string =>
 {
+	// 整欄會被刪除：不管這格有沒有值，預覽一律顯示被刪除（空值也不能顯示成一般的「—」）
+	if (stepsArray.some((stepItemRecord) => stepItemRecord.action === 'drop_column')) return PREPROCESS_DROPPED_COLUMN_PREVIEW_TEXT;
+
     if (cellValueData == null || cellValueData === '')
     {
         return DEFAULT_PREVIEW_SYMBOL;

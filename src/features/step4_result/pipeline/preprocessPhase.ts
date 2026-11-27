@@ -24,11 +24,12 @@ export const runPreprocessPhase = async (input: {
     columnNames: string[];
     preprocessingRules: Record<string, PreprocessingRule[]> | null | undefined;
     missingValueRules: Record<string, MissingValueRule> | null | undefined;
+    shuffleRows?: boolean;
     datasetFileName: string | null | undefined;
     safeDataFile: File;
     requestOptions: ApiRequestOptions;
 }): Promise<PreprocessPhaseResult | null> => {
-    const preprocessBlock = buildPreprocessBlock(input.columnNames, input.preprocessingRules, input.missingValueRules);
+    const preprocessBlock = buildPreprocessBlock(input.columnNames, input.preprocessingRules, input.missingValueRules, input.shuffleRows);
     if (!preprocessBlock) return null;
 
     const configObject = wrapBackendConfigDocument(input.datasetFileName, { preprocess: preprocessBlock });

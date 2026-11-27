@@ -23,6 +23,7 @@ class PreprocessValidator:
     """前處理前置驗證器：逐列檢查欄位名稱在資料中存在。"""
 
     def validate(self, df: pd.DataFrame, config: PreprocessConfig) -> None:
+        dropped: set[str] = set()  # 已被 drop_column 刪掉的欄位（依清單順序累計）
         for idx, entry in enumerate(config.columns):
             if entry.column not in df.columns:
                 raise PetsError(
@@ -30,3 +31,21 @@ class PreprocessValidator:
                     f"前處理清單第 {idx + 1} 列引用了資料中不存在的欄位 "
                     f"'{entry.column}'，請檢查欄位名稱。",
                 )
+            # drop_column 之後這一欄就不存在了：同一欄後面再排任何動作（含再刪一次），
+            # 開跑後會撞上找不到欄位的內部錯誤。與欄名打錯同屬清單寫錯，開跑前就擋。
+            if entry.column in dropped:
+                raise PetsError(
+                    "ERR_PREPROCESS_COLUMN_NOT_FOUND",
+                    f"前處理清單第 {idx + 1} 列引用的欄位 '{entry.column}' "
+                    f"在前面已被「刪除欄位」移除，之後不能再對它做任何處理。",
+                )
+            for pos, spec in enumerate(entry.actions):
+                if entry.column in dropped:
+                    raise PetsError(
+                        "ERR_PREPROCESS_COLUMN_NOT_FOUND",
+                        f"前處理清單第 {idx + 1} 列（欄位 '{entry.column}'）"
+                        f"的第 {pos + 1} 個動作排在「刪除欄位」之後，這一欄已不存在；"
+                        f"請把「刪除欄位」放在該欄所有動作的最後。",
+                    )
+                if spec.action == "drop_column":
+                    dropped.add(entry.column)

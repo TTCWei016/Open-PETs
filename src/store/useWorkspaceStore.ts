@@ -185,6 +185,7 @@ interface WorkspaceState
     previewData: Record<string, unknown>[];                                  // 前端預覽數據紀錄陣列
     preprocessingRules: Record<string, PreprocessingRule[]>;                  // 預處理清洗規則表 (每欄位可設定多道依序執行之策略)
     missingValueRules: Record<string, MissingValueRule>;                     // 缺失值處理規則表 (每欄位僅能擇一，與 preprocessingRules 互斥並存)
+    shuffleRows: boolean;                                                      // ★ 專家回饋 P-04：資料預先處理是否在最後隨機重排列順序（選用，預設不重排）
     fileName?: string;                                                       // 當前載入之檔案名稱
     lastUploadDiagnostics: UploadDiagnosticsSnapshot | null;                 // ★ 新增：最近一次檔案上傳之編碼偵測診斷快照 (供全域 API 錯誤紀錄引用)
     
@@ -268,6 +269,7 @@ interface WorkspaceState
     setPrivacyMode: (privacyModeTypeStr: 'k-anonymity' | 'differential-privacy') => void;
     setPreprocessingRules: (preprocessingRulesMapDict: Record<string, PreprocessingRule[]>) => void;
     setMissingValueRules: (missingValueRulesMapDict: Record<string, MissingValueRule>) => void;
+    setShuffleRows: (isShuffleRows: boolean) => void;
     nextStep: () => void;
     prevStep: () => void;
     setStep4Cache: (step4CacheDataObj: Step4Cache, paramsHashString: string) => void;
@@ -338,6 +340,7 @@ export const useWorkspaceStore = create<WorkspaceState>(
             previewData: [],
             preprocessingRules: {},
             missingValueRules: {},
+            shuffleRows: false,
             fileName: undefined,
             lastUploadDiagnostics: null,
             columnRoles: {},
@@ -378,6 +381,7 @@ export const useWorkspaceStore = create<WorkspaceState>(
             setPrivacyMode: (privacyModeTypeStr) => setStoreStateAction({ privacyMode: privacyModeTypeStr }),
             setPreprocessingRules: (preprocessingRulesMapDict) => setStoreStateAction({ preprocessingRules: preprocessingRulesMapDict }),
             setMissingValueRules: (missingValueRulesMapDict) => setStoreStateAction({ missingValueRules: missingValueRulesMapDict }),
+            setShuffleRows: (isShuffleRows) => setStoreStateAction({ shuffleRows: isShuffleRows }),
             nextStep: () => setStoreStateAction((currentStoreStateData) => ({ currentStep: currentStoreStateData.currentStep + 1 })),
             prevStep: () => setStoreStateAction((currentStoreStateData) => ({ currentStep: currentStoreStateData.currentStep - 1 })),
             setStep4Cache: (step4CacheDataObj, paramsHashString) => setStoreStateAction({ step4Cache: step4CacheDataObj, lastRunParamsHash: paramsHashString }),

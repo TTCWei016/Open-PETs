@@ -621,6 +621,7 @@ export interface WorkspaceConfigSource {
     targetDelta?: number | null;
     preprocessingRules?: Record<string, PreprocessingRule[]> | null;
     missingValueRules?: Record<string, MissingValueRule> | null;
+    shuffleRows?: boolean | null;
     kAnonymityHashAlgorithm?: 'sha256' | 'sha3-256' | 'sha3-512' | null;
 }
 
@@ -629,7 +630,7 @@ export interface WorkspaceConfigSource {
  *   匯出再匯入才不會遺失清洗設定。沒有任何清洗／缺失值處理時不加此區塊（與 Step4 不呼叫 /preprocess 一致）。
  */
 const withPreprocessBlock = (workspaceState: WorkspaceConfigSource, configDocument: Record<string, unknown>): Record<string, unknown> => {
-    const preprocessBlock = buildPreprocessBlock(workspaceState.columns || [], workspaceState.preprocessingRules, workspaceState.missingValueRules);
+    const preprocessBlock = buildPreprocessBlock(workspaceState.columns || [], workspaceState.preprocessingRules, workspaceState.missingValueRules, workspaceState.shuffleRows);
     if (!preprocessBlock) return configDocument;
     const { version, dataset, input_format: inputFormat, ...privacyBlocks } = configDocument;
     return { version, dataset, input_format: inputFormat, preprocess: preprocessBlock, ...privacyBlocks };

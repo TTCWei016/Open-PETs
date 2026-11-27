@@ -21,6 +21,7 @@ from .actions import (
     Cast,
     Clamp,
     ColumnAction,
+    DropColumn,
     DropNulls,
     FillDefault,
     Hash,
@@ -70,12 +71,13 @@ __all__ = [
     "ColumnAction",
     "ValueAction",
     "StringAction",
-    # 11 項功能
+    # 12 項功能
     "Trim",
     "Slice",
     "AnchorTruncate",
     "Cast",
     "Normalize",
+    "DropColumn",
     "DropNulls",
     "FillDefault",
     "Impute",
