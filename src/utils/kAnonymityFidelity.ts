@@ -23,6 +23,8 @@
  *   相關係數計算時，泛化值以其涵蓋原始值的「區間中點」（最小值與最大值的平均）代表；「*」以全欄中點代表。
  * 分組（bin）：數值欄相異值 > 100 時切 20 等寬區間；日期（YYYY-MM-DD 開頭）相異值 > 100 時以日／月／年中最細且不超過 100 組的單位；
  *   其他文字欄相異值 > 100（例如自由文字）不評估，避免列聯表過於稀疏。原始即空值的格子不計。
+ * ★ 專家回饋 P-11：輸出沒有的欄位（被刪除）視同整欄遮蔽成「*」，一樣納入計算，刪欄位不會讓相似度變高。
+ *   前處理「刪除整欄」的欄位在送去識別化之前就不在資料裡，不在此範圍（比對的是前處理後的資料）。
  * 配對方式同 kAnonymityLossMetric.ts（後端只刪列、不重排）。配對失敗回傳 null（不顯示，避免錯誤數字）。
  * 大資料：預設全部計算（2026-10-16 起）；僅在呼叫端指定 sampleLimit 時才等距抽樣。
  */
@@ -324,7 +326,10 @@ const computeKAnonymityFidelityFromRows = (
         const column = cleanName(rawColumn);
         const originalColumnIndex = originalHeader.indexOf(column);
         const processedColumnIndex = processedHeader.indexOf(column);
-        if (originalColumnIndex < 0 || processedColumnIndex < 0) continue;
+        // ★ 專家回饋 P-11：輸出裡沒有這一欄（被刪除）仍要評估，視同整欄被遮蔽成「*」——處理後的值讀不到（空字串），
+        //   下面自然歸入「*」，分布與欄位搭配都攤回全部原始值。原本直接略過，結果刪掉欄位反而讓平均相似度變高
+        //   （專家情境 3d：刪掉兩個站名欄位，相似度顯示 99%）。只有原始資料沒有這一欄才略過。
+        if (originalColumnIndex < 0) continue;
         const allOriginalValues: string[] = [];
         for (const row of originalBody) {
             const value = cellText(row[originalColumnIndex]);

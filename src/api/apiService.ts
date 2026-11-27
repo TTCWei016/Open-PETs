@@ -152,6 +152,7 @@ export interface DpPerColumnBudgetReport {
   noise_unit?: string;                // 日期欄位的雜訊單位
   noise_step?: number;                // 日期欄位幾個 noise_unit 算一格
   out_of_bounds_strategy?: string | null; // clamp／fold／wrap，null 表示未設上下限
+  effective_epsilon?: number | null;  // 專家回饋 P-07：sensitivity 小於截斷寬度時的有效 ε（ε × 寬度 ÷ sensitivity）；沒有這個問題時為 null
 }
 
 export interface DpQualityReport {

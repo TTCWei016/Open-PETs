@@ -858,7 +858,7 @@ export default function DifferentialPrivacyMapping(): React.ReactElement
 			// ★ 修正: 依實際比對結果顯示對應訊息，避免畫面毫無變化卻仍顯示成功訊息。
 			if (unmatchedFieldNameList.length === 0)
 			{
-				messageApi.success(translate('message.apply_recommend_dp_success', '已成功套用智慧推薦設定！'));
+				messageApi.success(translate('message.apply_recommend_dp_success', '已成功套用智慧推薦設定！推薦僅供初始輸入，請依資料用途逐欄檢查並調整。'));
 			}
 			else if (unmatchedFieldNameList.length === recommendedUpdatedFieldsArray.length)
 			{
@@ -1430,7 +1430,7 @@ export default function DifferentialPrivacyMapping(): React.ReactElement
 										) : (
 											<Button size="small" icon={<EyeOutlined />} onClick={() => setIsJsonPreviewVisibleStatus(true)}>{translate('step2.json_preview_show', '顯示預覽')}</Button>
 										)}
-										<Button type="primary" icon={<ThunderboltOutlined />} onClick={handleApplyRecommendations} style={{ background: '#4F46E5', border: 'none', borderRadius: '6px' }}>{translate('step2.btn_apply_recommend', '自動智慧推薦')}</Button>
+										<Tooltip title={translate('step2.recommend_notice', '系統推薦依欄位名稱與內容提供初始建議，僅供測試或初始輸入。通用工具無法涵蓋所有資料情境，請依資料用途逐欄檢查並調整。')}><Button type="primary" icon={<ThunderboltOutlined />} onClick={handleApplyRecommendations} style={{ background: '#4F46E5', border: 'none', borderRadius: '6px' }}>{translate('step2.btn_apply_recommend', '自動智慧推薦')}</Button></Tooltip>
 									</Space>
 								</div>
 								

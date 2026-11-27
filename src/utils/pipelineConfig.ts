@@ -575,6 +575,22 @@ export const computeDefaultDpSensitivity = (
     return Number.isFinite(boundWidthValue) ? boundWidthValue : null;
 };
 
+/**
+ * ★ 專家回饋 P-07：使用者自訂的敏感度小於上下限（截斷）寬度時，實際加的雜訊比該欄 ε 所需要的少，
+ *   實際保護力低於畫面顯示的 ε。回傳宣告值、寬度與「有效 ε」（約 ε × 寬度 ÷ 敏感度）；沒有問題回傳 null。
+ *   留空（自動＝邊界寬度）或敏感度不小於寬度時不警告。
+ */
+export const detectUnderDeclaredDpSensitivity = (
+    field: Pick<DpStoreField, 'lowerBound' | 'upperBound' | 'sensitivity' | 'noiseUnit' | 'epsilon'>, isDateTimeField: boolean
+): { declared: number; width: number; effectiveEpsilon: number | null } | null => {
+    const declared = parseExplicitDpSensitivity(field.sensitivity);
+    if (declared === null) return null;
+    const width = computeDefaultDpSensitivity(field, isDateTimeField);
+    if (width === null || !(declared < width)) return null;
+    const epsilonValue = Number(field.epsilon);
+    return { declared, width, effectiveEpsilon: Number.isFinite(epsilonValue) && epsilonValue > 0 ? (epsilonValue * width) / declared : null };
+};
+
 /** 實際送出的敏感度：使用者有指定就用指定值，否則用邊界寬度 */
 export const resolveDpSensitivity = (field: Pick<DpStoreField, 'lowerBound' | 'upperBound' | 'sensitivity' | 'noiseUnit'>, isDateTimeField: boolean): number | null =>
     parseExplicitDpSensitivity(field.sensitivity) ?? computeDefaultDpSensitivity(field, isDateTimeField);

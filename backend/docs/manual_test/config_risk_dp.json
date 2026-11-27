@@ -40,7 +40,10 @@
         "type": "continuous",
         "epsilon_budget": 1.0,
         "delta_budget": 0.0,
-        "sensitivity": 30.0
+        "sensitivity": 120.0,
+        "minimum_unit": 5,
+        "clipping_bounds": [0, 120],
+        "out_of_bounds_strategy": "clamp"
       },
       "地區": {
         "type": "categorical",

@@ -64,6 +64,10 @@ class ColumnBudgetDetail(BaseModel):
     # 加噪後超出 clipping_bounds 時的處理方式；沒設界線 → None（系統未動過輸出值）。
     # 屬後處理：系統對輸出做了額外調整，依報告透明原則一併揭露。
     out_of_bounds_strategy: Literal["clamp", "wrap", "fold"] | None = None
+    # ★ 專家回饋 P-07：使用者申報的 sensitivity 小於截斷範圍寬度時，實際加的雜訊比該欄 ε 所需要的少，
+    #   實際保護力低於 epsilon 欄顯示的值；這裡給「有效 ε」＝ ε × 截斷寬度 ÷ sensitivity。
+    #   沒有這個問題（或沒設截斷範圍、沒申報 sensitivity）時為 None。
+    effective_epsilon: float | None = None
 
 
 class BudgetReport(BaseModel):

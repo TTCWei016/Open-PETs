@@ -37,6 +37,39 @@ from .mechanisms import NumericNoiser, KRandomizedResponse, DatetimeNoiser
 from .mechanisms.temporal import DEFAULT_NOISE_STEP, DEFAULT_UNIT
 
 
+def _under_declared_width(budget) -> float | None:
+    """sensitivity 小於截斷範圍寬度時回傳「寬度」（與 sensitivity 同單位），否則 None。
+
+    ★ 專家回饋 P-07：DP 的雜訊量由 sensitivity ÷ ε 決定，而一個人的值在截斷範圍內最多可以差到整個範圍寬度，
+    sensitivity 比寬度小就是少加了雜訊。數值欄比 clipping_bounds 的寬度；日期欄比 time_clipping_bounds
+    的寬度（以 noise_unit 計，與 sensitivity 的單位一致）。沒申報 sensitivity 或沒設截斷範圍時無從比較。
+    """
+    if budget.sensitivity is None:
+        return None
+    if budget.type == "continuous" and budget.clipping_bounds is not None:
+        low, high = budget.clipping_bounds
+        width = float(high) - float(low)
+    elif budget.type == "datetime" and budget.time_clipping_bounds is not None:
+        try:
+            low_ts = pd.Timestamp(budget.time_clipping_bounds[0])
+            high_ts = pd.Timestamp(budget.time_clipping_bounds[1])
+            seconds_per_unit = {"day": 86400, "hour": 3600, "minute": 60, "second": 1}[budget.noise_unit or DEFAULT_UNIT]
+            width = (high_ts - low_ts).total_seconds() / seconds_per_unit
+        except (ValueError, TypeError, KeyError):
+            return None
+    else:
+        return None
+    return width if width > budget.sensitivity else None
+
+
+def _effective_epsilon(budget) -> float | None:
+    """sensitivity 偏小時的有效 ε（ε × 寬度 ÷ sensitivity）；沒有偏小就是 None。"""
+    width = _under_declared_width(budget)
+    if width is None:
+        return None
+    return budget.epsilon_budget * width / budget.sensitivity
+
+
 def _format_delta(delta: float) -> str:
     """δ 一律以 1e-5 這種科學記號呈現：δ 通常極小，寫成小數會被捨成 0.00。"""
     if delta == 0:
@@ -157,6 +190,7 @@ class DPProcessor:
                         sensitivity=sensitivity,
                         # 使用者有申報→user；否則系統以 max−min 推導→system（須揭露）
                         sensitivity_source="user" if budget.sensitivity is not None else "system",
+                        effective_epsilon=_effective_epsilon(budget),
                         # 揭露刻度：sensitivity 以它為單位；有設界線才有超界處理可言
                         minimum_unit=minimum_unit,
                         out_of_bounds_strategy=(
@@ -211,6 +245,7 @@ class DPProcessor:
                         delta=delta,
                         sensitivity=sensitivity,
                         sensitivity_source="user" if budget.sensitivity is not None else "system",
+                        effective_epsilon=_effective_epsilon(budget),
                         # 揭露加噪單位與刻度：sensitivity 以「格」為單位，
                         # 一格＝noise_step 個 noise_unit，三者須一起看才讀得懂
                         noise_unit=noise_unit,
@@ -228,6 +263,17 @@ class DPProcessor:
         if any(budget.epsilon_budget < 0.01 for budget in config.column_budgets.values()):
             warnings.append(
                 "當前隱私預算（Epsilon）設定過低，雖然隱私強度極高，但產出之數值可能出現嚴重失真現象。"
+            )
+
+        # ★ 專家回饋 P-07：sensitivity 小於截斷範圍寬度＝實際保護力低於顯示的 ε，主動警告（明細見 per_column.effective_epsilon）
+        under_declared = [d for d in per_column if d.effective_epsilon is not None]
+        if under_declared:
+            detail = "、".join(
+                f"{d.column}（ε {d.epsilon:g}，有效 ε 約 {d.effective_epsilon:.1f}）" for d in under_declared
+            )
+            warnings.append(
+                f"欄位 {detail} 的 sensitivity 小於截斷範圍寬度，加的雜訊比 ε 所需要的少，"
+                f"實際保護力低於顯示的 ε；建議把 sensitivity 設為截斷範圍寬度（有效 ε ≈ ε × 寬度 ÷ sensitivity）。"
             )
 
         # 報告透明：sensitivity 未申報而由系統推導的欄位，於摘要主動告知（明細見 per_column）。

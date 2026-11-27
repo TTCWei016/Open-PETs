@@ -169,6 +169,44 @@ export const describeKAnonymityHighCardinalityHandling = (highCardinalityInfo: H
     return messagesList;
 };
 
+/**
+ * ★ 專家回饋 P-10：K-匿名沒有指定敏感欄位時，比照差分隱私輪流以每個類別型欄位為敏感欄位評估（取風險最高者），
+ *   不再略過風險評估。候選＝間接識別或非敏感、型別為類別的欄位（不含識別欄位與已選「刪除」的欄位）；
+ *   某個候選若沒有任何間接識別可當攻擊面（本輪除了它之外沒有間接識別欄位），不列入。
+ */
+export const resolveKAnonymityAutoRotationCandidates = (input: {
+    processedColumnNames: string[];
+    kAnonymityFields: unknown[];
+    riskColumnsMap: RiskColumnsMap;
+}): string[] => {
+    const quasiIdentifierNames = Object.keys(input.riskColumnsMap).filter((columnName) => input.riskColumnsMap[columnName].role === 'quasi_identifier');
+    return input.processedColumnNames.map(cleanColumnNameText).filter((cleanName) => {
+        const matchedField = input.kAnonymityFields.find((item: unknown) => {
+            const record = item as Record<string, unknown>;
+            return record && typeof record.name === 'string' && cleanColumnNameText(record.name) === cleanName;
+        }) as Record<string, unknown> | undefined;
+        if (!matchedField) return false;
+        const role = PRIVACY_ROLE_TO_BACKEND_ROLE[String(matchedField.role)];
+        if (role !== 'quasi_identifier' && role !== 'non_sensitive') return false;
+        if (String(matchedField.type) !== 'categorical') return false;
+        if (String(matchedField.maskStrategy || '') === 'remove') return false;
+        return quasiIdentifierNames.some((quasiName) => quasiName !== cleanName);
+    });
+};
+
+/** K-匿名自動輪流：本輪以 candidate 為敏感欄位（宣告為類別型），其餘間接識別照舊；candidate 若原本是間接識別，本輪改當敏感 */
+export const buildKAnonymityAutoRotationRiskColumnsForCandidate = (
+    riskColumnsMap: RiskColumnsMap, candidateSensitiveFieldName: string
+): RiskColumnsMap => {
+    const columnsMapResult: RiskColumnsMap = {};
+    Object.entries(riskColumnsMap).forEach(([colName, colInfo]) => {
+        if (colName === candidateSensitiveFieldName || colInfo.role !== 'quasi_identifier') return;
+        columnsMapResult[colName] = { role: 'quasi_identifier', type: colInfo.type };
+    });
+    columnsMapResult[candidateSensitiveFieldName] = { role: 'sensitive', type: 'categorical' };
+    return columnsMapResult;
+};
+
 /** K-匿名：以某個候選欄位為敏感欄位、其餘為間接識別；已分級距的欄位型別改宣告為類別型 */
 export const buildKAnonymityRiskColumnsForCandidate = (
     riskColumnsMap: RiskColumnsMap, binWidthMap: Record<string, number>, candidateSensitiveFieldName: string

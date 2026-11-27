@@ -21,6 +21,7 @@ import { ensureDatasetProfile } from '../../utils/datasetProfile';
 import { RISK_ATTACK_DEFAULT_PARAMS, type HighCardinalitySensitiveInfo } from '../../utils/riskAssessment';
 import { buildComplianceReportSnapshot, buildDeidentificationChecks, computeOutputScope } from '../../utils/complianceReport';
 import { computeKAnonymityFidelityInWorker, type KAnonymityFidelityResult } from '../../utils/kAnonymityFidelity';
+import { computeDpUtilityFromBlobs, type DpUtilityResult } from '../../utils/dpUtility';
 import { buildKAnonymityConfig, buildDifferentialPrivacyConfig, wrapBackendConfigDocument, type DpStoreField, type KAnonymityPipelineSettings, type DifferentialPrivacyConfigInput } from '../../utils/pipelineConfig';
 import { isApiRequestCanceled, isApiRequestTimeout, DEFAULT_API_TIMEOUT_MS, resolveApiTimeoutMs, type ApiRequestOptions, type KAnonymityQualityReport, type DpQualityReport, type AttackReport, type CapReport } from '../../api/apiService';
 import { describePipelineError } from './backendErrorCatalog';
@@ -195,6 +196,13 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
     const [kAnonymityFidelityData, setKAnonymityFidelityData] = useState<KAnonymityFidelityResult | null>(
         isAnalysisCacheValidStatus && step4AnalysisCacheData
             ? ((step4AnalysisCacheData as unknown as Record<string, unknown>).kAnonymityFidelity as KAnonymityFidelityResult | null) || null
+            : null
+    );
+
+    // ★ 專家回饋 P-06：差分隱私的逐欄資料變化（實用性指標，見 utils/dpUtility.ts），隨快取還原
+    const [dpUtilityData, setDpUtilityData] = useState<DpUtilityResult | null>(
+        isAnalysisCacheValidStatus && step4AnalysisCacheData
+            ? ((step4AnalysisCacheData as unknown as Record<string, unknown>).dpUtility as DpUtilityResult | null) || null
             : null
     );
 
@@ -445,6 +453,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
             setAttackReportData(null);
             setDatasetRowStatsData(null);
             setKAnonymityFidelityData(null);
+            setDpUtilityData(null);
             setAttackSimulationMetricsData(null);
             // ★ 修正：高唯一值比例敏感欄位警告只會在下方 K-匿名分支重新計算並寫入；若使用者從
             //   「K-匿名（曾觸發警告）」切到差分隱私模式再執行，DP 分支不會呼叫
@@ -643,7 +652,9 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                         generatedKAnonymityFidelity = await computeKAnonymityFidelityInWorker({
                             originalCsvBlob: safeDataFile,
                             processedCsvBlob: finalCsvBlobData,
-                            evaluatedColumns: effectiveColumnsList.filter((columnName) => getCalculatedRole(columnName).role !== 'Identifier'),
+                            // ★ 專家回饋 P-11：識別欄位預設不評估（雜湊／遮蔽後的值已不能與原值比對），但選「刪除」的識別欄位要評估（視同整欄遮蔽）；
+                            //   文字欄相異值超過 100（例如姓名、身分證號）本來就不會被評估，不影響這類欄位。
+                            evaluatedColumns: effectiveColumnsList.filter((columnName) => { const roleInfo = getCalculatedRole(columnName); return roleInfo.role !== 'Identifier' || roleInfo.maskStrategy === 'remove'; }),
                             anchorColumns: effectiveColumnsList.filter((columnName) => ['Sensitive', 'Non-sensitive', 'Retained'].includes(getCalculatedRole(columnName).role)),
                             // ★ 2026-10-16：數值 × 數值欄位對改用相關係數相似度（指引第貳章二之（五））
                             numericColumns: effectiveColumnsList.filter((columnName) => currentColumnTypesMapDict[columnName] === '數值'),
@@ -655,7 +666,29 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                     }
                 }
                 ensurePipelineStillActive();
+                // ★ 專家回饋 P-06：差分隱私逐欄比較處理前後（平均／標準差變化、誤差、落在邊界的比例…），僅供參考
+                let generatedDpUtility: DpUtilityResult | null = null;
+                if (currentPrivacyModeTypeStr === 'differential-privacy' && finalCsvBlobData && finalApiReportData) {
+                    appendStepLog(translate('step4.log.step_dp_utility', '計算各欄位資料變化中…'));
+                    try {
+                        const dpBudgetsForUtility = ((configObject as { differential_privacy?: { column_budgets?: Record<string, { clipping_bounds?: [number, number] }> } }).differential_privacy?.column_budgets) ?? {};
+                        generatedDpUtility = await computeDpUtilityFromBlobs({
+                            originalCsvBlob: safeDataFile,
+                            processedCsvBlob: finalCsvBlobData,
+                            columns: (finalApiReportData as DpQualityReport).per_column.map((columnDetail) => ({
+                                name: columnDetail.column,
+                                type: columnDetail.type,
+                                epsilon: columnDetail.epsilon,
+                                lowerBound: dpBudgetsForUtility[columnDetail.column]?.clipping_bounds?.[0] ?? null,
+                                upperBound: dpBudgetsForUtility[columnDetail.column]?.clipping_bounds?.[1] ?? null
+                            }))
+                        });
+                    } catch (dpUtilityErrorPayload) {
+                        console.error('計算差分隱私資料變化失敗:', dpUtilityErrorPayload);
+                    }
+                }
                 setKAnonymityFidelityData(generatedKAnonymityFidelity);
+                setDpUtilityData(generatedDpUtility);
 
                 setCalculationProgressValue(100);
                 setCurrentPipelinePhaseType('completed');
@@ -678,6 +711,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                         capReport: riskAssessmentResult.capReport,
                         datasetRowStats: generatedDatasetRowStatsObject,
                         kAnonymityFidelity: generatedKAnonymityFidelity,
+                        dpUtility: generatedDpUtility,
                         // ★ 一併存讀高唯一值比例敏感欄位警告快照，避免切換步驟重新掛載後消失
                         // （見上方 highCardinalitySensitiveWarningInfo state 宣告處的完整說明）。
                         // 這裡讀取的是本次執行過程中賦值的 finalHighCardinalitySensitiveWarningInfo
@@ -704,6 +738,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
                         // ★ 專家回饋 P-03：各項去識別化檢查分別的結果（沒選用的 l／t 標示為未檢查，不寫成通過）
                         deidChecks: buildDeidentificationChecks({ privacyMode: currentPrivacyModeTypeStr, kReport, dpReport, lRequested: isEnableLDiversityStatus, tRequested: isEnableTClosenessStatus, maxSuppressionPercent: currentMaxSuppressionNumber ?? 20, budgetLimitEpsilon: budgetLimitEpsilonValue }),
                         // ★ 專家回饋 P-01／P-02：結論適用範圍（已設定去識別化處理／原樣輸出／未納入風險評估的欄位）
+                        dpUtility: generatedDpUtility,
                         outputScope: computeOutputScope({ privacyMode: currentPrivacyModeTypeStr, columnNames: effectiveColumnsList, resolveColumnRole: getCalculatedRole, dpEnabledFieldNames: effectiveDpFieldsList.filter((field: DpStoreField) => field.enabled).map((field: DpStoreField) => field.fieldName), preprocessingRules: currentPreprocessingRulesMapDict, evaluatedColumns: evaluatedTargets ? [...evaluatedTargets.quasiIdentifiers, ...evaluatedTargets.sensitive] : [] }),
                         consumedDelta: dpReport?.consumed_delta ?? null,
                         preprocessing: preprocessResult
@@ -865,6 +900,7 @@ export const usePipelineRunner = ({ actualProcessedColumnsList, getCalculatedRol
         capReportData,
         datasetRowStatsData,
         kAnonymityFidelityData,
+        dpUtilityData,
         attackSimulationMetricsData,
         auditMetadataObject,
         highCardinalitySensitiveWarningInfo,

@@ -52,30 +52,34 @@ const makeState = (diseaseDistinct: number) => ({
 describe('l 上限只受 K 限制（2026-10-13）', () => {
     afterEach(() => cleanup());
 
-    it('敏感欄位只有 1 種值、K=5：上限 4（l < K），l 可調到 3（不會被壓回 1），並顯示紅字、擋下一步', () => {
+    it('敏感欄位只有 1 種值、K=5：上限 5（l ≤ K），l 可調到 3（不會被壓回 1），並顯示紅字、擋下一步', () => {
         useWorkspaceStore.setState(makeState(1));
         render(<KAnonymityRules />);
         const input = screen.getByLabelText('l-diversity (l)') as HTMLInputElement;
-        expect(input.getAttribute('aria-valuemax')).toBe('4');
+        expect(input.getAttribute('aria-valuemax')).toBe('5');
         fireEvent.change(input, { target: { value: '3' } });
         fireEvent.blur(input);
         expect(useWorkspaceStore.getState().lValue).toBe(3);
         expect(screen.getByTestId('l-exceeds-sensitive-distinct').textContent).toContain('只有 1 種不同的值');
     });
 
-    it('敏感欄位 5 種值、K=5：l 調到 4 不顯示紅字', () => {
+    it('敏感欄位 5 種值、K=5：l 調到 5（l = K）不顯示紅字（專家回饋 P-05）', () => {
         useWorkspaceStore.setState(makeState(5));
         render(<KAnonymityRules />);
         const input = screen.getByLabelText('l-diversity (l)') as HTMLInputElement;
-        fireEvent.change(input, { target: { value: '4' } });
+        fireEvent.change(input, { target: { value: '5' } });
         fireEvent.blur(input);
-        expect(useWorkspaceStore.getState().lValue).toBe(4);
+        expect(useWorkspaceStore.getState().lValue).toBe(5);
         expect(screen.queryByTestId('l-exceeds-sensitive-distinct')).toBeNull();
     });
 
-    it('K=5、l=5（例如匯入設定檔）：顯示 l 必須小於 K 的紅字', () => {
+    it('K=5、l=6（例如匯入設定檔）：顯示 l 不可大於 K 的紅字；l=5 則不顯示', () => {
+        useWorkspaceStore.setState({ ...makeState(5), lValue: 6 } as Partial<WorkspaceState>);
+        const view = render(<KAnonymityRules />);
+        expect(screen.getAllByText(/l 不可大於 K（目前 K=5、l=6），請把 l 調到 5 以下/).length).toBeGreaterThan(0);
+        view.unmount();
         useWorkspaceStore.setState({ ...makeState(5), lValue: 5 } as Partial<WorkspaceState>);
         render(<KAnonymityRules />);
-        expect(screen.getAllByText(/l 必須小於 K（目前 K=5、l=5），請把 l 調到 4 以下/).length).toBeGreaterThan(0);
+        expect(screen.queryByText(/l 不可大於 K/)).toBeNull();
     });
 });
